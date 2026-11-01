@@ -1,15 +1,15 @@
-# Nailoong VS Code Theme · 奶龙 VS Code 主题
+# NaiLoong VS Code Theme · 奶蛙 VS Code 主题
 
-> 把 VS Code 变成奶龙的窝。**奶黄 `#FFD54F` 为主色 + 奶龙绿 `#66BB6A` 点睛（两只绿眼睛）**，暖黑护眼底。
+> 把 VS Code 变成奶蛙的窝。**奶黄 `#FFD54F` 为主色 + 绿色 `#66BB6A` 点睛（两只绿眼睛）**，暖黑护眼底。
 
-本目录是奶龙全家桶的 VS Code 主题包（原独立仓库 `nailoong-vscode-theme` 已并入主仓）。色值来自主仓根目录 **`palette.json` 单源**，勿手改主题文件——改色去主仓改 `palette.json` 后重新生成。
+本目录是奶蛙主题包的 VS Code 主题包（原独立仓库 `nailoong-vscode-theme` 已并入主仓）。色值来自主仓根目录 **`palette.json` 单源**，勿手改主题文件——改色去主仓改 `palette.json` 后重新生成。
 
 ## 主题一览
 
 | 主题 | 类型 | 适合 |
 | --- | --- | --- |
-| **Nailoong Dark** | `vs-dark` | 暖黑底 + 奶黄高亮，默认推荐 |
-| **Nailoong Light** | `vs` | 暖白底 + 深奶黄，日间明亮 |
+| **NaiLoong Dark** | `vs-dark` | 暖黑底 + 奶黄高亮，默认推荐 |
+| **NaiLoong Light** | `vs` | 暖白底 + 深奶黄，日间明亮 |
 
 ## 调色板单源
 
@@ -52,14 +52,14 @@ code --install-extension nailoong-vscode-theme-1.0.0.vsix
 code --extensionDevelopmentPath=<主仓路径>/themes/vscode
 ```
 
-然后 `Ctrl+K Ctrl+T` 选择 `Nailoong Dark` / `Nailoong Light`。
+然后 `Ctrl+K Ctrl+T` 选择 `NaiLoong Dark` / `NaiLoong Light`。
 
 ## 目录结构
 
 ```
 themes/vscode/
 ├── palette.json  → 已删除，唯一真源在主仓根目录
-├── themes/Nailoong-Dark.json / Nailoong-Light.json
+├── themes/NaiLoong-Dark.json / NaiLoong-Light.json
 ├── package.json  # 发布配置（vsce package）
 ├── assets/       # 扩展图标
 ├── scripts/generate.py  # palette 一致性校验

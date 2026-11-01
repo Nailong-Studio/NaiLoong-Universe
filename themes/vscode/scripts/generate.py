@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Nailoong palette 单源校验 - Nailoong VS Code 主题（位于主仓 themes/vscode/）
+"""NaiLoong palette 单源校验 - NaiLoong VS Code 主题（位于主仓 themes/vscode/）
 用法: python3 themes/vscode/scripts/generate.py --check
 对比主仓根目录 palette.json 关键色与 themes/*.json 是否一致。
 """
@@ -27,12 +27,12 @@ LIGHT_MAP = {
 
 
 def load_palette():
-    data = json.loads(PALETTE_PATH.read_text())
+    data = json.loads(PALETTE_PATH.read_text(encoding="utf-8"))
     return data["nailoongDark"]["colors"], data["nailoongLight"]["colors"]
 
 
 def check_theme(path, palette, mapping):
-    theme = json.loads(path.read_text())
+    theme = json.loads(path.read_text(encoding="utf-8"))
     colors = theme["colors"]
     problems = []
     for color_name, theme_key in mapping.items():
@@ -47,8 +47,8 @@ def main():
     dark, light = load_palette()
     problems = []
     for rel, palette, mapping in (
-        ("themes/Nailoong-Dark.json", dark, DARK_MAP),
-        ("themes/Nailoong-Light.json", light, LIGHT_MAP),
+        ("themes/NaiLoong-Dark.json", dark, DARK_MAP),
+        ("themes/NaiLoong-Light.json", light, LIGHT_MAP),
     ):
         p = ROOT / rel
         if not p.exists():

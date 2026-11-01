@@ -32,7 +32,7 @@
 
 - 背景/前景：暖黑 `#121212` + 奶白 `#E8F5E9`，选区暖棕 `#2E2511`
 - 主色：奶黄 `#FFD54F` / `#F9A825`，眼睛绿 `#66BB6A` / `#2E7D32` 点睛（光标/远程/括号匹配）
-- 遵循 16 色 ANSI 标准，与 `themes/vscode/` 的 Nailoong Dark/Light 对齐，兼容大部分终端
+- 遵循 16 色 ANSI 标准，与 `themes/vscode/` 的 NaiLoong Dark/Light 对齐，兼容大部分终端
 
 ## 贡献
 

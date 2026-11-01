@@ -1,4 +1,4 @@
-# Nailoong ports registry - 对标 catppuccin/resources/ports.yml
+# NaiLoong ports registry - 对标 catppuccin/resources/ports.yml
 # 每个 port 为一个独立仓库，统一从 palette.json 单源生成
 
 ports:

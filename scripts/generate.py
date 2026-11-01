@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Nailoong palette 单源生成器 - 对标 catppuccin/resources/generate/main.ts
+"""NaiLoong palette 单源生成器 - 对标 catppuccin/resources/generate/main.ts
 用法:
   python3 scripts/generate.py --all
   python3 scripts/generate.py --port terminal
@@ -17,7 +17,7 @@ PALETTE_PATH = ROOT / "palette.json"
 
 
 def load_palette():
-    data = json.loads(PALETTE_PATH.read_text())
+    data = json.loads(PALETTE_PATH.read_text(encoding="utf-8"))
     dark = data["nailoongDark"]["colors"]
     light = data["nailoongLight"]["colors"]
     return data, dark, light
@@ -126,7 +126,7 @@ def generate():
     for rel, content in rendered.items():
         p = ROOT / rel
         p.parent.mkdir(parents=True, exist_ok=True)
-        p.write_text(content)
+        p.write_text(content, encoding="utf-8")
         print(f"generated {p}")
 
 
@@ -136,7 +136,7 @@ def check():
     mismatches = []
     for rel, expected in rendered.items():
         p = ROOT / rel
-        actual = p.read_text() if p.exists() else ""
+        actual = p.read_text(encoding="utf-8") if p.exists() else ""
         if actual != expected:
             mismatches.append(rel)
     if mismatches:

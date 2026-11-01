@@ -52,7 +52,7 @@ function normalizeName(file) {
       .replace(/\s+/g, " ")
       .trim()
       .replace(/\b\w/g, (c) => c.toUpperCase())
-      .replace(/Nailoong/g, "Nailoong")
+      .replace(/Nailoong/g, "NaiLoong")
   }
   return { title: title || stem, variant, stem }
 }

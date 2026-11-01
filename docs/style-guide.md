@@ -1,4 +1,4 @@
-# Nailoong Style Guide · 奶龙样式指南
+# NaiLoong Style Guide · 奶龙样式指南
 
 对标 `catppuccin/docs/style-guide.md`，所有 Port 必须从 `palette.json` 单源生成。
 

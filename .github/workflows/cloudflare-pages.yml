@@ -19,6 +19,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # Never publish a site whose vault, catalogue or versions disagree.
+      - name: Content gate
+        run: |
+          curl -fsSL --retry 3 --retry-delay 2 https://nailoong-wallpaper.pages.dev/assets.json -o /tmp/assets.json
+          python3 scripts/check_site.py --manifest /tmp/assets.json --offline
+
       - name: Publish docs to Cloudflare Pages
         uses: cloudflare/wrangler-action@v3
         with:

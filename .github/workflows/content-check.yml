@@ -1,0 +1,51 @@
+name: Content Check
+
+# The repository's single quality gate. Runs the same script developers run
+# locally, so a green local run and a green pull request mean the same thing.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "docs/**"
+      - "scripts/**"
+      - "VERSION"
+      - "CHANGELOG.md"
+      - ".github/workflows/content-check.yml"
+  pull_request:
+    paths:
+      - "docs/**"
+      - "scripts/**"
+      - "VERSION"
+      - "CHANGELOG.md"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: content-check
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Fetch the asset manifest
+        run: |
+          curl -fsSL --retry 3 --retry-delay 2 \
+            https://nailoong-wallpaper.pages.dev/assets.json -o /tmp/assets.json
+          python3 -c "import json,sys; d=json.load(open('/tmp/assets.json')); print('manifest items:', d['total'])"
+
+      - name: Run the content gate
+        run: python3 scripts/check_site.py --manifest /tmp/assets.json

@@ -27,10 +27,32 @@
 - 新作品插入对应展厅的 `hall__track`，**必须**带 `data-title` / `data-narrative` / `data-hall` / `data-original`
 - 资源放 `docs/assets/`，路径写相对路径，只写进 `src` 或 CSS `url()`（发布链只扫这两处，写在别处会裂图，真的会）
 
+## 提交前必须过的门禁
+
+本地跑一次，和 CI 完全等价：
+
+```bash
+python scripts/check_site.py --manifest path/to/assets.json
+```
+
+全绿再提 PR。它检查图鉴与素材清单是否一致、有没有重复编码的链接、缩略图是否齐全、
+藏品索引与展厅数是否自洽、`VERSION` 与 CHANGELOG 与 Service Worker 缓存是否同版本、
+HTML 标签是否配平、内联脚本能否解析、本地引用是否存在。红门禁不要靠改检查绕过——改内容。
+
+**图鉴区块是生成物，不要手改。** `scripts/build_vault.py` 是唯一允许写它的程序：
+
+```bash
+python scripts/build_vault.py --manifest assets.json              # 重建
+python scripts/build_vault.py --manifest assets.json --check      # 只校验
+python scripts/build_vault.py --manifest assets.json --fetch-thumbs  # 顺带补齐缩略图
+```
+
+手工往图鉴里塞卡片，就是 385 条链接被双重编码的成因。
+
 ## 提交流程（PR 礼仪）
 
 1. Fork 本仓库 → 新建分支（`feat/xxx` 或 `fix/xxx`）
-2. 提交，commit message 用中文一句话说清（`feat: 大笑藏馆新增奶蛙-雀跃` 就是模范生）
+2. 提交，commit message 用祈使句说清做了什么（`fix: repair vault original links` 就是模范生）
 3. 开 PR 到 `main`，描述里写：改了什么、为什么、素材出处
 4. 等审查 → 合并 → GitHub Actions 自动部署官网 → 圣殿换新颜
 

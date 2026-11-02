@@ -1,7 +1,7 @@
-/* 奶蛙艺术圣殿 · Service Worker（v17.11.0）
+/* 奶蛙艺术圣殿 · Service Worker（v18.0.0）
    外壳 network-first + 离线回退；同源媒体 cache-first 运行时缓存（上限 240 条）。
    纯静态站点：换版本改 VERSION 即可全量失效旧缓存。 */
-var VERSION = "nw-v17.11.0";
+var VERSION = "nw-v18.0.0";
 var SHELL = ["./", "./index.html", "./data/collection.json", "./manifest.webmanifest"];
 
 self.addEventListener("install", function (e) {

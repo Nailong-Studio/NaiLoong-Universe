@@ -1,7 +1,7 @@
 {
  "generatedBy": "scripts/export_collection.py",
  "source": "docs/index.html",
- "total": 186,
+ "total": 187,
  "halls": [
   {
    "id": "hall-1",
@@ -43,7 +43,7 @@
    "id": "hall-7",
    "name": "柒·影音",
    "desc": "官方圣影——把奶蛙的快乐卷进胶片，静音观览，圣殿配乐常伴。",
-   "count": 3
+   "count": 4
   },
   {
    "id": "hall-8",
@@ -531,7 +531,7 @@
    "narrative": "人间最珍贵的神迹——一只奶蛙笑到捧腹。无需解读，笑就是了。",
    "asset": "assets/fullhd-nailoong-01.jpg",
    "type": "image",
-   "original": "#"
+   "original": "assets/fullhd-nailoong-01.jpg"
   },
   {
    "id": "NW-3-002",
@@ -541,7 +541,7 @@
    "narrative": "换一套配色，换一种心情。粉色圣像，专供快乐的信徒。",
    "asset": "assets/fullhd-nailoong-02.jpg",
    "type": "image",
-   "original": "#"
+   "original": "assets/fullhd-nailoong-02.jpg"
   },
   {
    "id": "NW-3-003",
@@ -551,7 +551,7 @@
    "narrative": "指着自己的脑袋大笑——世上没什么过不去，如果有，就笑它。",
    "asset": "assets/fullhd-nailoong-13.jpg",
    "type": "image",
-   "original": "#"
+   "original": "assets/fullhd-nailoong-13.jpg"
   },
   {
    "id": "NW-3-004",
@@ -561,7 +561,7 @@
    "narrative": "最后一件圣物：狂笑。音量调到最大，烦心事自动退场。",
    "asset": "assets/fullhd-nailoong-28.jpg",
    "type": "image",
-   "original": "#"
+   "original": "assets/fullhd-nailoong-28.jpg"
   },
   {
    "id": "NW-3-005",
@@ -571,7 +571,7 @@
    "narrative": "人间值得吗？奶蛙抱臂沉思三秒，得出结论：值得。",
    "asset": "assets/f-03.webp",
    "type": "image",
-   "original": "#"
+   "original": "assets/f-03.webp"
   },
   {
    "id": "NW-3-006",
@@ -581,7 +581,7 @@
    "narrative": "托腮的奶蛙正在参悟宇宙与布丁的终极关系——答案暂不公布。",
    "asset": "assets/f-04.webp",
    "type": "image",
-   "original": "#"
+   "original": "assets/f-04.webp"
   },
   {
    "id": "NW-3-007",
@@ -591,7 +591,7 @@
    "narrative": "奶蛙笑指前方：快乐就在那里，快去领。",
    "asset": "assets/f-05.webp",
    "type": "image",
-   "original": "#"
+   "original": "assets/f-05.webp"
   },
   {
    "id": "NW-3-008",
@@ -601,7 +601,7 @@
    "narrative": "奶蛙震惊：原来快乐额度，真的可以无限透支。",
    "asset": "assets/f-06.webp",
    "type": "image",
-   "original": "#"
+   "original": "assets/f-06.webp"
   },
   {
    "id": "NW-3-009",
@@ -611,7 +611,7 @@
    "narrative": "圣诞帽下，奶蛙躺平大笑——节日与软肚，是最佳拍档。",
    "asset": "assets/f-07.webp",
    "type": "image",
-   "original": "#"
+   "original": "assets/f-07.webp"
   },
   {
    "id": "NW-3-010",
@@ -621,7 +621,7 @@
    "narrative": "笑到抱头，奶蛙以全身演绎：快乐不需要理由。",
    "asset": "assets/f-08.webp",
    "type": "image",
-   "original": "#"
+   "original": "assets/f-08.webp"
   },
   {
    "id": "NW-3-011",
@@ -631,7 +631,7 @@
    "narrative": "圣诞铃响，奶蛙捧腹——礼物可以迟到，快乐从不缺席。",
    "asset": "assets/f-10.webp",
    "type": "image",
-   "original": "#"
+   "original": "assets/f-10.webp"
   },
   {
    "id": "NW-3-012",
@@ -641,7 +641,7 @@
    "narrative": "挥舞「奶家人」旗帜的奶蛙：入殿即家人，快乐共分享。",
    "asset": "assets/f-11.webp",
    "type": "image",
-   "original": "#"
+   "original": "assets/f-11.webp"
   },
   {
    "id": "NW-3-013",
@@ -651,7 +651,7 @@
    "narrative": "纯色幕前，奶蛙立正亮相。第九号圣像：站姿端正，萌得敷衍。",
    "asset": "assets/f-09.webp",
    "type": "image",
-   "original": "#"
+   "original": "assets/f-09.webp"
   },
   {
    "id": "NW-3-014",
@@ -661,7 +661,7 @@
    "narrative": "戴上圣诞帽的奶蛙，红白配色衬着黄脸。第十二号：圣诞氛围组提前上岗。",
    "asset": "assets/f-12.webp",
    "type": "image",
-   "original": "#"
+   "original": "assets/f-12.webp"
   },
   {
    "id": "NW-3-015",
@@ -671,7 +671,7 @@
    "narrative": "奶蛙举起小旗，旗上写着「咱家大…」。第二十号：旗手就位，队伍跟紧。",
    "asset": "assets/f-20.webp",
    "type": "image",
-   "original": "#"
+   "original": "assets/f-20.webp"
   },
   {
    "id": "NW-3-016",
@@ -681,7 +681,7 @@
    "narrative": "大笑的奶蛙，露出整排小牙。第二十一号：笑是唯一无需翻译的语言。",
    "asset": "assets/f-21.webp",
    "type": "image",
-   "original": "#"
+   "original": "assets/f-21.webp"
   },
   {
    "id": "NW-3-017",
@@ -691,7 +691,7 @@
    "narrative": "双手抱住红心，奶蛙咧嘴笑。第二十二号：把心捧给你，不收运费。",
    "asset": "assets/f-22.webp",
    "type": "image",
-   "original": "#"
+   "original": "assets/f-22.webp"
   },
   {
    "id": "NW-3-018",
@@ -701,7 +701,7 @@
    "narrative": "奶蛙亮出大脚掌，圆滚滚地抬起来。第二十三号：脚掌虽大，萌度不减。",
    "asset": "assets/f-23.webp",
    "type": "image",
-   "original": "#"
+   "original": "assets/f-23.webp"
   },
   {
    "id": "NW-3-019",
@@ -711,7 +711,7 @@
    "narrative": "大笑到眯起眼的奶蛙。第二十四号：眼睛可以没有，笑必须有。",
    "asset": "assets/f-24.webp",
    "type": "image",
-   "original": "#"
+   "original": "assets/f-24.webp"
   },
   {
    "id": "NW-3-020",
@@ -721,7 +721,7 @@
    "narrative": "低头捂腹的奶蛙，笑到弯成一颗球。第二十五号：肚子是笑的共鸣箱。",
    "asset": "assets/f-25.webp",
    "type": "image",
-   "original": "#"
+   "original": "assets/f-25.webp"
   },
   {
    "id": "NW-3-021",
@@ -731,7 +731,7 @@
    "narrative": "仰天大笑的奶蛙。第二十六号：笑出声，是最响亮的掌声。",
    "asset": "assets/f-26.webp",
    "type": "image",
-   "original": "#"
+   "original": "assets/f-26.webp"
   },
   {
    "id": "NW-3-022",
@@ -741,7 +741,7 @@
    "narrative": "一身圣诞服的奶蛙，红袍配黄脸。第二十七号：圣诞老人换班，快乐准时送达。",
    "asset": "assets/f-27.webp",
    "type": "image",
-   "original": "#"
+   "original": "assets/f-27.webp"
   },
   {
    "id": "NW-4-001",
@@ -751,7 +751,7 @@
    "narrative": "潜入墨蓝的深海，奶蛙游过鱼群。水母为它打光，珊瑚为它让路。",
    "asset": "assets/a-naiwa01.webp",
    "type": "image",
-   "original": "#"
+   "original": "assets/a-naiwa01.webp"
   },
   {
    "id": "NW-4-002",
@@ -761,7 +761,7 @@
    "narrative": "暖房花棚里，奶蛙枕着花盆打盹。梦里全是花香，醒来打了个奶嗝。",
    "asset": "assets/a-naiwa02.webp",
    "type": "image",
-   "original": "#"
+   "original": "assets/a-naiwa02.webp"
   },
   {
    "id": "NW-4-003",
@@ -771,7 +771,7 @@
    "narrative": "退潮的浅滩，奶蛙赤脚踩水。每一步落下去，都开出一朵小水花。",
    "asset": "assets/a-naiwa04.webp",
    "type": "image",
-   "original": "#"
+   "original": "assets/a-naiwa04.webp"
   },
   {
    "id": "NW-4-004",
@@ -781,7 +781,7 @@
    "narrative": "旷野起风，奶蛙张开双臂。风被它抱了个满怀，衣角猎猎作响。",
    "asset": "assets/a-naiwa05.webp",
    "type": "image",
-   "original": "#"
+   "original": "assets/a-naiwa05.webp"
   },
   {
    "id": "NW-4-005",
@@ -791,7 +791,7 @@
    "narrative": "晨光破晓，奶蛙坐在山头。第一缕光被它晾在肚皮上，暖洋洋的。",
    "asset": "assets/a-naiwa09.webp",
    "type": "image",
-   "original": "#"
+   "original": "assets/a-naiwa09.webp"
   },
   {
    "id": "NW-4-006",
@@ -801,7 +801,7 @@
    "narrative": "霓虹雨夜的赛博街头，奶蛙把自己调成荧光模式。数据流里，快乐照样横行。",
    "asset": "assets/a-naiwa12.webp",
    "type": "image",
-   "original": "#"
+   "original": "assets/a-naiwa12.webp"
   },
   {
    "id": "NW-4-007",
@@ -811,7 +811,7 @@
    "narrative": "热带丛林里，奶蛙与藤蔓共舞。叶片被逗得沙沙笑，露珠抖了一地。",
    "asset": "assets/a-yishu01.webp",
    "type": "image",
-   "original": "#"
+   "original": "assets/a-yishu01.webp"
   },
   {
    "id": "NW-4-008",
@@ -821,7 +821,7 @@
    "narrative": "云端之上，奶蛙探出头。云朵被它揉成奶团，天空也软了三分。",
    "asset": "assets/a-yishu02.webp",
    "type": "image",
-   "original": "#"
+   "original": "assets/a-yishu02.webp"
   },
   {
    "id": "NW-4-009",
@@ -831,7 +831,7 @@
    "narrative": "绿皮列车穿行山谷，奶蛙扒着车窗。风景倒着跑，它笑着数站台。",
    "asset": "assets/a-yishu03.webp",
    "type": "image",
-   "original": "#"
+   "original": "assets/a-yishu03.webp"
   },
   {
    "id": "NW-4-010",
@@ -841,7 +841,7 @@
    "narrative": "高楼玻璃折射黄昏，奶蛙站在天台。一城的灯火，都被它收进眼底。",
    "asset": "assets/a-yishu04.webp",
    "type": "image",
-   "original": "#"
+   "original": "assets/a-yishu04.webp"
   },
   {
    "id": "NW-4-011",
@@ -851,7 +851,7 @@
    "narrative": "细雨如丝，奶蛙撑起小伞。雨声被它踩成节拍，水洼里全是笑脸。",
    "asset": "assets/a-yishu05.webp",
    "type": "image",
-   "original": "#"
+   "original": "assets/a-yishu05.webp"
   },
   {
    "id": "NW-4-012",
@@ -861,7 +861,7 @@
    "narrative": "海天一色处，奶蛙举目远眺。地平线为它弯成微笑，浪是配乐。",
    "asset": "assets/a-yishu06.webp",
    "type": "image",
-   "original": "#"
+   "original": "assets/a-yishu06.webp"
   },
   {
    "id": "NW-4-013",
@@ -871,7 +871,7 @@
    "narrative": "河畔水光潋滟，奶蛙踩在浅水边。涟漪一圈圈荡开，像它笑出的酒窝。",
    "asset": "assets/a-01.webp",
    "type": "image",
-   "original": "#"
+   "original": "assets/a-01.webp"
   },
   {
    "id": "NW-4-014",
@@ -881,7 +881,7 @@
    "narrative": "灶台温热，奶蛙系着围裙忙碌。人间烟火升起来，快乐在锅里咕嘟咕嘟。",
    "asset": "assets/a-02.webp",
    "type": "image",
-   "original": "#"
+   "original": "assets/a-02.webp"
   },
   {
    "id": "NW-4-015",
@@ -891,7 +891,7 @@
    "narrative": "电子设备堆成小山，奶蛙坐在屏幕光里。数据洪流，也冲不走这抹奶黄。",
    "asset": "assets/a-03.webp",
    "type": "image",
-   "original": "#"
+   "original": "assets/a-03.webp"
   },
   {
    "id": "NW-4-016",
@@ -901,7 +901,7 @@
    "narrative": "花海漫过膝盖，奶蛙站在花田中央。风一吹，整片花都朝它笑。",
    "asset": "assets/a-04.webp",
    "type": "image",
-   "original": "#"
+   "original": "assets/a-04.webp"
   },
   {
    "id": "NW-4-017",
@@ -911,7 +911,7 @@
    "narrative": "泳池碧蓝，奶蛙漂在水面。水花溅起，它笑成一团浮动的阳光。",
    "asset": "assets/a-05.webp",
    "type": "image",
-   "original": "#"
+   "original": "assets/a-05.webp"
   },
   {
    "id": "NW-4-018",
@@ -921,7 +921,7 @@
    "narrative": "高楼天台边缘，奶蛙迎风而立。城市的黄昏铺开，它收下一整片灯火。",
    "asset": "assets/a-06.webp",
    "type": "image",
-   "original": "#"
+   "original": "assets/a-06.webp"
   },
   {
    "id": "NW-4-019",
@@ -931,7 +931,7 @@
    "narrative": "森林深处，奶蛙倚着巨树。光从叶隙漏下，苔藓也晒得暖洋洋。",
    "asset": "assets/a-07.webp",
    "type": "image",
-   "original": "#"
+   "original": "assets/a-07.webp"
   },
   {
    "id": "NW-4-020",
@@ -941,7 +941,7 @@
    "narrative": "镜面般的水面上，奶蛙缓步走过。天地倒影成双，它踩着自己的影子笑。",
    "asset": "assets/a-08.webp",
    "type": "image",
-   "original": "#"
+   "original": "assets/a-08.webp"
   },
   {
    "id": "NW-4-021",
@@ -951,7 +951,7 @@
    "narrative": "云端阳台，奶蛙趴在栏杆上。云朵从脚下流过，它伸手捞了一把。",
    "asset": "assets/a-09.webp",
    "type": "image",
-   "original": "#"
+   "original": "assets/a-09.webp"
   },
   {
    "id": "NW-4-022",
@@ -961,7 +961,7 @@
    "narrative": "长长的走廊尽头，奶蛙背光而立。灯一盏盏亮起，影子拉得很长，笑得很亮。",
    "asset": "assets/a-10.webp",
    "type": "image",
-   "original": "#"
+   "original": "assets/a-10.webp"
   },
   {
    "id": "NW-4-023",
@@ -971,7 +971,7 @@
    "narrative": "城市夜景的高楼间，奶蛙悬坐在边缘。霓虹为它打光，车流是背景音。",
    "asset": "assets/a-11.webp",
    "type": "image",
-   "original": "#"
+   "original": "assets/a-11.webp"
   },
   {
    "id": "NW-4-024",
@@ -981,7 +981,7 @@
    "narrative": "破败都市的断墙前，奶蛙驻足。钢筋水泥褪色，只有它那身黄不肯褪。",
    "asset": "assets/a-12.webp",
    "type": "image",
-   "original": "#"
+   "original": "assets/a-12.webp"
   },
   {
    "id": "NW-4-025",
@@ -991,7 +991,7 @@
    "narrative": "山野花海之间，奶蛙背手而立。风翻过山脊，把一整幅春天吹到它脚边。",
    "asset": "assets/a-13.webp",
    "type": "image",
-   "original": "#"
+   "original": "assets/a-13.webp"
   },
   {
    "id": "NW-4-026",
@@ -1001,7 +1001,7 @@
    "narrative": "老旧楼道的台阶上，奶蛙独自坐着。窗外的云在玻璃上滑过，寂寞也有了形状。",
    "asset": "assets/a-14.webp",
    "type": "image",
-   "original": "#"
+   "original": "assets/a-14.webp"
   },
   {
    "id": "NW-4-027",
@@ -1011,7 +1011,7 @@
    "narrative": "深色草丛里，奶蛙蜷进柔软的小巢。远处白色人形模糊成影，它守着这方暖和。",
    "asset": "assets/a-15.webp",
    "type": "image",
-   "original": "#"
+   "original": "assets/a-15.webp"
   },
   {
    "id": "NW-4-028",
@@ -1021,7 +1021,7 @@
    "narrative": "流光从奶蛙身上溢出来，它融化成一滩亮晶晶的快乐。紫色深夜，也要发自己的光。",
    "asset": "assets/a-16.webp",
    "type": "image",
-   "original": "#"
+   "original": "assets/a-16.webp"
   },
   {
    "id": "NW-4-029",
@@ -1031,7 +1031,7 @@
    "narrative": "翠绿草地上，奶蛙把身体摊成大字。草叶托着它，风替它摇扇。",
    "asset": "assets/a-17.webp",
    "type": "image",
-   "original": "#"
+   "original": "assets/a-17.webp"
   },
   {
    "id": "NW-4-030",
@@ -1041,7 +1041,7 @@
    "narrative": "趴在云朵上的奶蛙，在蓝天里慢慢漂。云是软床，天是天花板。",
    "asset": "assets/a-18.webp",
    "type": "image",
-   "original": "#"
+   "original": "assets/a-18.webp"
   },
   {
    "id": "NW-4-031",
@@ -1051,7 +1051,7 @@
    "narrative": "星野与繁花之间，奶蛙的身体被撕开一道口子——光从裂口漏出来，快乐依然完整。",
    "asset": "assets/a-19.webp",
    "type": "image",
-   "original": "#"
+   "original": "assets/a-19.webp"
   },
   {
    "id": "NW-4-032",
@@ -1061,7 +1061,7 @@
    "narrative": "玻璃纹理的室内地面，奶蛙蜷成一团。世界隔着玻璃看它，它隔着玻璃看世界。",
    "asset": "assets/a-20.webp",
    "type": "image",
-   "original": "#"
+   "original": "assets/a-20.webp"
   },
   {
    "id": "NW-4-033",
@@ -1071,7 +1071,7 @@
    "narrative": "云端立起跳台，奶蛙坐在边缘晃腿。往下是云海，往前是风，它还在挑个最软的落点。",
    "asset": "assets/a-21.webp",
    "type": "image",
-   "original": "#"
+   "original": "assets/a-21.webp"
   },
   {
    "id": "NW-4-034",
@@ -1081,7 +1081,7 @@
    "narrative": "奶蛙被黑色线条描成镂空轮廓，站在草地花丛间。影子淡了，笑还在。",
    "asset": "assets/a-22.webp",
    "type": "image",
-   "original": "#"
+   "original": "assets/a-22.webp"
   },
   {
    "id": "NW-4-035",
@@ -1091,7 +1091,7 @@
    "narrative": "雾气漫过废弃的混凝土阳台，奶蛙立在边缘。废墟之上，它是最亮的一抹黄。",
    "asset": "assets/a-23.webp",
    "type": "image",
-   "original": "#"
+   "original": "assets/a-23.webp"
   },
   {
    "id": "NW-4-036",
@@ -1101,7 +1101,7 @@
    "narrative": "老旧居民楼的水泥平台上，奶蛙盘腿而坐。晾衣绳、爬山虎，人间烟火它都收下。",
    "asset": "assets/a-24.webp",
    "type": "image",
-   "original": "#"
+   "original": "assets/a-24.webp"
   },
   {
    "id": "NW-5-001",
@@ -1111,7 +1111,7 @@
    "narrative": "双手捂住嘴，笑意从指缝里漏出来。第一枚圣咏：笑要藏，但藏不住。",
    "asset": "assets/e-01.webp",
    "type": "image",
-   "original": "#"
+   "original": "assets/e-01.webp"
   },
   {
    "id": "NW-5-002",
@@ -1121,7 +1121,7 @@
    "narrative": "粉色换色版同款大笑——换一种色号，快乐照常营业。",
    "asset": "assets/e-02.webp",
    "type": "image",
-   "original": "#"
+   "original": "assets/e-02.webp"
   },
   {
    "id": "NW-5-003",
@@ -1131,7 +1131,7 @@
    "narrative": "双臂交叉抱于胸前，神情平静。第叁枚：不笑，也是一种态度。",
    "asset": "assets/e-03.webp",
    "type": "image",
-   "original": "#"
+   "original": "assets/e-03.webp"
   },
   {
    "id": "NW-5-004",
@@ -1141,7 +1141,7 @@
    "narrative": "单手托腮，奶蛙陷入思考。第肆枚：它想的是明天吃几颗糖。",
    "asset": "assets/e-04.webp",
    "type": "image",
-   "original": "#"
+   "original": "assets/e-04.webp"
   },
   {
    "id": "NW-5-005",
@@ -1151,7 +1151,7 @@
    "narrative": "叉腰、指路、咧嘴笑。第伍枚：快乐坐标已给出，请沿此方向领取。",
    "asset": "assets/e-05.webp",
    "type": "image",
-   "original": "#"
+   "original": "assets/e-05.webp"
   },
   {
    "id": "NW-5-006",
@@ -1161,7 +1161,7 @@
    "narrative": "双手抱头，嘴巴张成圆形。第陆枚：原来惊喜也会奶里奶气。",
    "asset": "assets/e-06.webp",
    "type": "image",
-   "original": "#"
+   "original": "assets/e-06.webp"
   },
   {
    "id": "NW-5-007",
@@ -1171,7 +1171,7 @@
    "narrative": "圣诞帽歪戴着，奶蛙躺靠扶手，手抚肚皮笑开怀。节日快乐，先笑为敬。",
    "asset": "assets/e-07.webp",
    "type": "image",
-   "original": "#"
+   "original": "assets/e-07.webp"
   },
   {
    "id": "NW-5-008",
@@ -1181,7 +1181,7 @@
    "narrative": "双手抱头大笑，圣诞帽随笑声颤动。第八枚：笑到头顶冒花。",
    "asset": "assets/e-08.webp",
    "type": "image",
-   "original": "#"
+   "original": "assets/e-08.webp"
   },
   {
    "id": "NW-5-009",
@@ -1191,7 +1191,7 @@
    "narrative": "弯腰按腹，圣诞帽下笑声不止。第十枚：笑到直不起腰，是最高礼赞。",
    "asset": "assets/e-10.webp",
    "type": "image",
-   "original": "#"
+   "original": "assets/e-10.webp"
   },
   {
    "id": "NW-5-010",
@@ -1201,7 +1201,7 @@
    "narrative": "双手交叠搁在肚皮上，圣诞帽配大笑。第十一枚：端庄两秒，破功三秒。",
    "asset": "assets/e-11.webp",
    "type": "image",
-   "original": "#"
+   "original": "assets/e-11.webp"
   },
   {
    "id": "NW-5-011",
@@ -1211,7 +1211,7 @@
    "narrative": "弯腰捧腹，圣诞帽差点笑掉。第十二枚：圣诞老人也偷瞄这枚表情。",
    "asset": "assets/e-12.webp",
    "type": "image",
-   "original": "#"
+   "original": "assets/e-12.webp"
   },
   {
    "id": "NW-5-012",
@@ -1221,7 +1221,7 @@
    "narrative": "没有圣诞帽，照样双手按腹大笑。第贰拾伍枚：快乐不挑装备。",
    "asset": "assets/e-25.webp",
    "type": "image",
-   "original": "#"
+   "original": "assets/e-25.webp"
   },
   {
    "id": "NW-5-013",
@@ -1231,7 +1231,7 @@
    "narrative": "红色圣诞服配圣诞帽，奶蛙开怀大笑。节日盛装，快乐加倍。",
    "asset": "assets/e-27.webp",
    "type": "image",
-   "original": "#"
+   "original": "assets/e-27.webp"
   },
   {
    "id": "NW-5-014",
@@ -1241,7 +1241,7 @@
    "narrative": "一大一小两只奶蛙同框，大的抬手比划，小的跟着起哄。动态圣物第一件：快乐会传染。",
    "asset": "assets/e-13.gif",
    "type": "gif",
-   "original": "#"
+   "original": "assets/e-13.gif"
   },
   {
    "id": "NW-5-015",
@@ -1251,7 +1251,7 @@
    "narrative": "奶蛙双手捧着一颗红心，笑到发颤。动态圣物第二件：把心捧给你，还附赠笑声。",
    "asset": "assets/e-22.gif",
    "type": "gif",
-   "original": "#"
+   "original": "assets/e-22.gif"
   },
   {
    "id": "NW-5-016",
@@ -1261,7 +1261,7 @@
    "narrative": "绿幕前，奶蛙双手交叠搭在肚皮上大笑。动态圣物：绿幕也遮不住它的黄。",
    "asset": "assets/e--09.gif",
    "type": "gif",
-   "original": "#"
+   "original": "assets/e--09.gif"
   },
   {
    "id": "NW-5-017",
@@ -1271,7 +1271,7 @@
    "narrative": "手持「奶家人」小旗，表情平和又笃定。入殿即家人，旗子为证。",
    "asset": "assets/e-20.webp",
    "type": "image",
-   "original": "#"
+   "original": "assets/e-20.webp"
   },
   {
    "id": "NW-5-018",
@@ -1281,7 +1281,7 @@
    "narrative": "弯腰张嘴大笑的奶蛙，笑到整只都在抖。动态圣物：张嘴的弧度，是快乐的刻度。",
    "asset": "assets/e--21.gif",
    "type": "gif",
-   "original": "#"
+   "original": "assets/e--21.gif"
   },
   {
    "id": "NW-5-019",
@@ -1291,7 +1291,7 @@
    "narrative": "突然露出巨大脚掌的奶蛙，表情惊讶到变形。动态圣物：脚掌是隐藏萌点。",
    "asset": "assets/e--23.gif",
    "type": "gif",
-   "original": "#"
+   "original": "assets/e--23.gif"
   },
   {
    "id": "NW-5-020",
@@ -1301,7 +1301,7 @@
    "narrative": "双手抱腹，奶蛙笑到前俯后仰。动态圣物：抱紧肚皮，快乐不撒手。",
    "asset": "assets/e--24.gif",
    "type": "gif",
-   "original": "#"
+   "original": "assets/e--24.gif"
   },
   {
    "id": "NW-5-021",
@@ -1311,7 +1311,7 @@
    "narrative": "同样抱腹大笑的奶蛙，笑出重影。动态圣物：快乐太多，画面都跟不上。",
    "asset": "assets/e--26.gif",
    "type": "gif",
-   "original": "#"
+   "original": "assets/e--26.gif"
   },
   {
    "id": "NW-5-022",
@@ -1321,7 +1321,7 @@
    "narrative": "大笑到模糊的奶蛙，只剩一团快乐的黄。动态圣物：笑得太用力，连轮廓都化了。",
    "asset": "assets/e--28.gif",
    "type": "gif",
-   "original": "#"
+   "original": "assets/e--28.gif"
   },
   {
    "id": "NW-6-001",
@@ -1587,31 +1587,41 @@
    "id": "NW-7-001",
    "hall": "hall-7",
    "hallName": "柒·影音",
+   "title": "奶蛙 · 圣殿序曲",
+   "narrative": "官方圣影 · 新：四幕式展馆短片——序·开门、一·圣典、二·众生、三·收束。20 个镜头把静态馆藏剪成蒙太奇，配原创展馆配乐。",
+   "asset": "https://nailoong-wallpaper.pages.dev/videos/%E5%A5%B6%E8%9B%99-%E5%9C%A3%E6%AE%BF%E5%BA%8F%E6%9B%B2.mp4",
+   "type": "video",
+   "original": "https://raw.githubusercontent.com/Nailong-Studio/NaiWa-Wallpaper/main/videos/%E5%A5%B6%E8%9B%99-%E5%9C%A3%E6%AE%BF%E5%BA%8F%E6%9B%B2.mp4"
+  },
+  {
+   "id": "NW-7-002",
+   "hall": "hall-7",
+   "hallName": "柒·影音",
    "title": "奶蛙 · 圣殿巡行 · 一",
    "narrative": "官方圣影 · 一：圣殿巡行——巨型奶蛙缓步巡行圣殿，从审判大厅到圣光天际，镜头仰望它的足迹。",
    "asset": "assets/promo-hero.mp4",
    "type": "video",
-   "original": "#"
+   "original": "assets/promo-hero.mp4"
   },
   {
-   "id": "NW-7-002",
+   "id": "NW-7-003",
    "hall": "hall-7",
    "hallName": "柒·影音",
    "title": "奶蛙 · 壁纸隧道 · 二",
    "narrative": "官方圣影 · 二：穿过奶蛙壁纸的隧道，每一步都踩在快乐上。",
    "asset": "assets/promo-tunnel.mp4",
    "type": "video",
-   "original": "#"
+   "original": "assets/promo-tunnel.mp4"
   },
   {
-   "id": "NW-7-003",
+   "id": "NW-7-004",
    "hall": "hall-7",
    "hallName": "柒·影音",
    "title": "奶蛙 · 大笑藏馆巡展 · 三",
    "narrative": "巡展圣影 · 三：大笑藏馆巡展——十二幕真实圣像的 ken burns 巡礼，推拉之间，快乐全程不打烊。",
    "asset": "assets/promo-tour.mp4",
    "type": "video",
-   "original": "#"
+   "original": "assets/promo-tour.mp4"
   },
   {
    "id": "NW-8-001",

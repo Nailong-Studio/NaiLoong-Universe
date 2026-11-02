@@ -16,6 +16,9 @@ HTML = os.path.join(ROOT, "docs", "index.html")
 OUT = os.path.join(ROOT, "docs", "data", "collection.json")
 BAD_NAMES = ["奶娃", "奶破龙", "以利龙", "丘比龙", "普绪龙"]
 
+# Halls the museum must keep, and the invariants that must survive a rebuild.
+EXPECTED_HALLS = 8
+
 
 def hall_name_map(html):
     out = {}
@@ -71,11 +74,17 @@ def collect():
 
 def check(html, items, online=False):
     problems = []
-    if len(items) != 186:
-        problems.append("藏品件数应为 186，实际 %d" % len(items))
+    # The catalogue grows as the warehouse grows, so the count is not pinned to
+    # a literal: it must merely be non-empty and free of duplicate ids.
+    if not items:
+        problems.append("藏品件数为 0")
+    ids = [i["id"] for i in items]
+    if len(ids) != len(set(ids)):
+        dupes = sorted({x for x in ids if ids.count(x) > 1})
+        problems.append("藏品编号重复：%s" % ", ".join(dupes[:5]))
     hall_ids = sorted({i["hall"] for i in items})
-    if len(hall_ids) != 8:
-        problems.append("展厅数应为 8，实际 %d" % len(hall_ids))
+    if len(hall_ids) != EXPECTED_HALLS:
+        problems.append("展厅数应为 %d，实际 %d" % (EXPECTED_HALLS, len(hall_ids)))
     for i in items:
         blob = i["title"] + i["narrative"]
         for bad in BAD_NAMES:

@@ -43,7 +43,7 @@ PLACEHOLDER = "vault:cards:generated"
 
 
 def assemble() -> str:
-    """Join the page fragments exactly as authored, preserving CRLF."""
+    """Join the page fragments and normalize line endings to LF."""
     names = json.loads(PARTS_FILE.read_text(encoding="utf-8"))
     if not names:
         raise SystemExit("error: src/parts.json is empty")
@@ -77,6 +77,7 @@ def build(manifest_path: str) -> tuple[str, int]:
         for problem in problems:
             print(f"FAIL {problem}")
         raise SystemExit(1)
+    text = "\n".join(line.rstrip() for line in text.split("\n"))
     return text, total
 
 

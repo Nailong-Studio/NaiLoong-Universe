@@ -760,25 +760,6 @@ body::before{
 
 
 
-::view-transition-old(root){animation:vtOut .3s var(--ease) both}
-
-
-
-
-
-::view-transition-new(root){animation:vtIn .42s var(--ease) both}
-
-
-
-
-
-@keyframes vtOut{to{opacity:0}}
-
-
-
-
-
-@keyframes vtIn{from{opacity:0;transform:translateY(10px)}}
 
 
 
@@ -815,36 +796,6 @@ body::before{
 
 
 /* ============ v17.2 细节点缀 / 过渡 / 画面动态 ============ */
-
-
-
-
-
-/* 视图切换金色光幕（不依赖 View Transitions，全浏览器可用） */
-
-
-
-
-
-.fxwipe{position:fixed;inset:0;z-index:115;pointer-events:none;opacity:0;
-
-
-
-
-
-  background:radial-gradient(120% 120% at 50% 50%,color-mix(in srgb,var(--gold-bright) 16%,transparent),transparent 60%);}
-
-
-
-
-
-.fxwipe.run{animation:fxSweep .62s var(--ease) both}
-
-
-
-
-
-@keyframes fxSweep{0%{opacity:0;transform:scale(.96)}25%{opacity:1}100%{opacity:0;transform:scale(1.04)}}
 
 
 
@@ -1956,6 +1907,12 @@ html[data-theme="light"] .nav__theme .i-moon{display:none}
 
 
 
+/* 响应式交互：触摸去延迟 + 按压即时反馈 */
+button:not(:disabled),.btn,.chip,.portal,.work,.nav__links a{touch-action:manipulation}
+button:not(:disabled):active{filter:brightness(.9)}
+.btn:active{filter:brightness(.94)}
+.chip:active,.portal:active,.work:active{transform:translateY(1px) scale(.99)}
+.nav__links a:active{opacity:.7}
 @media (prefers-reduced-motion:reduce){
 
 
@@ -2016,7 +1973,7 @@ html[data-theme="light"] .nav__theme .i-moon{display:none}
 
 
 
-  .dust i,.fxwipe{animation:none!important;opacity:0!important}
+  .dust i{animation:none!important;opacity:0!important}
 
 
 
@@ -2364,13 +2321,12 @@ html[data-theme="light"] .nav__theme .i-moon{display:none}
 
 
 
-.view.active{display:block;animation:viewIn .5s var(--ease) both}
+.view.active{display:block}
 
 
 
 
 
-@keyframes viewIn{from{opacity:0}to{opacity:1}}
 
 
 
@@ -8540,7 +8496,6 @@ html[data-theme="light"] .relics,html[data-theme="light"] .relic{
 .masthead__art a:hover img{filter:saturate(1.02) brightness(1.05)}
 @keyframes paintFloat{from{transform:translateY(0)}to{transform:translateY(-6px)}}
 
-@keyframes viewIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 
 /* 7 · 小节节奏 */
 .artwalk__intro{max-width:760px;margin-bottom:clamp(28px,3.8vw,42px);font-size:.93rem;line-height:2}
@@ -8795,11 +8750,6 @@ html[data-theme="light"] .masthead__eyebrow{color:#6C4A0E}
 @keyframes caretBlink{50%{opacity:0}}
 
 /* 页面入场更柔：轻微上浮，不拖慢首屏 */
-.view.active{animation:viewIn .55s var(--ease) both}
-@keyframes viewIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
-::view-transition-old(root){animation:vtOut .32s var(--ease) both}
-::view-transition-new(root){animation:vtIn .5s var(--ease) both}
-@keyframes vtIn{from{opacity:0;transform:translateY(14px) scale(.996)}to{opacity:1;transform:none}}
 
 /* ============================================================
    v18.7.4 · 可读性、性能与动态交互补强
@@ -8954,6 +8904,101 @@ button:disabled,.hall__arrow:disabled{opacity:.28;cursor:not-allowed;pointer-eve
 .chamber__img,.lightbox__img{pointer-events:none}
 .chamber__close,.chamber__nav,.lightbox__close,.lightbox__nav{z-index:12}
 .chamber__stage,.lightbox__plate{position:relative}
+
+
+/* ============================================================
+   v18.7.5 · 路由转场 / 响应反馈 / 移动端降级
+   1) 原生 View Transition：从点击点绽开的圆形光门
+   2) 不支持或低性能设备：桌面左右双幕、手机上下双幕
+   3) 点击先有金色进度条与涟漪，转场期间禁止重复导航
+   ============================================================ */
+.route-progress{position:fixed;top:0;left:0;right:0;height:2px;z-index:123;pointer-events:none;opacity:0;transition:opacity .16s var(--ease)}
+.route-progress i{display:block;height:100%;width:100%;transform:scaleX(0);transform-origin:0 50%;
+  background:linear-gradient(90deg,var(--gold),var(--gold-bright),var(--gold));
+  box-shadow:0 0 14px color-mix(in srgb,var(--gold-bright) 55%,transparent)}
+body.is-routing{cursor:progress}
+body.is-routing a,body.is-routing button{cursor:progress}
+.route-progress.run{opacity:1}
+.route-progress.run i{animation:routeFill .68s cubic-bezier(.22,1,.36,1) both}
+@keyframes routeFill{0%{transform:scaleX(0)}62%{transform:scaleX(.82)}100%{transform:scaleX(1)}}
+
+.route-ripple{position:fixed;width:18px;height:18px;margin:-9px 0 0 -9px;border-radius:50%;z-index:122;pointer-events:none;
+  border:1px solid color-mix(in srgb,var(--gold-bright) 65%,transparent);
+  box-shadow:0 0 16px color-mix(in srgb,var(--gold-bright) 28%,transparent);
+  animation:routeRipple .62s cubic-bezier(.22,1,.36,1) both}
+@keyframes routeRipple{0%{opacity:.9;transform:scale(.32)}70%{opacity:.35}100%{opacity:0;transform:scale(6.4)}}
+
+/* 原生 View Transition 仅保留给主题切换：从按钮位置绽开 */
+html{--route-x:50%;--route-y:26%}
+::view-transition-old(root){animation:themeOld .38s cubic-bezier(.4,0,.2,1) both}
+::view-transition-new(root){animation:themeReveal .56s cubic-bezier(.16,.84,.28,1) both}
+@keyframes themeOld{to{opacity:.72;transform:scale(.985)}}
+@keyframes themeReveal{from{clip-path:circle(0px at var(--route-x) var(--route-y));opacity:.6}to{clip-path:circle(150% at var(--route-x) var(--route-y));opacity:1}}
+
+/* 不支持 View Transition：双幕合拢，在遮罩下完成换页，再向两侧揭开 */
+.scene-curtain{position:fixed;inset:0;z-index:2000;pointer-events:none;visibility:hidden;overflow:hidden;--route-in:.3s;--route-out:.36s}
+.scene-curtain.is-active{visibility:visible}
+.scene-curtain__panel{position:absolute;background:radial-gradient(ellipse at 50% 42%,rgba(197,161,90,.14),transparent 62%),linear-gradient(160deg,#20180f,#0b0806 74%);will-change:transform;transition:transform var(--route-out) cubic-bezier(.77,0,.18,1)}
+.scene-curtain__panel--a{left:0;top:0;width:50.4%;height:100%;transform:translateX(-101%);border-right:1px solid color-mix(in srgb,var(--gold) 55%,transparent)}
+.scene-curtain__panel--b{right:0;top:0;width:50.4%;height:100%;transform:translateX(101%);border-left:1px solid color-mix(in srgb,var(--gold) 55%,transparent)}
+.scene-curtain.is-cover .scene-curtain__panel{transition-duration:var(--route-in)}
+.scene-curtain.is-cover .scene-curtain__panel--a{transform:translateX(0)}
+.scene-curtain.is-cover .scene-curtain__panel--b{transform:translateX(0)}
+.scene-curtain.is-reveal .scene-curtain__panel--a{transform:translateX(-101%)}
+.scene-curtain.is-reveal .scene-curtain__panel--b{transform:translateX(101%)}
+.scene-curtain__seam{position:absolute;left:50%;top:50%;width:46px;height:46px;margin:-23px 0 0 -23px;border:1px solid var(--gold);border-radius:50%;opacity:0;transform:scale(.5);transition:opacity .22s,transform .38s var(--ease);z-index:2}
+.scene-curtain__orbit{position:absolute;inset:-24px;border:1px dashed color-mix(in srgb,var(--gold) 44%,transparent);border-radius:50%;opacity:.5;animation:curtainOrbit 14s linear infinite;pointer-events:none}
+@keyframes curtainOrbit{to{transform:rotate(360deg)}}
+.scene-curtain.is-active .scene-curtain__seam{opacity:.72;transform:scale(1) rotate(45deg)}
+.scene-curtain.is-active .scene-curtain__mark{opacity:.68;transform:translate(-50%,0)}
+.scene-curtain__seam::before,.scene-curtain__seam::after{content:"";position:absolute;left:50%;top:50%;background:var(--gold);transform:translate(-50%,-50%)}
+.scene-curtain__seam::before{width:1px;height:56px;opacity:.7}
+.scene-curtain__seam::after{width:56px;height:1px;opacity:.45}
+.scene-curtain.is-cover .scene-curtain__seam{opacity:.72;transform:scale(1) rotate(45deg)}
+.scene-curtain.is-reveal .scene-curtain__seam{opacity:0;transform:scale(1.25) rotate(90deg)}
+.scene-curtain__dest{position:absolute;left:50%;top:calc(50% + 58px);transform:translate(-50%,7px);z-index:2;pointer-events:none;opacity:0;white-space:nowrap;font-family:var(--serif);font-weight:400;font-size:clamp(1.45rem,3vw,2.3rem);line-height:1.3;letter-spacing:.18em;color:var(--gold-bright);text-shadow:0 0 22px color-mix(in srgb,var(--gold) 24%,transparent);transition:opacity .24s .04s,transform .34s var(--ease)}
+.scene-curtain__dest::after{content:"";display:block;width:46px;height:1px;margin:14px auto 0;background:color-mix(in srgb,var(--gold) 55%,transparent)}
+.scene-curtain__dest:empty{display:none}
+.scene-curtain.is-active .scene-curtain__dest{opacity:.92;transform:translate(-50%,0)}
+.scene-curtain.is-reveal .scene-curtain__dest{opacity:0;transform:translate(-50%,-7px)}
+.scene-curtain__mark{position:absolute;left:50%;top:calc(50% + 122px);transform:translate(-50%,8px);z-index:2;pointer-events:none;opacity:0;white-space:nowrap;font-family:var(--serif);font-size:.64rem;letter-spacing:.32em;color:rgba(226,207,169,.62);transition:opacity .2s,transform .3s var(--ease)}
+.scene-curtain.is-active .scene-curtain__mark{opacity:.62;transform:translate(-50%,0)}
+.scene-curtain.is-reveal .scene-curtain__mark{opacity:0;transform:translate(-50%,-6px)}
+
+/* 双幕降级时的页面入场：只让新页轻轻上浮，旧页已被遮住 */
+.view.active.is-entering{animation:routeViewIn .58s cubic-bezier(.16,.84,.28,1) both}
+@keyframes routeViewIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+/* 主题切换：按钮转一圈；没有原生转场时让底色软切 */
+.nav__theme svg{transition:transform .52s var(--ease)}
+.nav__theme.is-spinning svg{transform:rotate(180deg)}
+html.theme-fade body{transition:background-color .42s var(--ease),color .42s var(--ease)}
+
+/* 移动端：双幕改上下合拢，转场更短，避免手持设备重绘过久 */
+@media (max-width:640px){
+  ::view-transition-old(root){animation-duration:.3s}
+  ::view-transition-new(root){animation-duration:.48s}
+  .scene-curtain{--route-in:.23s;--route-out:.3s}
+  .scene-curtain__dest{top:calc(50% + 52px);font-size:1.35rem}
+  .scene-curtain__mark{top:calc(50% + 102px)}
+  .scene-curtain__panel--a{width:100%;height:50.4%;right:0;border-right:0;border-bottom:1px solid color-mix(in srgb,var(--gold) 55%,transparent);transform:translateY(-101%)}
+  .scene-curtain__panel--b{width:100%;height:50.4%;left:0;right:auto;bottom:0;top:auto;border-left:0;border-top:1px solid color-mix(in srgb,var(--gold) 55%,transparent);transform:translateY(101%)}
+  .scene-curtain.is-cover .scene-curtain__panel--a{transform:translateY(0)}
+  .scene-curtain.is-cover .scene-curtain__panel--b{transform:translateY(0)}
+  .scene-curtain.is-reveal .scene-curtain__panel--a{transform:translateY(-101%)}
+  .scene-curtain.is-reveal .scene-curtain__panel--b{transform:translateY(101%)}
+}
+/* 低性能设备：去掉模糊，缩短原生转场 */
+html[data-motion="lite"] ::view-transition-old(root){filter:none;animation-duration:.3s}
+html[data-motion="lite"] ::view-transition-new(root){animation-duration:.46s}
+/* 减少动态：直接换页，保留状态反馈 */
+@media (prefers-reduced-motion:reduce){
+  ::view-transition-old(root),::view-transition-new(root){animation:none!important}
+  .route-progress,.route-ripple,.scene-curtain,.view.active.is-entering{animation:none!important;transition:none!important}
+  .scene-curtain{display:none!important}
+  .scene-curtain__orbit{animation:none}
+  .nav__theme svg{transition:none}
+}
 </style>
 
 
@@ -8997,7 +9042,8 @@ button:disabled,.hall__arrow:disabled{opacity:.28;cursor:not-allowed;pointer-eve
 
 
 
-<div class="fxwipe" id="fxwipe" aria-hidden="true"></div>
+<div class="route-progress" id="routeProgress" aria-hidden="true"><i></i></div>
+<div class="scene-curtain" id="sceneCurtain" aria-hidden="true"><i class="scene-curtain__panel scene-curtain__panel--a"></i><i class="scene-curtain__panel scene-curtain__panel--b"></i><i class="scene-curtain__seam"><b class="scene-curtain__orbit"></b></i><strong class="scene-curtain__dest"></strong><span class="scene-curtain__mark">奶蛙艺术宇宙</span></div>
 
 
 
@@ -9106,7 +9152,7 @@ button:disabled,.hall__arrow:disabled{opacity:.28;cursor:not-allowed;pointer-eve
 
 
 
-    
+
 
       <li class="nav__audio">
         <button type="button" class="nav__audio-btn" id="navMusic" aria-pressed="false">圣殿配乐 <b>关</b></button>

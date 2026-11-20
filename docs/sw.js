@@ -1,7 +1,7 @@
-/* 奶蛙艺术圣殿 · Service Worker（v18.7.4）
+/* 奶蛙艺术圣殿 · Service Worker（v18.7.5）
    外壳 network-first + 离线回退；同源媒体 cache-first 运行时缓存（上限 240 条）。
    纯静态站点：换版本改 VERSION 即可全量失效旧缓存。 */
-var VERSION = "nw-v18.7.4";
+var VERSION = "nw-v18.7.5";
 var SHELL = ["./", "./index.html", "./data/collection.json", "./manifest.webmanifest",
   "./fonts/naiwa-serif-400.woff2", "./fonts/naiwa-serif-600.woff2",
   "./fonts/naiwa-sans-400.woff2", "./fonts/naiwa-sans-500.woff2"];

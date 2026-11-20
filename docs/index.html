@@ -5514,7 +5514,7 @@ body.hall-solo .hall__all{display:inline-flex}
 
 
 
-.allies__grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(252px,1fr));gap:12px;margin-top:16px}
+.allies__grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(202px,1fr));gap:12px;margin-top:16px}
 
 
 
@@ -5634,7 +5634,7 @@ body.hall-solo .hall__all{display:inline-flex}
 
 
 
-.ally__name{font-family:var(--serif);font-weight:500;color:var(--gold-bright);font-size:.94rem;letter-spacing:.05em;line-height:1.6;padding-right:20px}
+.ally__name{font-family:var(--serif);font-weight:500;color:var(--gold-bright);font-size:.94rem;letter-spacing:.04em;line-height:1.45;padding-right:14px;text-wrap:balance}
 
 
 
@@ -8284,6 +8284,19 @@ html.js .work__frame.broken::after{
 }
 @media(max-width:640px){.music{display:none!important}}
 
+/* ============ S3 · 内页页头压缩 ============ */
+@media(min-width:761px){
+  .relics{grid-template-columns:1fr;max-width:1180px}
+  .relic__grid.walls{grid-template-columns:repeat(3,1fr)}
+  .relic__grid.emotes{grid-template-columns:repeat(6,1fr)}
+  .relic__vids{grid-template-columns:repeat(6,1fr)}
+}
+
+.view:not(#view-home) .view__bar{padding-top:clamp(78px,8vw,96px)}
+.view:not(#view-home) .section__head{margin-bottom:clamp(18px,2.4vw,28px)}
+.view:not(#view-home) .section__head .arch{display:none}
+.view:not(#view-home) .section__head::after{display:none}
+.view:not(#view-home) .section__title{margin-top:10px;font-size:clamp(1.6rem,3.4vw,2.2rem);letter-spacing:.1em}
 </style>
 
 

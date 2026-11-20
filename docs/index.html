@@ -914,12 +914,7 @@ body::before{
 
 
 .hall__track figure.work:hover .work__frame img,
-
-
-
-
-
-.hall__track figure.work:hover .work__frame video{transform:scale(1.09);filter:saturate(1.08) brightness(1.05)}
+.hall__track figure.work:hover .work__frame video{transform:scale(1.03);filter:saturate(1.04) brightness(1.03)}
 
 
 
@@ -3200,7 +3195,7 @@ html[data-theme="light"] .nav__theme .i-moon{display:none}
 
 
 
-.hall__track figure.work:hover{border-color:color-mix(in srgb,var(--gold) 45%,transparent)}
+.hall__track figure.work:hover{border-color:var(--gold)}
 
 
 
@@ -4190,7 +4185,7 @@ section.hall,section[id],article[id]{scroll-margin-top:clamp(120px,14vw,150px)}
 
 
 
-.hall__track figure.work:hover .work__frame img,.hall__track figure.work:hover .work__frame video{animation:none;transform:scale(1.06);filter:saturate(1)}
+.hall__track figure.work:hover .work__frame img,.hall__track figure.work:hover .work__frame video{animation:none;transform:scale(1.03);filter:saturate(1.04) brightness(1.03)}
 
 
 
@@ -4328,7 +4323,7 @@ section.hall,section[id],article[id]{scroll-margin-top:clamp(120px,14vw,150px)}
 
 
 
-  font-style:normal;font-family:var(--serif);font-size:.9rem;color:var(--ivory);
+  font-style:normal;font-family:var(--serif);font-size:.9rem;color:var(--ivory);transition:color .3s;
 
 
 
@@ -8353,6 +8348,28 @@ html[data-theme="light"] .lightbox__cap{background:rgba(252,247,238,.96);border-
   html[data-theme="light"] .nav__links{background:#FBF6EB}
 }
 html[data-theme="light"] #searchInput::placeholder,html[data-theme="light"] #vaultSearch::placeholder{color:#6A5A43;opacity:1}
+
+/* 卡片 hover 统一：金线点亮 + 图片微推 + 标题转亮 */
+.hall__track figure.work:hover .work__cap cite,.hall__track figure.work:focus-visible .work__cap cite{color:var(--gold-bright)}
+.vault-card img{transition:transform .6s var(--ease)}
+.vault-card:hover img,.vault-card:focus-visible img{transform:scale(1.02)}
+.vault-card b{transition:color .3s}
+.vault-card:hover b,.vault-card:focus-visible b{color:var(--gold-bright)}
+.search__card img{transition:transform .6s var(--ease)}
+.search__card:hover img,.search__card:focus-visible img{transform:scale(1.02)}
+.search__card b{transition:color .3s}
+.search__card:hover b,.search__card:focus-visible b{color:var(--gold-bright)}
+.ally__name{transition:color .3s}
+.ally:hover .ally__name,.ally:focus-visible .ally__name{color:var(--gold-bright)}
+.ally:hover,.ally:focus-visible{border-color:var(--gold)}
+.relic__grid .wall figcaption,.relic__grid .emo figcaption{transition:color .3s}
+.relic__grid .wall:hover figcaption,.relic__grid .wall:focus-visible figcaption{color:var(--gold-bright)}
+@media (prefers-reduced-motion:reduce){
+  .vault-card:hover img,.vault-card:focus-visible img,
+  .search__card:hover img,.search__card:focus-visible img,
+  .hall__track figure.work:hover .work__frame img,
+  .relic__grid .wall:hover img,.relic__grid.emotes .emo:hover img{transform:none}
+}
 </style>
 
 

@@ -8370,6 +8370,226 @@ html[data-theme="light"] #searchInput::placeholder,html[data-theme="light"] #vau
   .hall__track figure.work:hover .work__frame img,
   .relic__grid .wall:hover img,.relic__grid.emotes .emo:hover img{transform:none}
 }
+/* ============================================================
+   v18.6.0 · 圣殿展陈系统
+   统一页头 / 展签卡片 / 金尘浮光 / 移动端检索
+   ============================================================ */
+
+/* 0 · 展陈令牌 */
+:root{
+  --frame:2px;
+  --card-surface:linear-gradient(168deg,color-mix(in srgb,var(--gold) 7%,transparent),color-mix(in srgb,var(--void) 56%,transparent));
+  --card-shadow:0 24px 50px -32px rgba(0,0,0,.72);
+}
+html[data-theme="light"]{--card-shadow:0 20px 44px -30px rgba(84,60,20,.38)}
+
+/* 1 · 金尘：一层很轻的浮光，不遮内容 */
+.ambient{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.ambient i{
+  position:absolute;inset:-38%;display:block;opacity:.32;
+  background-image:
+    radial-gradient(circle at 18% 24%,color-mix(in srgb,var(--gold-bright) 52%,transparent) 0 1px,transparent 2px),
+    radial-gradient(circle at 66% 58%,color-mix(in srgb,var(--gold) 42%,transparent) 0 1.3px,transparent 2.4px),
+    radial-gradient(circle at 42% 82%,color-mix(in srgb,var(--gold-bright) 34%,transparent) 0 .9px,transparent 1.8px);
+  background-size:340px 340px,520px 520px,660px 660px;
+  animation:dustDrift 34s ease-in-out infinite alternate;
+  will-change:transform;
+}
+.ambient i:last-child{opacity:.20;background-size:460px 460px,620px 620px,780px 780px;animation-duration:48s;animation-direction:alternate-reverse}
+html[data-theme="light"] .ambient i{opacity:.15}
+html[data-theme="light"] .ambient i:last-child{opacity:.10}
+@keyframes dustDrift{from{transform:translate3d(-10px,0,0)}to{transform:translate3d(26px,-38px,0)}}
+.view{position:relative;z-index:1}
+
+/* 2 · 页头：一条展签横杆 + 一个居中的殿堂题名 */
+.view__bar{
+  max-width:1160px;
+  padding:clamp(88px,9.2vw,106px) clamp(20px,4vw,32px) 13px;
+  border-bottom:1px solid var(--line);
+  align-items:center;gap:14px;
+}
+.view__back{padding:7px 16px;font-size:.8rem;letter-spacing:.12em;background:color-mix(in srgb,var(--void) 32%,transparent)}
+.view__title{font-size:.92rem;letter-spacing:.3em;color:var(--gold)}
+.view__count{font-size:.72rem;letter-spacing:.18em;color:var(--ivory-dim);opacity:.9}
+
+.view:not(#view-home) .section{padding-top:clamp(22px,3vw,34px)}
+.view:not(#view-home) .section[style*="padding-top:0"]{padding-top:clamp(22px,3vw,34px)!important}
+.view:not(#view-home) .section__head{margin-bottom:clamp(22px,3vw,32px)}
+.view:not(#view-home) .section__title{margin-top:12px;font-size:clamp(1.7rem,3.6vw,2.4rem);letter-spacing:.1em}
+.section__title em{
+  background:linear-gradient(100deg,var(--gold) 0%,var(--gold-bright) 44%,var(--gold) 100%);
+  -webkit-background-clip:text;background-clip:text;
+  color:var(--gold-bright);-webkit-text-fill-color:transparent;
+}
+.section__head::after{
+  display:block!important;width:min(240px,48%);height:1px;
+  margin:16px auto 0;
+  background:linear-gradient(90deg,transparent,var(--gold-dim) 26%,var(--gold-bright) 50%,var(--gold-dim) 74%,transparent);
+}
+.section__head .arch{display:block!important;width:42px;height:24px;margin-top:16px;opacity:.85;animation:archFloat 7s ease-in-out infinite alternate}
+@keyframes archFloat{to{transform:translateY(-3px)}}
+
+.section__note{
+  max-width:760px;margin:0 auto clamp(20px,3vw,30px);
+  padding-bottom:0;border-bottom:0;
+  font-size:.92rem;line-height:2;letter-spacing:.04em;
+  color:color-mix(in srgb,var(--ivory) 74%,transparent);
+}
+
+/* 3 · 展签卡片：一个边框、一层纸、一次抬起 */
+.portal,.relic,.about__card,.ally,.search__card,.vault-card{
+  border:1px solid var(--line);
+  border-radius:var(--frame);
+  background:var(--card-surface);
+  box-shadow:inset 0 1px 0 color-mix(in srgb,var(--ivory) 7%,transparent);
+  transition:transform .38s var(--ease),border-color .38s,box-shadow .38s,background .38s;
+}
+@media (hover:hover){
+  .portal:hover,.relic:hover,.about__card:hover,.ally:hover,.search__card:hover,.vault-card:hover{
+    transform:translateY(-4px);
+    border-color:var(--gold);
+    box-shadow:var(--card-shadow),0 0 0 1px color-mix(in srgb,var(--gold) 40%,transparent);
+  }
+  .portal:hover,.about__card:hover,.relic:hover{
+    background-image:
+      radial-gradient(120% 80% at 50% 0,color-mix(in srgb,var(--gold-bright) 10%,transparent),transparent 58%),
+      var(--card-surface);
+  }
+}
+.portal:focus-visible,.relic:focus-visible,.ally:focus-visible,.search__card:focus-visible,.vault-card:focus-visible{
+  outline:1px solid var(--gold-bright);outline-offset:3px;
+}
+
+/* 4 · 各展品形制归位 */
+.portal{padding:clamp(22px,2.8vw,28px);gap:8px;border-radius:var(--frame)}
+.portal__num{
+  width:38px;height:38px;display:grid;place-items:center;margin-bottom:4px;
+  border:1px solid var(--line);border-radius:50%;font-size:.8rem;letter-spacing:0;
+}
+.portal__title{font-size:clamp(1.05rem,2.1vw,1.24rem);letter-spacing:.14em}
+.portal__desc{font-size:.82rem;line-height:1.8}
+
+.relic{padding:clamp(18px,2.4vw,26px)}
+html[data-theme="light"] .relics,html[data-theme="light"] .relic{
+  --void:#F5EEE2;--ash:#EDE3D2;--ash-2:#E3D7C3;--gold:#8A6720;--gold-bright:#9E7420;
+  --gold-dim:rgba(138,103,32,.30);--ivory:#231E16;--ink-strong:#120E09;--ivory-dim:#5E5241;
+  --line:rgba(138,103,32,.34);--glass:rgba(255,252,245,.84);
+}
+.relic__grid.walls figcaption,.relic__grid.emotes figcaption{
+  color:#EDE4D0;
+  background:linear-gradient(to top,rgba(11,8,6,.94),rgba(11,8,6,.56) 52%,transparent);
+  text-shadow:0 1px 6px rgba(0,0,0,.8);
+}
+
+.about__card{padding:clamp(22px,2.8vw,32px);display:flex;flex-direction:column}
+.about__p,.about__list li{font-size:.9rem;line-height:1.95}
+
+.ally{padding:18px 18px 15px;gap:6px}
+.ally__meta{margin-top:auto;padding-top:10px}
+.allies__grid{grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
+.allies__grid--games{grid-template-columns:repeat(auto-fill,minmax(186px,1fr));gap:10px}
+
+.search__grid,.vault-grid{grid-template-columns:repeat(auto-fill,minmax(210px,1fr))}
+.search__card b,.vault-card b{padding:12px 12px 4px;font-size:.88rem}
+.search__card span,.vault-card small{padding:0 12px 12px;font-size:.7rem}
+
+.hall__track .work{border-radius:var(--frame);background:var(--card-surface)}
+
+/* 5 · 展厅与友站的分组题头：同一条金线 */
+.hall{padding-top:clamp(10px,1.6vw,16px);margin-top:clamp(16px,2.2vw,24px)}
+.hall__head{
+  align-items:center;
+  border-top:1px solid var(--line);
+  padding-top:clamp(16px,2.2vw,22px);
+}
+.hall__name{font-size:clamp(1.08rem,2vw,1.3rem);letter-spacing:.16em;color:var(--gold)}
+.hall__desc{max-width:620px;font-size:.84rem;line-height:1.75}
+.hall__all{font-size:.7rem;letter-spacing:.14em;color:var(--gold);opacity:.72}
+
+.allies{gap:clamp(28px,3.6vw,42px)}
+.allies__head{
+  align-items:center;gap:12px;
+  border-top:1px solid var(--line);
+  padding-top:16px;padding-bottom:10px;
+}
+.allies__no{
+  width:30px;height:30px;display:grid;place-items:center;
+  border:1px solid var(--line);border-radius:50%;
+  font-size:.74rem;letter-spacing:0;
+}
+.allies__head h3{font-size:clamp(1rem,2vw,1.2rem);letter-spacing:.16em}
+.allies__head p{font-size:.76rem;line-height:1.7}
+
+/* 6 · 动效：按钮收成展签、标题鎏金、门厅画框轻浮 */
+.hall__enter,.search__lucky,.search__clear,.relic__cta,.daily__go,.install-cta{border-radius:var(--frame)}
+.hall__enter{
+  font-weight:500;color:var(--gold-bright);
+  background:color-mix(in srgb,var(--gold) 14%,transparent);
+  box-shadow:none;
+}
+.hall__enter:hover,.hall__enter:focus-visible{
+  background:var(--gold);color:var(--void);border-color:var(--gold);
+}
+.masthead__art a{border-radius:var(--frame)}
+.masthead__art img{animation:paintFloat 7.4s ease-in-out infinite alternate}
+.masthead__art a:nth-child(2) img{animation-duration:8.6s;animation-delay:-2.4s}
+.masthead__art a:nth-child(3) img{animation-duration:9.4s;animation-delay:-4.1s}
+.masthead__art a:hover img{filter:saturate(1.02) brightness(1.05)}
+@keyframes paintFloat{from{transform:translateY(0)}to{transform:translateY(-6px)}}
+
+@keyframes viewIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+/* 7 · 小节节奏 */
+.artwalk__intro{max-width:760px;margin-bottom:clamp(28px,3.8vw,42px);font-size:.93rem;line-height:2}
+.era{padding-bottom:clamp(44px,6vw,64px)}
+.artwalk__nav{top:76px}
+
+/* 8 · 移动端：页头收一行，检索不再被挤扁 */
+@media (max-width:640px){
+  .view__bar{padding-top:76px;padding-bottom:10px;gap:10px}
+  .view__count{display:none}
+  .view__title{font-size:.86rem;letter-spacing:.24em}
+  .view:not(#view-home) .section__title{font-size:clamp(1.45rem,6.6vw,1.85rem);letter-spacing:.08em}
+  .section__head .arch{width:34px;height:20px;margin-top:10px}
+  .section__head::after{width:min(180px,52%);margin-top:12px}
+  .section__note{font-size:.9rem;line-height:1.9}
+  .search{flex-wrap:wrap;gap:8px}
+  .search input{flex:1 1 100%;width:100%;min-width:0}
+  .search__clear,.search__lucky{flex:1 1 0;justify-content:center;text-align:center;min-height:42px}
+  .chips{
+    flex-wrap:nowrap;overflow-x:auto;justify-content:flex-start;max-width:none;
+    padding:0 0 6px;scrollbar-width:none;touch-action:pan-x;
+    -webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 20px),transparent);
+    mask-image:linear-gradient(90deg,#000 calc(100% - 20px),transparent);
+  }
+  .chips::-webkit-scrollbar{display:none}
+  .chip{flex:none;white-space:nowrap}
+  .search__grid,.vault-grid{grid-template-columns:repeat(2,1fr);gap:10px}
+  .allies__grid{grid-template-columns:1fr}
+  .portal__num{width:34px;height:34px}
+}
+
+/* 9 · 动效开关 */
+@media (prefers-reduced-motion:reduce){
+  .ambient i,.masthead__art img,.section__head .arch{animation:none!important}
+  .view.active{animation:none}
+}
+
+
+html[data-theme="light"] .relic{background:var(--card-surface)}
+.allies__grid--official{grid-template-columns:repeat(5,minmax(0,1fr))}
+@media (max-width:1100px){.allies__grid--official{grid-template-columns:repeat(auto-fill,minmax(220px,1fr))}}
+@media (max-width:640px){
+  .hall__head{position:relative;padding-right:112px}
+  .hall__enter{position:absolute;right:0;top:16px;margin-left:0;padding:8px 14px;font-size:.72rem}
+}
+
+.nw{white-space:nowrap}
+
+@media (max-width:760px){
+  .ambient{display:none}
+  .masthead__art img{animation:none}
+}
 </style>
 
 
@@ -8552,6 +8772,7 @@ html[data-theme="light"] #searchInput::placeholder,html[data-theme="light"] #vau
 
 
 <main id="top" tabindex="-1">
+<div class="ambient" aria-hidden="true"><i></i><i></i></div>
 
 
 
@@ -16136,7 +16357,12 @@ html[data-theme="light"] #searchInput::placeholder,html[data-theme="light"] #vau
 
 
 
-    <p class="section__note reveal">与素材仓库 <a href="https://github.com/Nailong-Studio/NaiWa-Wallpaper" target="_blank" rel="noopener">Nailong-Studio/NaiWa-Wallpaper</a> 同源：名画、大笑藏馆、表情、桌宠动作、艺术场景、高清/4K 壁纸、视频帧图、圣影与音声，一件不落。点击任意圣物查看原图。</p>
+        <header class="section__head reveal">
+      <p class="section__kicker">圣物图鉴</p>
+      <h2 class="section__title">四 百 零 六 件 · <em>一 件 不 落</em></h2>
+      <span class="arch" aria-hidden="true"><svg viewBox="0 0 52 30" fill="none"><path d="M2 30 L2 16 Q2 2 26 2 Q50 2 50 16 L50 30" stroke="currentColor" stroke-width="1.4"/><path d="M20 30 L20 18 Q20 10 26 10 Q32 10 32 18 L32 30" stroke="currentColor" stroke-width="1"/></svg></span>
+    </header>
+<p class="section__note reveal">与素材仓库 <a href="https://github.com/Nailong-Studio/NaiWa-Wallpaper" target="_blank" rel="noopener">Nailong-Studio/NaiWa-Wallpaper</a> 同源：名画、大笑藏馆、表情、桌宠动作、艺术场景、高清/4K 壁纸、视频帧图、圣影与音声，一件不落。点击任意圣物查看原图。</p>
 
 
 
@@ -18734,7 +18960,13 @@ html[data-theme="light"] #searchInput::placeholder,html[data-theme="light"] #vau
 
 
 
-      <div class="about__grid">
+            <header class="section__head reveal">
+        <p class="section__kicker">游客中心</p>
+        <h2 class="section__title">参 观 之 前 · <em>先 读 这 几 行</em></h2>
+        <span class="arch" aria-hidden="true"><svg viewBox="0 0 52 30" fill="none"><path d="M2 30 L2 16 Q2 2 26 2 Q50 2 50 16 L50 30" stroke="currentColor" stroke-width="1.4"/><path d="M20 30 L20 18 Q20 10 26 10 Q32 10 32 18 L32 30" stroke="currentColor" stroke-width="1"/></svg></span>
+        <p class="section__note reveal">不收门票，只收星星；看不懂代码，也能把这座殿逛完。</p>
+      </header>
+<div class="about__grid">
 
 
 
@@ -19263,7 +19495,7 @@ html[data-theme="light"] #searchInput::placeholder,html[data-theme="light"] #vau
 
 
 
-<div class="allies__group reveal"><header class="allies__head"><span class="allies__no">壹</span><h3>本 家 · 官 方</h3><p>奶蛙设计师与官方渠道</p></header><div class="allies__grid"><a class="ally" href="https://milkyfrog.com/" target="_blank" rel="noopener"><span class="ally__kick">官方</span><b class="ally__name">Milky Frog · 奶蛙官网</b><span class="ally__desc">奶蛙设计师李想的官方网站：作品系列、作者故事与全网奶蛙游戏入口。</span><span class="ally__meta">milkyfrog.com</span></a><a class="ally" href="https://milkyfrog.com/games" target="_blank" rel="noopener"><span class="ally__kick">官方</span><b class="ally__name">奶蛙游戏大全</b><span class="ally__desc">持续收录全网奶蛙小游戏，浏览器打开即玩，每款都标注作者与游玩人数。</span><span class="ally__meta">milkyfrog.com/games · 游戏大全</span></a><a class="ally" href="https://apps.apple.com/cn/app/id6761310915" target="_blank" rel="noopener"><span class="ally__kick">官方</span><b class="ally__name">奶蛙 · 点一下就狂笑</b><span class="ally__desc">App Store 原作；点一下就从抽嘴角笑到晕过去。</span><span class="ally__meta">App Store · id6761310915</span></a><a class="ally" href="https://apps.apple.com/cn/app/id6820818828" target="_blank" rel="noopener"><span class="ally__kick">官方</span><b class="ally__name">奶蛙之眼</b><span class="ally__desc">奶蛙一直看着你——桌面注视型小应用。</span><span class="ally__meta">App Store · id6820818828</span></a><a class="ally" href="https://apps.apple.com/cn/app/id6762385358" target="_blank" rel="noopener"><span class="ally__kick">官方</span><b class="ally__name">奶蛙奏乐</b><span class="ally__desc">奶蛙专属音乐键盘，随手敲出魔性旋律。</span><span class="ally__meta">App Store · id6762385358</span></a></div></div><div class="allies__group reveal"><header class="allies__head"><span class="allies__no">贰</span><h3>档 案 馆 · 百 科</h3><p>Neta Studio 的奶蛙宇宙：百科、博物馆、卡包与集邮册</p></header><div class="allies__grid"><a class="ally" href="https://neta.art/app/milk-frog-wiki" target="_blank" rel="noopener"><span class="ally__kick">百科</span><b class="ally__name">奶蛙百科</b><span class="ally__desc">由来、命名、谱系：讲清奶蛙与奶龙、亚马逊牛奶蛙的区别，附 94 件馆藏索引。</span><span class="ally__meta">neta.art/app/milk-frog-wiki</span></a><a class="ally" href="https://neta.art/app/milk-frog-museum" target="_blank" rel="noopener"><span class="ally__kick">博物馆</span><b class="ally__name">奶蛙博物馆</b><span class="ally__desc">94 件名画馆藏、16 个展厅，从洞窟壁画到浮世绘，全部换上奶蛙。</span><span class="ally__meta">neta.art/app/milk-frog-museum</span></a><a class="ally" href="https://neta.art/app/milk-frog-download" target="_blank" rel="noopener"><span class="ally__kick">网页版</span><b class="ally__name">奶蛙下载 · 点一下就狂笑</b><span class="ally__desc">免安装的网页版奶蛙，还能查证 4 款真实上架的 App Store 应用。</span><span class="ally__meta">neta.art/app/milk-frog-download</span></a><a class="ally" href="https://neta.art/app/travel-milk-frog" target="_blank" rel="noopener"><span class="ally__kick">游戏</span><b class="ally__name">旅行奶蛙</b><span class="ally__desc">送奶蛙出门远行，等它寄回一张名画明信片。</span><span class="ally__meta">neta.art/app/travel-milk-frog</span></a><a class="ally" href="https://neta.art/app/milk-frog-pack" target="_blank" rel="noopener"><span class="ally__kick">收藏</span><b class="ally__name">奶蛙卡包</b><span class="ally__desc">120 件馆藏拆成卡牌，随手拆一包。</span><span class="ally__meta">neta.art/app/milk-frog-pack</span></a><a class="ally" href="https://neta.art/app/milk-frog-stamps" target="_blank" rel="noopener"><span class="ally__kick">收藏</span><b class="ally__name">奶蛙集邮册</b><span class="ally__desc">120 枚纪念邮票，方寸之间也是一座美术馆。</span><span class="ally__meta">neta.art/app/milk-frog-stamps</span></a><a class="ally" href="https://neta.art/explore/work/zh/milk-frog-avatar-wallpaper" target="_blank" rel="noopener"><span class="ally__kick">素材</span><b class="ally__name">奶蛙头像与壁纸</b><span class="ally__desc">从馆藏里裁出的头像与壁纸指南，深色背景单主体最适合做头像。</span><span class="ally__meta">neta.art</span></a><a class="ally" href="https://neta.art/app/niu-lai-museum" target="_blank" rel="noopener"><span class="ally__kick">姊妹馆</span><b class="ally__name">牛来博物馆</b><span class="ally__desc">同一工作室的姊妹馆：黄色抽象宇宙的另一位成员。</span><span class="ally__meta">neta.art/app/niu-lai-museum</span></a></div></div><div class="allies__group reveal"><header class="allies__head"><span class="allies__no">叁</span><h3>同 人 游 戏 站</h3><p>全部浏览器直开——内容归各自作者所有</p></header><div class="allies__grid allies__grid--games"><a class="ally ally--game" href="https://yhsome.github.io/BigNaiWa/v1/" target="_blank" rel="noopener"><b class="ally__name">合成大奶蛙</b><span class="ally__meta">十二月的狼头 · 72.6 万 人玩过</span></a><a class="ally ally--game" href="https://naiwa.me/" target="_blank" rel="noopener"><b class="ally__name">奶蛙神跑</b><span class="ally__meta">网友作品 · 46.8 万 人玩过</span></a><a class="ally ally--game" href="https://www.bilibili.com/toy/naiwa-badminton/index.html" target="_blank" rel="noopener"><b class="ally__name">奶蛙羽毛球</b><span class="ally__meta">网友作品 · 28.2 万 人玩过</span></a><a class="ally ally--game" href="https://e.233ly.com/1ABrH3" target="_blank" rel="noopener"><b class="ally__name">奶蛙快跑</b><span class="ally__meta">网友作品 · 25.7 万 人玩过</span></a><a class="ally ally--game" href="https://naiwa-fart.pages.dev/" target="_blank" rel="noopener"><b class="ally__name">奶蛙放屁</b><span class="ally__meta">二奶 · 16.9 万 人玩过</span></a><a class="ally ally--game" href="https://naiwai-jump.github.io/" target="_blank" rel="noopener"><b class="ally__name">奶蛙 jump</b><span class="ally__meta">网友作品 · 15.4 万 人玩过</span></a><a class="ally ally--game" href="https://naiba-jump.pages.dev/" target="_blank" rel="noopener"><b class="ally__name">奶蛙跳一跳</b><span class="ally__meta">光影集 · 14.3 万 人玩过</span></a><a class="ally ally--game" href="https://naiwaxiaowu.pages.dev/" target="_blank" rel="noopener"><b class="ally__name">奶蛙的小窝</b><span class="ally__meta">网友作品 · 13.2 万 人玩过</span></a><a class="ally ally--game" href="https://naiwa.games/" target="_blank" rel="noopener"><b class="ally__name">召唤神龙</b><span class="ally__meta">鱼戏荷 · 12.4 万 人玩过</span></a><a class="ally ally--game" href="https://chenckx0614.github.io/naiwaxxl/" target="_blank" rel="noopener"><b class="ally__name">奶蛙消消乐</b><span class="ally__meta">网友作品 · 12.2 万 人玩过</span></a><a class="ally ally--game" href="https://wudibaolongzhanshi1234.github.io/1335689.giyhub.io/" target="_blank" rel="noopener"><b class="ally__name">奶蛙五子棋</b><span class="ally__meta">网友作品 · 12.1 万 人玩过</span></a><a class="ally ally--game" href="https://nailong-dance.pages.dev/" target="_blank" rel="noopener"><b class="ally__name">奶蛙街舞</b><span class="ally__meta">念因 · 9.9 万 人玩过</span></a><a class="ally ally--game" href="https://naiwa-jump.pages.dev/" target="_blank" rel="noopener"><b class="ally__name">奶蛙一跳</b><span class="ally__meta">Sn · 8.9 万 人玩过</span></a><a class="ally ally--game" href="https://junjunya2020.github.io/nailegewa" target="_blank" rel="noopener"><b class="ally__name">奶了个蛙</b><span class="ally__meta">网友作品 · 8.9 万 人玩过</span></a><a class="ally ally--game" href="https://game.0z.hk/game/2048/" target="_blank" rel="noopener"><b class="ally__name">奶蛙 2048 超级版</b><span class="ally__meta">网友作品 · 8.4 万 人玩过</span></a><a class="ally ally--game" href="https://66970010-boop.github.io/frog-miner" target="_blank" rel="noopener"><b class="ally__name">奶蛙工厂</b><span class="ally__meta">网友作品 · 8.1 万 人玩过</span></a><a class="ally ally--game" href="https://milkyfrogs.toolsbox.vip/" target="_blank" rel="noopener"><b class="ally__name">奶蛙贪吃蛙</b><span class="ally__meta">网友作品 · 8.1 万 人玩过</span></a><a class="ally ally--game" href="https://www.bilibili.com/toy/TravelMilkyFrog/index.html" target="_blank" rel="noopener"><b class="ally__name">旅行奶蛙</b><span class="ally__meta">网友作品 · 7.7 万 人玩过</span></a><a class="ally ally--game" href="https://naiwanaichadian.pages.dev/" target="_blank" rel="noopener"><b class="ally__name">奶蛙奶茶铺</b><span class="ally__meta">网友作品 · 7.6 万 人玩过</span></a><a class="ally ally--game" href="https://milkfrog-bath.pages.dev/" target="_blank" rel="noopener"><b class="ally__name">奶蛙爱洗澡</b><span class="ally__meta">kingtrain · 5.7 万 人玩过</span></a><a class="ally ally--game" href="https://yhsome.github.io/SmallNaiWa/" target="_blank" rel="noopener"><b class="ally__name">合成小奶蛙</b><span class="ally__meta">十二月的狼头 · 4.8 万 人玩过</span></a><a class="ally ally--game" href="https://machinelearningexpertqihang.github.io/zhua-nai-wa-/" target="_blank" rel="noopener"><b class="ally__name">抓奶蛙</b><span class="ally__meta">龙井茉莉 · 4.7 万 人玩过</span></a><a class="ally ally--game" href="https://yhsome.github.io/Nai2048/" target="_blank" rel="noopener"><b class="ally__name">奶蛙 2048</b><span class="ally__meta">十二月的狼头 · 4.3 万 人玩过</span></a><a class="ally ally--game" href="https://milkyfrog.toolsbox.vip/" target="_blank" rel="noopener"><b class="ally__name">奶蛙颜色大挑战</b><span class="ally__meta">网友作品 · 4.0 万 人玩过</span></a><a class="ally ally--game" href="https://night-market-rumble-54328.app.workbuddy.host/" target="_blank" rel="noopener"><b class="ally__name">奶蛙踢馆</b><span class="ally__meta">胆子肥嘟嘟 · 3.6 万 人玩过</span></a><a class="ally ally--game" href="https://naiwa.bocchi.website/" target="_blank" rel="noopener"><b class="ally__name">奶蛙挠痒</b><span class="ally__meta">Elio · 3.3 万 人玩过</span></a><a class="ally ally--game" href="https://milkcubebycyanchan1eiann.netlify.app/" target="_blank" rel="noopener"><b class="ally__name">俄罗斯奶块</b><span class="ally__meta">EIAAN · 3.2 万 人玩过</span></a><a class="ally ally--game" href="https://naiwa-milk-rain.pages.dev/" target="_blank" rel="noopener"><b class="ally__name">奶蛙的奶块雨</b><span class="ally__meta">光影集 · 2.6 万 人玩过</span></a><a class="ally ally--game" href="https://niuniu513-ask.github.io/milky-breakout/" target="_blank" rel="noopener"><b class="ally__name">奶蛙打砖块</b><span class="ally__meta">nnn · 2.5 万 人玩过</span></a><a class="ally ally--game" href="https://sparkly-macaron-5c86c7.netlify.app/" target="_blank" rel="noopener"><b class="ally__name">奶蛙推奶块</b><span class="ally__meta">EIAAN · 1.8 万 人玩过</span></a><a class="ally ally--game" href="https://e.233ly.com/bn1yRe" target="_blank" rel="noopener"><b class="ally__name">奶国物语</b><span class="ally__meta">雀石不诗人 · 1.0 万 人玩过</span></a><a class="ally ally--game" href="https://e.233ly.com/yDkGpm" target="_blank" rel="noopener"><b class="ally__name">勇者奶蛙传</b><span class="ally__meta">雀石不诗人 · 1.0 万 人玩过</span></a><a class="ally ally--game" href="https://e.233ly.com/v65Ihd" target="_blank" rel="noopener"><b class="ally__name">奶蛙雷霆小队</b><span class="ally__meta">雀石不诗人 · 8,783 人玩过</span></a></div></div><div class="allies__group reveal"><header class="allies__head"><span class="allies__no">肆</span><h3>桌 宠 · 桌 面 圣 兽</h3><p>把奶蛙养在桌面：Windows / macOS / Android / Codex 全覆盖</p></header><div class="allies__grid"><a class="ally" href="https://github.com/timerring/codex-pet-naiwa" target="_blank" rel="noopener"><span class="ally__kick">开源 · MIT</span><b class="ally__name">codex-pet-naiwa</b><span class="ally__desc">为 Codex 打造的奶蛙桌面宠物，被点亮最多的奶蛙仓库之一。</span><span class="ally__meta">timerring · ★169 · MIT</span></a><a class="ally" href="https://github.com/yugh6/Naiwa" target="_blank" rel="noopener"><span class="ally__kick">Windows</span><b class="ally__name">Naiwa 奶蛙桌宠</b><span class="ally__desc">Windows 直接下载即可使用的经典桌宠，社区众多移植版的起点。</span><span class="ally__meta">yugh6 · ★71</span></a><a class="ally" href="https://github.com/CHENGONGSHUO/Naiwa" target="_blank" rel="noopener"><span class="ally__kick">开源 · GPL</span><b class="ally__name">奶蛙 - Windows</b><span class="ally__desc">C++ 编写的 Windows 桌宠，动作与音效齐全。</span><span class="ally__meta">CHENGONGSHUO · ★41 · GPL-3.0</span></a><a class="ally" href="https://github.com/whxoperator/nailongnaiwa" target="_blank" rel="noopener"><span class="ally__kick">识别工具</span><b class="ally__name">识别奶龙与奶蛙</b><span class="ally__desc">AI 分辨奶龙与奶蛙，再也不怕认错。</span><span class="ally__meta">whxoperator · ★28</span></a><a class="ally" href="https://github.com/Maple498/nai-wa-codex-pet" target="_blank" rel="noopener"><span class="ally__kick">Codex</span><b class="ally__name">奶蛙桌宠 v2</b><span class="ally__desc">符合 Codex 原版像素风的奶蛙 v2，含中文安装说明与自动安装提示词。</span><span class="ally__meta">Maple498 · ★11 · MIT</span></a><a class="ally" href="https://github.com/22hewang/naiwa-ultimate" target="_blank" rel="noopener"><span class="ally__kick">Windows</span><b class="ally__name">奶蛙极致版</b><span class="ally__desc">9999 只奶蛙同屏爆笑，一键清屏、放烟花、捕捉爆笑。</span><span class="ally__meta">22hewang · ★10</span></a><a class="ally" href="https://github.com/LynnShaw/naiwa-pet" target="_blank" rel="noopener"><span class="ally__kick">跨平台</span><b class="ally__name">naiwa-pet</b><span class="ally__desc">奶蛙 / 变异奶龙捧腹大笑桌面宠物，TypeScript 实现。</span><span class="ally__meta">LynnShaw · ★15</span></a><a class="ally" href="https://github.com/Git-Wanyu/Naiwa-Android" target="_blank" rel="noopener"><span class="ally__kick">Android</span><b class="ally__name">Naiwa-Android</b><span class="ally__desc">把奶蛙桌宠搬进安卓，Kotlin 编写。</span><span class="ally__meta">Git-Wanyu · ★15 · MIT</span></a><a class="ally" href="https://github.com/Swordmynew/naiwa-petdex" target="_blank" rel="noopener"><span class="ally__kick">开源 · MIT</span><b class="ally__name">naiwa-petdex</b><span class="ally__desc">奶蛙图鉴共创计划，欢迎奶家人一起补全形态。</span><span class="ally__meta">Swordmynew · ★7 · MIT</span></a><a class="ally" href="https://github.com/sandytruant/codex-pet-naiwa" target="_blank" rel="noopener"><span class="ally__kick">Codex</span><b class="ally__name">codex-pet-naiwa（思考版）</b><span class="ally__desc">会捧腹大笑、也会托腮思考的像素奶蛙。</span><span class="ally__meta">sandytruant · ★7 · MIT</span></a><a class="ally" href="https://github.com/k7tmiz/Naiwa-macOS" target="_blank" rel="noopener"><span class="ally__kick">macOS</span><b class="ally__name">Naiwa-macOS</b><span class="ally__desc">yugh6/Naiwa 的非官方 macOS 移植，Swift + AppKit。</span><span class="ally__meta">k7tmiz · ★6</span></a><a class="ally" href="https://github.com/pilapila08/naiwa" target="_blank" rel="noopener"><span class="ally__kick">Windows</span><b class="ally__name">奶蛙量产工厂</b><span class="ally__desc">AutoNaiwa Studio 本地客户端，批量生成奶蛙。</span><span class="ally__meta">pilapila08 · ★6</span></a><a class="ally" href="https://github.com/wangyiding645/nailong-assistant" target="_blank" rel="noopener"><span class="ally__kick">AI 桌宠</span><b class="ally__name">奶蛙日程助手</b><span class="ally__desc">住在 Windows 桌面的奶蛙：日程提醒、AI 电脑助手、抓奶蛙小游戏。</span><span class="ally__meta">wangyiding645 · ★5 · MIT</span></a><a class="ally" href="https://github.com/Trafalgar2000/naiwa-desktop-pet" target="_blank" rel="noopener"><span class="ally__kick">开源 · MIT</span><b class="ally__name">naiwa-desktop-pet</b><span class="ally__desc">离线运行的 Windows 奶蛙桌宠，多种形态、拖动缩放、透明穿透。</span><span class="ally__meta">Trafalgar2000 · ★4 · MIT</span></a><a class="ally" href="https://github.com/liaosongjie/Codex-Voice-Input" target="_blank" rel="noopener"><span class="ally__kick">开源 · MIT</span><b class="ally__name">奶蛙语音输入</b><span class="ally__desc">奶蛙形象的语音输入 + 桌宠，动画帧与音效由作者原创并以 MIT 分发。</span><span class="ally__meta">liaosongjie · ★4 · MIT</span></a><a class="ally" href="https://github.com/SbongeBobybl/NaiWaChatPet" target="_blank" rel="noopener"><span class="ally__kick">AI 桌宠</span><b class="ally__name">NaiWaChatPet</b><span class="ally__desc">可对话的奶蛙桌宠，接入 DeepSeek API，会随输入切换情绪。</span><span class="ally__meta">SbongeBobybl · GPL-3.0</span></a><a class="ally" href="https://github.com/hedong433664/naiwa-pet" target="_blank" rel="noopener"><span class="ally__kick">开源 · Apache</span><b class="ally__name">naiwa-pet（Electron）</b><span class="ally__desc">462 帧逐帧动画的 Electron 桌宠，去背干净、可打包。</span><span class="ally__meta">hedong433664 · Apache-2.0</span></a><a class="ally" href="https://github.com/woainiunai/milk-frog-desktoppet" target="_blank" rel="noopener"><span class="ally__kick">开源 · MIT</span><b class="ally__name">Yellow Jelly 桌宠</b><span class="ally__desc">BongoCat 风格：打字、点击、眼球跟随鼠标。</span><span class="ally__meta">woainiunai · MIT</span></a></div></div><div class="allies__group reveal"><header class="allies__head"><span class="allies__no">伍</span><h3>造 物 工 坊</h3><p>主题、图标、游戏源码与 3D 短片——奶蛙的创造者工具箱</p></header><div class="allies__grid"><a class="ally" href="https://github.com/syydaniel/naiwa-beyond" target="_blank" rel="noopener"><span class="ally__kick">3D 短片</span><b class="ally__name">《奶蛙·彼岸》制作全流程</b><span class="ally__desc">一部奶蛙 3D 动画短片的完整方法：建模、Blender 渲染、配音、配乐与成片。</span><span class="ally__meta">syydaniel · MIT</span></a><a class="ally" href="https://github.com/Arch-Tempered-mortis/merge-big-milk-frog" target="_blank" rel="noopener"><span class="ally__kick">游戏源码</span><b class="ally__name">合成大奶蛙</b><span class="ally__desc">十级合成网页小游戏的完整源码，Vite + Matter.js。</span><span class="ally__meta">Arch-Tempered-mortis</span></a><a class="ally" href="https://github.com/busgm666-cloud/naidan-slingshot" target="_blank" rel="noopener"><span class="ally__kick">游戏源码</span><b class="ally__name">奶蛋弹弓</b><span class="ally__desc">愤怒的小鸟式弹弓游戏：奶蛋当鸟、奶蛙当猪，带无尽模式与 boss 战。</span><span class="ally__meta">busgm666-cloud · MIT</span></a><a class="ally" href="https://github.com/DevourerM/dsh-naiwa-theme" target="_blank" rel="noopener"><span class="ally__kick">主题</span><b class="ally__name">dsh 奶蛙主题</b><span class="ally__desc">为 DeepSeek Harness 做的奶蛙主题皮肤。</span><span class="ally__meta">DevourerM · MIT</span></a><a class="ally" href="https://github.com/chromoany/naiwa-icons-app" target="_blank" rel="noopener"><span class="ally__kick">图标包</span><b class="ally__name">奶蛙安卓图标包</b><span class="ally__desc">67 枚自制奶蛙图标，附 APK 与各品牌手机换图标指南。</span><span class="ally__meta">chromoany</span></a><a class="ally" href="https://github.com/pai233/NaiwaUHK" target="_blank" rel="noopener"><span class="ally__kick">站点</span><b class="ally__name">香港奶蛙大学</b><span class="ally__desc">Naiwa University of Hong Kong——一本正经的奶蛙高校梗站。</span><span class="ally__meta">pai233 · MIT</span></a><a class="ally" href="https://github.com/aaGlaming/NaiWai" target="_blank" rel="noopener"><span class="ally__kick">站点</span><b class="ally__name">NaiWai 奶蛙网站</b><span class="ally__desc">全栈奶蛙站，前后端与 454 件图片素材。</span><span class="ally__meta">aaGlaming</span></a><a class="ally" href="https://github.com/Swordmynew/naiwa-petdex" target="_blank" rel="noopener"><span class="ally__kick">图鉴</span><b class="ally__name">奶蛙图鉴共创</b><span class="ally__desc">全网呼叫奶家人：一起补全奶蛙形态图鉴。</span><span class="ally__meta">Swordmynew · MIT</span></a></div></div><div class="allies__group reveal"><header class="allies__head"><span class="allies__no">陆</span><h3>社 区 · 媒 体</h3><p>奶蛙出没的地方，以及它的梗史现场</p></header><div class="allies__grid"><a class="ally" href="https://www.bilibili.com/toy/naiwa-badminton/index.html" target="_blank" rel="noopener"><span class="ally__kick">B 站</span><b class="ally__name">奶蛙羽毛球 · 玩具页</b><span class="ally__desc">B 站玩具页上的奶蛙羽毛球，28 万人玩过。</span><span class="ally__meta">bilibili.com/toy</span></a><a class="ally" href="https://www.bilibili.com/toy/TravelMilkyFrog/index.html" target="_blank" rel="noopener"><span class="ally__kick">B 站</span><b class="ally__name">旅行奶蛙 · 玩具页</b><span class="ally__desc">让奶蛙替你出门远行的那只青蛙。</span><span class="ally__meta">bilibili.com/toy</span></a><a class="ally" href="https://e.233ly.com/1ABrH3" target="_blank" rel="noopener"><span class="ally__kick">233 乐园</span><b class="ally__name">奶蛙快跑</b><span class="ally__desc">233 乐园上的奶蛙跑酷，25.7 万人玩过。</span><span class="ally__meta">e.233ly.com</span></a><a class="ally" href="http://m.toutiao.com/group/7690455278324335154/" target="_blank" rel="noopener"><span class="ally__kick">梗史</span><b class="ally__name">《旅行青蛙》停运后，奶蛙开始远行</b><span class="ally__desc">今日头条：奶蛙如何从大笑奶龙衍生、成为旅行博主。</span><span class="ally__meta">toutiao.com</span></a><a class="ally" href="https://neta.art/explore/work/zh/milk-frog-meme-guide" target="_blank" rel="noopener"><span class="ally__kick">梗史</span><b class="ally__name">奶蛙梗史指南</b><span class="ally__desc">四大传播机制与 94 件馆藏，一篇维基等级的奶蛙条目。</span><span class="ally__meta">neta.art</span></a><a class="ally" href="https://milkyfrog.com/author" target="_blank" rel="noopener"><span class="ally__kick">作者</span><b class="ally__name">李想 · 奶蛙设计师</b><span class="ally__desc">浙江大学产品设计专业，代表作奶蛙狂笑、惊鸿一瞥、安迪。</span><span class="ally__meta">milkyfrog.com/author</span></a></div></div>
+<div class="allies__group reveal"><header class="allies__head"><span class="allies__no">壹</span><h3>本 家 · 官 方</h3><p>奶蛙设计师与官方渠道</p></header><div class="allies__grid allies__grid--official"><a class="ally" href="https://milkyfrog.com/" target="_blank" rel="noopener"><span class="ally__kick">官方</span><b class="ally__name">Milky Frog · 奶蛙官网</b><span class="ally__desc">奶蛙设计师李想的官方网站：作品系列、作者故事与全网奶蛙游戏入口。</span><span class="ally__meta">milkyfrog.com</span></a><a class="ally" href="https://milkyfrog.com/games" target="_blank" rel="noopener"><span class="ally__kick">官方</span><b class="ally__name">奶蛙游戏大全</b><span class="ally__desc">持续收录全网奶蛙小游戏，浏览器打开即玩，每款都标注作者与游玩人数。</span><span class="ally__meta">milkyfrog.com/games · 游戏大全</span></a><a class="ally" href="https://apps.apple.com/cn/app/id6761310915" target="_blank" rel="noopener"><span class="ally__kick">官方</span><b class="ally__name">奶蛙 · 点一下就狂笑</b><span class="ally__desc">App Store 原作；点一下就从抽嘴角笑到晕过去。</span><span class="ally__meta">App Store · id6761310915</span></a><a class="ally" href="https://apps.apple.com/cn/app/id6820818828" target="_blank" rel="noopener"><span class="ally__kick">官方</span><b class="ally__name">奶蛙之眼</b><span class="ally__desc">奶蛙一直看着你——桌面注视型小应用。</span><span class="ally__meta">App Store · id6820818828</span></a><a class="ally" href="https://apps.apple.com/cn/app/id6762385358" target="_blank" rel="noopener"><span class="ally__kick">官方</span><b class="ally__name">奶蛙奏乐</b><span class="ally__desc">奶蛙专属音乐键盘，随手敲出魔性旋律。</span><span class="ally__meta">App Store · id6762385358</span></a></div></div><div class="allies__group reveal"><header class="allies__head"><span class="allies__no">贰</span><h3>档 案 馆 · 百 科</h3><p>Neta Studio 的奶蛙宇宙：百科、博物馆、卡包与集邮册</p></header><div class="allies__grid"><a class="ally" href="https://neta.art/app/milk-frog-wiki" target="_blank" rel="noopener"><span class="ally__kick">百科</span><b class="ally__name">奶蛙百科</b><span class="ally__desc">由来、命名、谱系：讲清奶蛙与奶龙、亚马逊牛奶蛙的区别，附 94 件馆藏索引。</span><span class="ally__meta">neta.art/app/milk-frog-wiki</span></a><a class="ally" href="https://neta.art/app/milk-frog-museum" target="_blank" rel="noopener"><span class="ally__kick">博物馆</span><b class="ally__name">奶蛙博物馆</b><span class="ally__desc">94 件名画馆藏、16 个展厅，从洞窟壁画到浮世绘，全部换上奶蛙。</span><span class="ally__meta">neta.art/app/milk-frog-museum</span></a><a class="ally" href="https://neta.art/app/milk-frog-download" target="_blank" rel="noopener"><span class="ally__kick">网页版</span><b class="ally__name">奶蛙下载 · 点一下就狂笑</b><span class="ally__desc">免安装的网页版奶蛙，还能查证 4 款真实上架的 App Store 应用。</span><span class="ally__meta">neta.art/app/milk-frog-download</span></a><a class="ally" href="https://neta.art/app/travel-milk-frog" target="_blank" rel="noopener"><span class="ally__kick">游戏</span><b class="ally__name">旅行奶蛙</b><span class="ally__desc">送奶蛙出门远行，等它寄回一张名画明信片。</span><span class="ally__meta">neta.art/app/travel-milk-frog</span></a><a class="ally" href="https://neta.art/app/milk-frog-pack" target="_blank" rel="noopener"><span class="ally__kick">收藏</span><b class="ally__name">奶蛙卡包</b><span class="ally__desc">120 件馆藏拆成卡牌，随手拆一包。</span><span class="ally__meta">neta.art/app/milk-frog-pack</span></a><a class="ally" href="https://neta.art/app/milk-frog-stamps" target="_blank" rel="noopener"><span class="ally__kick">收藏</span><b class="ally__name">奶蛙集邮册</b><span class="ally__desc">120 枚纪念邮票，方寸之间也是一座美术馆。</span><span class="ally__meta">neta.art/app/milk-frog-stamps</span></a><a class="ally" href="https://neta.art/explore/work/zh/milk-frog-avatar-wallpaper" target="_blank" rel="noopener"><span class="ally__kick">素材</span><b class="ally__name">奶蛙头像与壁纸</b><span class="ally__desc">从馆藏里裁出的头像与壁纸指南，深色背景单主体最适合做头像。</span><span class="ally__meta">neta.art</span></a><a class="ally" href="https://neta.art/app/niu-lai-museum" target="_blank" rel="noopener"><span class="ally__kick">姊妹馆</span><b class="ally__name">牛来博物馆</b><span class="ally__desc">同一工作室的姊妹馆：黄色抽象宇宙的另一位成员。</span><span class="ally__meta">neta.art/app/niu-lai-museum</span></a></div></div><div class="allies__group reveal"><header class="allies__head"><span class="allies__no">叁</span><h3>同 人 游 戏 站</h3><p>全部浏览器直开——内容归各自作者所有</p></header><div class="allies__grid allies__grid--games"><a class="ally ally--game" href="https://yhsome.github.io/BigNaiWa/v1/" target="_blank" rel="noopener"><b class="ally__name">合成大奶蛙</b><span class="ally__meta">十二月的狼头 · 72.6 万 人玩过</span></a><a class="ally ally--game" href="https://naiwa.me/" target="_blank" rel="noopener"><b class="ally__name">奶蛙神跑</b><span class="ally__meta">网友作品 · 46.8 万 人玩过</span></a><a class="ally ally--game" href="https://www.bilibili.com/toy/naiwa-badminton/index.html" target="_blank" rel="noopener"><b class="ally__name">奶蛙羽毛球</b><span class="ally__meta">网友作品 · 28.2 万 人玩过</span></a><a class="ally ally--game" href="https://e.233ly.com/1ABrH3" target="_blank" rel="noopener"><b class="ally__name">奶蛙快跑</b><span class="ally__meta">网友作品 · 25.7 万 人玩过</span></a><a class="ally ally--game" href="https://naiwa-fart.pages.dev/" target="_blank" rel="noopener"><b class="ally__name">奶蛙放屁</b><span class="ally__meta">二奶 · 16.9 万 人玩过</span></a><a class="ally ally--game" href="https://naiwai-jump.github.io/" target="_blank" rel="noopener"><b class="ally__name">奶蛙 jump</b><span class="ally__meta">网友作品 · 15.4 万 人玩过</span></a><a class="ally ally--game" href="https://naiba-jump.pages.dev/" target="_blank" rel="noopener"><b class="ally__name">奶蛙跳一跳</b><span class="ally__meta">光影集 · 14.3 万 人玩过</span></a><a class="ally ally--game" href="https://naiwaxiaowu.pages.dev/" target="_blank" rel="noopener"><b class="ally__name">奶蛙的小窝</b><span class="ally__meta">网友作品 · 13.2 万 人玩过</span></a><a class="ally ally--game" href="https://naiwa.games/" target="_blank" rel="noopener"><b class="ally__name">召唤神龙</b><span class="ally__meta">鱼戏荷 · 12.4 万 人玩过</span></a><a class="ally ally--game" href="https://chenckx0614.github.io/naiwaxxl/" target="_blank" rel="noopener"><b class="ally__name">奶蛙消消乐</b><span class="ally__meta">网友作品 · 12.2 万 人玩过</span></a><a class="ally ally--game" href="https://wudibaolongzhanshi1234.github.io/1335689.giyhub.io/" target="_blank" rel="noopener"><b class="ally__name">奶蛙五子棋</b><span class="ally__meta">网友作品 · 12.1 万 人玩过</span></a><a class="ally ally--game" href="https://nailong-dance.pages.dev/" target="_blank" rel="noopener"><b class="ally__name">奶蛙街舞</b><span class="ally__meta">念因 · 9.9 万 人玩过</span></a><a class="ally ally--game" href="https://naiwa-jump.pages.dev/" target="_blank" rel="noopener"><b class="ally__name">奶蛙一跳</b><span class="ally__meta">Sn · 8.9 万 人玩过</span></a><a class="ally ally--game" href="https://junjunya2020.github.io/nailegewa" target="_blank" rel="noopener"><b class="ally__name">奶了个蛙</b><span class="ally__meta">网友作品 · 8.9 万 人玩过</span></a><a class="ally ally--game" href="https://game.0z.hk/game/2048/" target="_blank" rel="noopener"><b class="ally__name">奶蛙 2048 超级版</b><span class="ally__meta">网友作品 · 8.4 万 人玩过</span></a><a class="ally ally--game" href="https://66970010-boop.github.io/frog-miner" target="_blank" rel="noopener"><b class="ally__name">奶蛙工厂</b><span class="ally__meta">网友作品 · 8.1 万 人玩过</span></a><a class="ally ally--game" href="https://milkyfrogs.toolsbox.vip/" target="_blank" rel="noopener"><b class="ally__name">奶蛙贪吃蛙</b><span class="ally__meta">网友作品 · 8.1 万 人玩过</span></a><a class="ally ally--game" href="https://www.bilibili.com/toy/TravelMilkyFrog/index.html" target="_blank" rel="noopener"><b class="ally__name">旅行奶蛙</b><span class="ally__meta">网友作品 · 7.7 万 人玩过</span></a><a class="ally ally--game" href="https://naiwanaichadian.pages.dev/" target="_blank" rel="noopener"><b class="ally__name">奶蛙奶茶铺</b><span class="ally__meta">网友作品 · 7.6 万 人玩过</span></a><a class="ally ally--game" href="https://milkfrog-bath.pages.dev/" target="_blank" rel="noopener"><b class="ally__name">奶蛙爱洗澡</b><span class="ally__meta">kingtrain · 5.7 万 人玩过</span></a><a class="ally ally--game" href="https://yhsome.github.io/SmallNaiWa/" target="_blank" rel="noopener"><b class="ally__name">合成小奶蛙</b><span class="ally__meta">十二月的狼头 · 4.8 万 人玩过</span></a><a class="ally ally--game" href="https://machinelearningexpertqihang.github.io/zhua-nai-wa-/" target="_blank" rel="noopener"><b class="ally__name">抓奶蛙</b><span class="ally__meta">龙井茉莉 · 4.7 万 人玩过</span></a><a class="ally ally--game" href="https://yhsome.github.io/Nai2048/" target="_blank" rel="noopener"><b class="ally__name">奶蛙 2048</b><span class="ally__meta">十二月的狼头 · 4.3 万 人玩过</span></a><a class="ally ally--game" href="https://milkyfrog.toolsbox.vip/" target="_blank" rel="noopener"><b class="ally__name">奶蛙颜色大挑战</b><span class="ally__meta">网友作品 · 4.0 万 人玩过</span></a><a class="ally ally--game" href="https://night-market-rumble-54328.app.workbuddy.host/" target="_blank" rel="noopener"><b class="ally__name">奶蛙踢馆</b><span class="ally__meta">胆子肥嘟嘟 · 3.6 万 人玩过</span></a><a class="ally ally--game" href="https://naiwa.bocchi.website/" target="_blank" rel="noopener"><b class="ally__name">奶蛙挠痒</b><span class="ally__meta">Elio · 3.3 万 人玩过</span></a><a class="ally ally--game" href="https://milkcubebycyanchan1eiann.netlify.app/" target="_blank" rel="noopener"><b class="ally__name">俄罗斯奶块</b><span class="ally__meta">EIAAN · 3.2 万 人玩过</span></a><a class="ally ally--game" href="https://naiwa-milk-rain.pages.dev/" target="_blank" rel="noopener"><b class="ally__name">奶蛙的奶块雨</b><span class="ally__meta">光影集 · 2.6 万 人玩过</span></a><a class="ally ally--game" href="https://niuniu513-ask.github.io/milky-breakout/" target="_blank" rel="noopener"><b class="ally__name">奶蛙打砖块</b><span class="ally__meta">nnn · 2.5 万 人玩过</span></a><a class="ally ally--game" href="https://sparkly-macaron-5c86c7.netlify.app/" target="_blank" rel="noopener"><b class="ally__name">奶蛙推奶块</b><span class="ally__meta">EIAAN · 1.8 万 人玩过</span></a><a class="ally ally--game" href="https://e.233ly.com/bn1yRe" target="_blank" rel="noopener"><b class="ally__name">奶国物语</b><span class="ally__meta">雀石不诗人 · 1.0 万 人玩过</span></a><a class="ally ally--game" href="https://e.233ly.com/yDkGpm" target="_blank" rel="noopener"><b class="ally__name">勇者奶蛙传</b><span class="ally__meta">雀石不诗人 · 1.0 万 人玩过</span></a><a class="ally ally--game" href="https://e.233ly.com/v65Ihd" target="_blank" rel="noopener"><b class="ally__name">奶蛙雷霆小队</b><span class="ally__meta">雀石不诗人 · 8,783 人玩过</span></a></div></div><div class="allies__group reveal"><header class="allies__head"><span class="allies__no">肆</span><h3>桌 宠 · 桌 面 圣 兽</h3><p>把奶蛙养在桌面：Windows / macOS / Android / Codex 全覆盖</p></header><div class="allies__grid"><a class="ally" href="https://github.com/timerring/codex-pet-naiwa" target="_blank" rel="noopener"><span class="ally__kick">开源 · MIT</span><b class="ally__name">codex-pet-naiwa</b><span class="ally__desc">为 Codex 打造的奶蛙桌面宠物，被点亮最多的奶蛙仓库之一。</span><span class="ally__meta">timerring · ★169 · MIT</span></a><a class="ally" href="https://github.com/yugh6/Naiwa" target="_blank" rel="noopener"><span class="ally__kick">Windows</span><b class="ally__name">Naiwa 奶蛙桌宠</b><span class="ally__desc">Windows 直接下载即可使用的经典桌宠，社区众多移植版的起点。</span><span class="ally__meta">yugh6 · ★71</span></a><a class="ally" href="https://github.com/CHENGONGSHUO/Naiwa" target="_blank" rel="noopener"><span class="ally__kick">开源 · GPL</span><b class="ally__name">奶蛙 - Windows</b><span class="ally__desc">C++ 编写的 Windows 桌宠，动作与音效齐全。</span><span class="ally__meta">CHENGONGSHUO · ★41 · GPL-3.0</span></a><a class="ally" href="https://github.com/whxoperator/nailongnaiwa" target="_blank" rel="noopener"><span class="ally__kick">识别工具</span><b class="ally__name">识别奶龙与奶蛙</b><span class="ally__desc">AI 分辨奶龙与奶蛙，再也不怕认错。</span><span class="ally__meta">whxoperator · ★28</span></a><a class="ally" href="https://github.com/Maple498/nai-wa-codex-pet" target="_blank" rel="noopener"><span class="ally__kick">Codex</span><b class="ally__name">奶蛙桌宠 v2</b><span class="ally__desc">符合 Codex 原版像素风的奶蛙 v2，含中文安装说明与自动安装提示词。</span><span class="ally__meta">Maple498 · ★11 · MIT</span></a><a class="ally" href="https://github.com/22hewang/naiwa-ultimate" target="_blank" rel="noopener"><span class="ally__kick">Windows</span><b class="ally__name">奶蛙极致版</b><span class="ally__desc">9999 只奶蛙同屏爆笑，一键清屏、放烟花、捕捉爆笑。</span><span class="ally__meta">22hewang · ★10</span></a><a class="ally" href="https://github.com/LynnShaw/naiwa-pet" target="_blank" rel="noopener"><span class="ally__kick">跨平台</span><b class="ally__name">naiwa-pet</b><span class="ally__desc">奶蛙 / 变异奶龙捧腹大笑桌面宠物，TypeScript 实现。</span><span class="ally__meta">LynnShaw · ★15</span></a><a class="ally" href="https://github.com/Git-Wanyu/Naiwa-Android" target="_blank" rel="noopener"><span class="ally__kick">Android</span><b class="ally__name">Naiwa-Android</b><span class="ally__desc">把奶蛙桌宠搬进安卓，Kotlin 编写。</span><span class="ally__meta">Git-Wanyu · ★15 · MIT</span></a><a class="ally" href="https://github.com/Swordmynew/naiwa-petdex" target="_blank" rel="noopener"><span class="ally__kick">开源 · MIT</span><b class="ally__name">naiwa-petdex</b><span class="ally__desc">奶蛙图鉴共创计划，欢迎奶家人一起补全形态。</span><span class="ally__meta">Swordmynew · ★7 · MIT</span></a><a class="ally" href="https://github.com/sandytruant/codex-pet-naiwa" target="_blank" rel="noopener"><span class="ally__kick">Codex</span><b class="ally__name">codex-pet-naiwa（思考版）</b><span class="ally__desc">会捧腹大笑、也会托腮思考的像素奶蛙。</span><span class="ally__meta">sandytruant · ★7 · MIT</span></a><a class="ally" href="https://github.com/k7tmiz/Naiwa-macOS" target="_blank" rel="noopener"><span class="ally__kick">macOS</span><b class="ally__name">Naiwa-macOS</b><span class="ally__desc">yugh6/Naiwa 的非官方 macOS 移植，Swift + AppKit。</span><span class="ally__meta">k7tmiz · ★6</span></a><a class="ally" href="https://github.com/pilapila08/naiwa" target="_blank" rel="noopener"><span class="ally__kick">Windows</span><b class="ally__name">奶蛙量产工厂</b><span class="ally__desc">AutoNaiwa Studio 本地客户端，批量生成奶蛙。</span><span class="ally__meta">pilapila08 · ★6</span></a><a class="ally" href="https://github.com/wangyiding645/nailong-assistant" target="_blank" rel="noopener"><span class="ally__kick">AI 桌宠</span><b class="ally__name">奶蛙日程助手</b><span class="ally__desc">住在 Windows 桌面的奶蛙：日程提醒、AI 电脑助手、抓奶蛙小游戏。</span><span class="ally__meta">wangyiding645 · ★5 · MIT</span></a><a class="ally" href="https://github.com/Trafalgar2000/naiwa-desktop-pet" target="_blank" rel="noopener"><span class="ally__kick">开源 · MIT</span><b class="ally__name">naiwa-desktop-pet</b><span class="ally__desc">离线运行的 Windows 奶蛙桌宠，多种形态、拖动缩放、透明穿透。</span><span class="ally__meta">Trafalgar2000 · ★4 · MIT</span></a><a class="ally" href="https://github.com/liaosongjie/Codex-Voice-Input" target="_blank" rel="noopener"><span class="ally__kick">开源 · MIT</span><b class="ally__name">奶蛙语音输入</b><span class="ally__desc">奶蛙形象的语音输入 + 桌宠，动画帧与音效由作者原创并以 MIT 分发。</span><span class="ally__meta">liaosongjie · ★4 · MIT</span></a><a class="ally" href="https://github.com/SbongeBobybl/NaiWaChatPet" target="_blank" rel="noopener"><span class="ally__kick">AI 桌宠</span><b class="ally__name">NaiWaChatPet</b><span class="ally__desc">可对话的奶蛙桌宠，接入 DeepSeek API，会随输入切换情绪。</span><span class="ally__meta">SbongeBobybl · GPL-3.0</span></a><a class="ally" href="https://github.com/hedong433664/naiwa-pet" target="_blank" rel="noopener"><span class="ally__kick">开源 · Apache</span><b class="ally__name">naiwa-pet（Electron）</b><span class="ally__desc">462 帧逐帧动画的 Electron 桌宠，去背干净、可打包。</span><span class="ally__meta">hedong433664 · Apache-2.0</span></a><a class="ally" href="https://github.com/woainiunai/milk-frog-desktoppet" target="_blank" rel="noopener"><span class="ally__kick">开源 · MIT</span><b class="ally__name">Yellow Jelly 桌宠</b><span class="ally__desc">BongoCat 风格：打字、点击、眼球跟随鼠标。</span><span class="ally__meta">woainiunai · MIT</span></a></div></div><div class="allies__group reveal"><header class="allies__head"><span class="allies__no">伍</span><h3>造 物 工 坊</h3><p>主题、图标、游戏源码与 3D 短片——奶蛙的创造者工具箱</p></header><div class="allies__grid"><a class="ally" href="https://github.com/syydaniel/naiwa-beyond" target="_blank" rel="noopener"><span class="ally__kick">3D 短片</span><b class="ally__name">《奶蛙·彼岸》制作全流程</b><span class="ally__desc">一部奶蛙 3D 动画短片的完整方法：建模、Blender 渲染、配音、配乐与成片。</span><span class="ally__meta">syydaniel · MIT</span></a><a class="ally" href="https://github.com/Arch-Tempered-mortis/merge-big-milk-frog" target="_blank" rel="noopener"><span class="ally__kick">游戏源码</span><b class="ally__name">合成大奶蛙</b><span class="ally__desc">十级合成网页小游戏的完整源码，Vite + Matter.js。</span><span class="ally__meta">Arch-Tempered-mortis</span></a><a class="ally" href="https://github.com/busgm666-cloud/naidan-slingshot" target="_blank" rel="noopener"><span class="ally__kick">游戏源码</span><b class="ally__name">奶蛋弹弓</b><span class="ally__desc">愤怒的小鸟式弹弓游戏：奶蛋当鸟、奶蛙当猪，带无尽模式与 boss 战。</span><span class="ally__meta">busgm666-cloud · MIT</span></a><a class="ally" href="https://github.com/DevourerM/dsh-naiwa-theme" target="_blank" rel="noopener"><span class="ally__kick">主题</span><b class="ally__name">dsh 奶蛙主题</b><span class="ally__desc">为 DeepSeek Harness 做的奶蛙主题皮肤。</span><span class="ally__meta">DevourerM · MIT</span></a><a class="ally" href="https://github.com/chromoany/naiwa-icons-app" target="_blank" rel="noopener"><span class="ally__kick">图标包</span><b class="ally__name">奶蛙安卓图标包</b><span class="ally__desc">67 枚自制奶蛙图标，附 APK 与各品牌手机换图标指南。</span><span class="ally__meta">chromoany</span></a><a class="ally" href="https://github.com/pai233/NaiwaUHK" target="_blank" rel="noopener"><span class="ally__kick">站点</span><b class="ally__name">香港奶蛙大学</b><span class="ally__desc">Naiwa University of Hong Kong——一本正经的奶蛙高校梗站。</span><span class="ally__meta">pai233 · MIT</span></a><a class="ally" href="https://github.com/aaGlaming/NaiWai" target="_blank" rel="noopener"><span class="ally__kick">站点</span><b class="ally__name">NaiWai 奶蛙网站</b><span class="ally__desc">全栈奶蛙站，前后端与 454 件图片素材。</span><span class="ally__meta">aaGlaming</span></a><a class="ally" href="https://github.com/Swordmynew/naiwa-petdex" target="_blank" rel="noopener"><span class="ally__kick">图鉴</span><b class="ally__name">奶蛙图鉴共创</b><span class="ally__desc">全网呼叫奶家人：一起补全奶蛙形态图鉴。</span><span class="ally__meta">Swordmynew · MIT</span></a></div></div><div class="allies__group reveal"><header class="allies__head"><span class="allies__no">陆</span><h3>社 区 · 媒 体</h3><p>奶蛙出没的地方，以及它的梗史现场</p></header><div class="allies__grid"><a class="ally" href="https://www.bilibili.com/toy/naiwa-badminton/index.html" target="_blank" rel="noopener"><span class="ally__kick">B 站</span><b class="ally__name">奶蛙羽毛球 · 玩具页</b><span class="ally__desc">B 站玩具页上的奶蛙羽毛球，28 万人玩过。</span><span class="ally__meta">bilibili.com/toy</span></a><a class="ally" href="https://www.bilibili.com/toy/TravelMilkyFrog/index.html" target="_blank" rel="noopener"><span class="ally__kick">B 站</span><b class="ally__name">旅行奶蛙 · 玩具页</b><span class="ally__desc">让奶蛙替你出门远行的那只青蛙。</span><span class="ally__meta">bilibili.com/toy</span></a><a class="ally" href="https://e.233ly.com/1ABrH3" target="_blank" rel="noopener"><span class="ally__kick">233 乐园</span><b class="ally__name">奶蛙快跑</b><span class="ally__desc">233 乐园上的奶蛙跑酷，25.7 万人玩过。</span><span class="ally__meta">e.233ly.com</span></a><a class="ally" href="http://m.toutiao.com/group/7690455278324335154/" target="_blank" rel="noopener"><span class="ally__kick">梗史</span><b class="ally__name">《旅行青蛙》停运后，奶蛙开始远行</b><span class="ally__desc">今日头条：奶蛙如何从大笑奶龙衍生、成为旅行博主。</span><span class="ally__meta">toutiao.com</span></a><a class="ally" href="https://neta.art/explore/work/zh/milk-frog-meme-guide" target="_blank" rel="noopener"><span class="ally__kick">梗史</span><b class="ally__name">奶蛙梗史指南</b><span class="ally__desc">四大传播机制与 94 件馆藏，一篇维基等级的奶蛙条目。</span><span class="ally__meta">neta.art</span></a><a class="ally" href="https://milkyfrog.com/author" target="_blank" rel="noopener"><span class="ally__kick">作者</span><b class="ally__name">李想 · 奶蛙设计师</b><span class="ally__desc">浙江大学产品设计专业，代表作奶蛙狂笑、惊鸿一瞥、安迪。</span><span class="ally__meta">milkyfrog.com/author</span></a></div></div>
 
 
 
@@ -19359,7 +19591,13 @@ html[data-theme="light"] #searchInput::placeholder,html[data-theme="light"] #vau
 
 
 
-      <form class="search" role="search" id="searchForm">
+            <header class="section__head reveal">
+        <p class="section__kicker">馆藏检索</p>
+        <h2 class="section__title"><span class="nw">在 四 百 零 六 件 里 ·</span> <span class="nw"><em>找 一 只 奶 蛙</em></span></h2>
+        <span class="arch" aria-hidden="true"><svg viewBox="0 0 52 30" fill="none"><path d="M2 30 L2 16 Q2 2 26 2 Q50 2 50 16 L50 30" stroke="currentColor" stroke-width="1.4"/><path d="M20 30 L20 18 Q20 10 26 10 Q32 10 32 18 L32 30" stroke="currentColor" stroke-width="1"/></svg></span>
+      </header>
+      <p class="section__note reveal">按作品名、叙事或展厅筛选；也可以让圣殿替你随缘一观。</p>
+<form class="search" role="search" id="searchForm">
 
 
 
@@ -19371,7 +19609,7 @@ html[data-theme="light"] #searchInput::placeholder,html[data-theme="light"] #vau
 
 
 
-        <input id="searchInput" type="search" placeholder="输入作品名或叙事关键词，如「星月夜」「圣诞」" autocomplete="off">
+        <input id="searchInput" type="search" placeholder="搜作品名或叙事，如「星月夜」" autocomplete="off">
 
 
 

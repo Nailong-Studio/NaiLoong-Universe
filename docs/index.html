@@ -760,25 +760,6 @@ body::before{
 
 
 
-::view-transition-old(root){animation:vtOut .3s var(--ease) both}
-
-
-
-
-
-::view-transition-new(root){animation:vtIn .42s var(--ease) both}
-
-
-
-
-
-@keyframes vtOut{to{opacity:0}}
-
-
-
-
-
-@keyframes vtIn{from{opacity:0;transform:translateY(10px)}}
 
 
 
@@ -815,36 +796,6 @@ body::before{
 
 
 /* ============ v17.2 细节点缀 / 过渡 / 画面动态 ============ */
-
-
-
-
-
-/* 视图切换金色光幕（不依赖 View Transitions，全浏览器可用） */
-
-
-
-
-
-.fxwipe{position:fixed;inset:0;z-index:115;pointer-events:none;opacity:0;
-
-
-
-
-
-  background:radial-gradient(120% 120% at 50% 50%,color-mix(in srgb,var(--gold-bright) 16%,transparent),transparent 60%);}
-
-
-
-
-
-.fxwipe.run{animation:fxSweep .62s var(--ease) both}
-
-
-
-
-
-@keyframes fxSweep{0%{opacity:0;transform:scale(.96)}25%{opacity:1}100%{opacity:0;transform:scale(1.04)}}
 
 
 
@@ -1956,6 +1907,12 @@ html[data-theme="light"] .nav__theme .i-moon{display:none}
 
 
 
+/* 响应式交互：触摸去延迟 + 按压即时反馈 */
+button:not(:disabled),.btn,.chip,.portal,.work,.nav__links a{touch-action:manipulation}
+button:not(:disabled):active{filter:brightness(.9)}
+.btn:active{filter:brightness(.94)}
+.chip:active,.portal:active,.work:active{transform:translateY(1px) scale(.99)}
+.nav__links a:active{opacity:.7}
 @media (prefers-reduced-motion:reduce){
 
 
@@ -2016,7 +1973,7 @@ html[data-theme="light"] .nav__theme .i-moon{display:none}
 
 
 
-  .dust i,.fxwipe{animation:none!important;opacity:0!important}
+  .dust i{animation:none!important;opacity:0!important}
 
 
 
@@ -2364,13 +2321,12 @@ html[data-theme="light"] .nav__theme .i-moon{display:none}
 
 
 
-.view.active{display:block;animation:viewIn .5s var(--ease) both}
+.view.active{display:block}
 
 
 
 
 
-@keyframes viewIn{from{opacity:0}to{opacity:1}}
 
 
 
@@ -8540,7 +8496,6 @@ html[data-theme="light"] .relics,html[data-theme="light"] .relic{
 .masthead__art a:hover img{filter:saturate(1.02) brightness(1.05)}
 @keyframes paintFloat{from{transform:translateY(0)}to{transform:translateY(-6px)}}
 
-@keyframes viewIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 
 /* 7 · 小节节奏 */
 .artwalk__intro{max-width:760px;margin-bottom:clamp(28px,3.8vw,42px);font-size:.93rem;line-height:2}
@@ -8795,11 +8750,6 @@ html[data-theme="light"] .masthead__eyebrow{color:#6C4A0E}
 @keyframes caretBlink{50%{opacity:0}}
 
 /* 页面入场更柔：轻微上浮，不拖慢首屏 */
-.view.active{animation:viewIn .55s var(--ease) both}
-@keyframes viewIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
-::view-transition-old(root){animation:vtOut .32s var(--ease) both}
-::view-transition-new(root){animation:vtIn .5s var(--ease) both}
-@keyframes vtIn{from{opacity:0;transform:translateY(14px) scale(.996)}to{opacity:1;transform:none}}
 
 /* ============================================================
    v18.7.4 · 可读性、性能与动态交互补强
@@ -8954,6 +8904,101 @@ button:disabled,.hall__arrow:disabled{opacity:.28;cursor:not-allowed;pointer-eve
 .chamber__img,.lightbox__img{pointer-events:none}
 .chamber__close,.chamber__nav,.lightbox__close,.lightbox__nav{z-index:12}
 .chamber__stage,.lightbox__plate{position:relative}
+
+
+/* ============================================================
+   v18.7.5 · 路由转场 / 响应反馈 / 移动端降级
+   1) 原生 View Transition：从点击点绽开的圆形光门
+   2) 不支持或低性能设备：桌面左右双幕、手机上下双幕
+   3) 点击先有金色进度条与涟漪，转场期间禁止重复导航
+   ============================================================ */
+.route-progress{position:fixed;top:0;left:0;right:0;height:2px;z-index:123;pointer-events:none;opacity:0;transition:opacity .16s var(--ease)}
+.route-progress i{display:block;height:100%;width:100%;transform:scaleX(0);transform-origin:0 50%;
+  background:linear-gradient(90deg,var(--gold),var(--gold-bright),var(--gold));
+  box-shadow:0 0 14px color-mix(in srgb,var(--gold-bright) 55%,transparent)}
+body.is-routing{cursor:progress}
+body.is-routing a,body.is-routing button{cursor:progress}
+.route-progress.run{opacity:1}
+.route-progress.run i{animation:routeFill .68s cubic-bezier(.22,1,.36,1) both}
+@keyframes routeFill{0%{transform:scaleX(0)}62%{transform:scaleX(.82)}100%{transform:scaleX(1)}}
+
+.route-ripple{position:fixed;width:18px;height:18px;margin:-9px 0 0 -9px;border-radius:50%;z-index:122;pointer-events:none;
+  border:1px solid color-mix(in srgb,var(--gold-bright) 65%,transparent);
+  box-shadow:0 0 16px color-mix(in srgb,var(--gold-bright) 28%,transparent);
+  animation:routeRipple .62s cubic-bezier(.22,1,.36,1) both}
+@keyframes routeRipple{0%{opacity:.9;transform:scale(.32)}70%{opacity:.35}100%{opacity:0;transform:scale(6.4)}}
+
+/* 原生 View Transition 仅保留给主题切换：从按钮位置绽开 */
+html{--route-x:50%;--route-y:26%}
+::view-transition-old(root){animation:themeOld .38s cubic-bezier(.4,0,.2,1) both}
+::view-transition-new(root){animation:themeReveal .56s cubic-bezier(.16,.84,.28,1) both}
+@keyframes themeOld{to{opacity:.72;transform:scale(.985)}}
+@keyframes themeReveal{from{clip-path:circle(0px at var(--route-x) var(--route-y));opacity:.6}to{clip-path:circle(150% at var(--route-x) var(--route-y));opacity:1}}
+
+/* 不支持 View Transition：双幕合拢，在遮罩下完成换页，再向两侧揭开 */
+.scene-curtain{position:fixed;inset:0;z-index:2000;pointer-events:none;visibility:hidden;overflow:hidden;--route-in:.3s;--route-out:.36s}
+.scene-curtain.is-active{visibility:visible}
+.scene-curtain__panel{position:absolute;background:radial-gradient(ellipse at 50% 42%,rgba(197,161,90,.14),transparent 62%),linear-gradient(160deg,#20180f,#0b0806 74%);will-change:transform;transition:transform var(--route-out) cubic-bezier(.77,0,.18,1)}
+.scene-curtain__panel--a{left:0;top:0;width:50.4%;height:100%;transform:translateX(-101%);border-right:1px solid color-mix(in srgb,var(--gold) 55%,transparent)}
+.scene-curtain__panel--b{right:0;top:0;width:50.4%;height:100%;transform:translateX(101%);border-left:1px solid color-mix(in srgb,var(--gold) 55%,transparent)}
+.scene-curtain.is-cover .scene-curtain__panel{transition-duration:var(--route-in)}
+.scene-curtain.is-cover .scene-curtain__panel--a{transform:translateX(0)}
+.scene-curtain.is-cover .scene-curtain__panel--b{transform:translateX(0)}
+.scene-curtain.is-reveal .scene-curtain__panel--a{transform:translateX(-101%)}
+.scene-curtain.is-reveal .scene-curtain__panel--b{transform:translateX(101%)}
+.scene-curtain__seam{position:absolute;left:50%;top:50%;width:46px;height:46px;margin:-23px 0 0 -23px;border:1px solid var(--gold);border-radius:50%;opacity:0;transform:scale(.5);transition:opacity .22s,transform .38s var(--ease);z-index:2}
+.scene-curtain__orbit{position:absolute;inset:-24px;border:1px dashed color-mix(in srgb,var(--gold) 44%,transparent);border-radius:50%;opacity:.5;animation:curtainOrbit 14s linear infinite;pointer-events:none}
+@keyframes curtainOrbit{to{transform:rotate(360deg)}}
+.scene-curtain.is-active .scene-curtain__seam{opacity:.72;transform:scale(1) rotate(45deg)}
+.scene-curtain.is-active .scene-curtain__mark{opacity:.68;transform:translate(-50%,0)}
+.scene-curtain__seam::before,.scene-curtain__seam::after{content:"";position:absolute;left:50%;top:50%;background:var(--gold);transform:translate(-50%,-50%)}
+.scene-curtain__seam::before{width:1px;height:56px;opacity:.7}
+.scene-curtain__seam::after{width:56px;height:1px;opacity:.45}
+.scene-curtain.is-cover .scene-curtain__seam{opacity:.72;transform:scale(1) rotate(45deg)}
+.scene-curtain.is-reveal .scene-curtain__seam{opacity:0;transform:scale(1.25) rotate(90deg)}
+.scene-curtain__dest{position:absolute;left:50%;top:calc(50% + 58px);transform:translate(-50%,7px);z-index:2;pointer-events:none;opacity:0;white-space:nowrap;font-family:var(--serif);font-weight:400;font-size:clamp(1.45rem,3vw,2.3rem);line-height:1.3;letter-spacing:.18em;color:var(--gold-bright);text-shadow:0 0 22px color-mix(in srgb,var(--gold) 24%,transparent);transition:opacity .24s .04s,transform .34s var(--ease)}
+.scene-curtain__dest::after{content:"";display:block;width:46px;height:1px;margin:14px auto 0;background:color-mix(in srgb,var(--gold) 55%,transparent)}
+.scene-curtain__dest:empty{display:none}
+.scene-curtain.is-active .scene-curtain__dest{opacity:.92;transform:translate(-50%,0)}
+.scene-curtain.is-reveal .scene-curtain__dest{opacity:0;transform:translate(-50%,-7px)}
+.scene-curtain__mark{position:absolute;left:50%;top:calc(50% + 122px);transform:translate(-50%,8px);z-index:2;pointer-events:none;opacity:0;white-space:nowrap;font-family:var(--serif);font-size:.64rem;letter-spacing:.32em;color:rgba(226,207,169,.62);transition:opacity .2s,transform .3s var(--ease)}
+.scene-curtain.is-active .scene-curtain__mark{opacity:.62;transform:translate(-50%,0)}
+.scene-curtain.is-reveal .scene-curtain__mark{opacity:0;transform:translate(-50%,-6px)}
+
+/* 双幕降级时的页面入场：只让新页轻轻上浮，旧页已被遮住 */
+.view.active.is-entering{animation:routeViewIn .58s cubic-bezier(.16,.84,.28,1) both}
+@keyframes routeViewIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+/* 主题切换：按钮转一圈；没有原生转场时让底色软切 */
+.nav__theme svg{transition:transform .52s var(--ease)}
+.nav__theme.is-spinning svg{transform:rotate(180deg)}
+html.theme-fade body{transition:background-color .42s var(--ease),color .42s var(--ease)}
+
+/* 移动端：双幕改上下合拢，转场更短，避免手持设备重绘过久 */
+@media (max-width:640px){
+  ::view-transition-old(root){animation-duration:.3s}
+  ::view-transition-new(root){animation-duration:.48s}
+  .scene-curtain{--route-in:.23s;--route-out:.3s}
+  .scene-curtain__dest{top:calc(50% + 52px);font-size:1.35rem}
+  .scene-curtain__mark{top:calc(50% + 102px)}
+  .scene-curtain__panel--a{width:100%;height:50.4%;right:0;border-right:0;border-bottom:1px solid color-mix(in srgb,var(--gold) 55%,transparent);transform:translateY(-101%)}
+  .scene-curtain__panel--b{width:100%;height:50.4%;left:0;right:auto;bottom:0;top:auto;border-left:0;border-top:1px solid color-mix(in srgb,var(--gold) 55%,transparent);transform:translateY(101%)}
+  .scene-curtain.is-cover .scene-curtain__panel--a{transform:translateY(0)}
+  .scene-curtain.is-cover .scene-curtain__panel--b{transform:translateY(0)}
+  .scene-curtain.is-reveal .scene-curtain__panel--a{transform:translateY(-101%)}
+  .scene-curtain.is-reveal .scene-curtain__panel--b{transform:translateY(101%)}
+}
+/* 低性能设备：去掉模糊，缩短原生转场 */
+html[data-motion="lite"] ::view-transition-old(root){filter:none;animation-duration:.3s}
+html[data-motion="lite"] ::view-transition-new(root){animation-duration:.46s}
+/* 减少动态：直接换页，保留状态反馈 */
+@media (prefers-reduced-motion:reduce){
+  ::view-transition-old(root),::view-transition-new(root){animation:none!important}
+  .route-progress,.route-ripple,.scene-curtain,.view.active.is-entering{animation:none!important;transition:none!important}
+  .scene-curtain{display:none!important}
+  .scene-curtain__orbit{animation:none}
+  .nav__theme svg{transition:none}
+}
 </style>
 
 
@@ -8997,7 +9042,8 @@ button:disabled,.hall__arrow:disabled{opacity:.28;cursor:not-allowed;pointer-eve
 
 
 
-<div class="fxwipe" id="fxwipe" aria-hidden="true"></div>
+<div class="route-progress" id="routeProgress" aria-hidden="true"><i></i></div>
+<div class="scene-curtain" id="sceneCurtain" aria-hidden="true"><i class="scene-curtain__panel scene-curtain__panel--a"></i><i class="scene-curtain__panel scene-curtain__panel--b"></i><i class="scene-curtain__seam"><b class="scene-curtain__orbit"></b></i><strong class="scene-curtain__dest"></strong><span class="scene-curtain__mark">奶蛙艺术宇宙</span></div>
 
 
 
@@ -9106,7 +9152,7 @@ button:disabled,.hall__arrow:disabled{opacity:.28;cursor:not-allowed;pointer-eve
 
 
 
-    
+
 
       <li class="nav__audio">
         <button type="button" class="nav__audio-btn" id="navMusic" aria-pressed="false">圣殿配乐 <b>关</b></button>
@@ -16724,7 +16770,7 @@ button:disabled,.hall__arrow:disabled{opacity:.28;cursor:not-allowed;pointer-eve
 
 
     <p class="visit__more reveal"><a class="relic__cta" href="#relics">打开圣物全图鉴 · 406 件素材</a></p>
-    
+
 
 
 
@@ -16756,7 +16802,7 @@ button:disabled,.hall__arrow:disabled{opacity:.28;cursor:not-allowed;pointer-eve
 
 
 
-    
+
 
 
 
@@ -20809,7 +20855,7 @@ button:disabled,.hall__arrow:disabled{opacity:.28;cursor:not-allowed;pointer-eve
 
 
 
-  var VIEW_TITLES = { home:"圣殿之门", halls:"常设展", chronicle:"艺术史长河", visit:"朝圣之路", friends:"友站星图", search:"馆藏检索", about:"游客中心" };
+  var VIEW_TITLES = { home:"圣殿之门", halls:"常设展", chronicle:"艺术史长河", visit:"朝圣之路", relics:"圣物图鉴", friends:"友站星图", search:"馆藏检索", about:"游客中心" };
 
 
 
@@ -20924,503 +20970,201 @@ button:disabled,.hall__arrow:disabled{opacity:.28;cursor:not-allowed;pointer-eve
 
 
 
-  function navigate(){
-
-
-
-
-
-    var h = (location.hash || "").replace(/^#/, "").replace(/%20/g, " ");
-
-
-
-
-
-    var cur = doc.querySelector(".view.active");
-
-
-
-
-
-    var v = cur ? cur.id.replace("view-", "") : "home";
-
-
-
-
-
-    if (VIEWS.indexOf(h) >= 0) v = h;
-
-
-
-
-
-    /* 单厅视图 #hall-N：留在展厅界面，只陈列该厅（厅号不存在时回落全部展厅，避免白屏） */
-
-
-
-
-
-    if (/^hall-\d+$/.test(h) && doc.getElementById(h)){ v = "halls"; setSolo(h); }
-
-
-
-
-
-    else if (/^hall-\d+$/.test(h)){ try{ history.replaceState(null, "", "#halls"); }catch(e){} h = "halls"; setSolo(null); }
-
-
-
-
-
-    else if (!/^w-/.test(h)){ setSolo(null); }
-
-
-
-
-
-    /* 作品深链 #w-<编号>：不关闭灯箱、不回滚顶部；兼容 #w-NW-x-xxx 带前缀写法，编号不存在时清理脏 hash */
-
-
-
-
-
-    if (/^w-/.test(h)){
-
-
-
-
-
-      VIEWS.forEach(function(k){ if (viewEls[k]) viewEls[k].classList.toggle("active", k === "halls"); });
-
-
-
-
-
-      var no = decodeURIComponent(h.slice(2)).replace(/^NW-/, "");
-
-
-
-
-
-      var hit = false;
-
-
-
-
-
-      if (window.NW && window.NW.openByNo){
-
-
-
-
-
-        try { hit = !!window.NW.openByNo(no); } catch(e){}
-
-
-
-
-
-      }
-
-
-
-
-
-      if (!hit){
-
-
-
-
-
-        /* 首屏冷加载时灯箱模块尚未就绪：保留深链，轮询等它起来；编号无效才回落 */
-
-
-
-
-
-        var tries = 0;
-
-
-
-
-
-        var iv = setInterval(function(){
-
-
-
-
-
-          tries++;
-
-
-
-
-
-          var box = doc.getElementById("lightbox");
-
-
-
-
-
-          if (box && box.open){ clearInterval(iv); return; }
-
-
-
-
-
-          var ok = false;
-
-
-
-
-
-          if (window.NW && window.NW.openByNo){
-
-
-
-
-
-            try { ok = !!window.NW.openByNo(no); } catch(e){}
-
-
-
-
-
-          }
-
-
-
-
-
-          if (ok){ clearInterval(iv); }
-
-
-
-
-
-          else if (tries > 40){ clearInterval(iv); try{ history.replaceState(null, "", "#halls"); }catch(e){} }
-
-
-
-
-
-        }, 120);
-
-
-
-
-
-      }
-
-
-
-
-
-      return;
-
-
-
-
-
+  /* ---- v18.7.5 路由转场：点击反馈 → 换页 → 收尾 ---- */
+  var routeBar = doc.getElementById("routeProgress");
+  var sceneCurtain = doc.getElementById("sceneCurtain");
+  var routeBusy = false;
+  var routePending = false;
+  var routePoint = null;
+
+  try{
+    if ((navigator.hardwareConcurrency || 8) <= 4 || (navigator.deviceMemory || 8) <= 4) doc.documentElement.dataset.motion = "lite";
+  }catch(e){}
+
+  function markRouteOrigin(x, y){
+    if (typeof x === "number" && typeof y === "number" && isFinite(x) && isFinite(y)){
+      routePoint = { x:x, y:y, t:Date.now() };
     }
-
-
-
-
-
-    var deepTarget = null;
-
-
-
-
-
-    if (VIEWS.indexOf(h) < 0 && h && h !== "top"){
-
-
-
-
-
-      deepTarget = doc.getElementById(h);
-
-
-
-
-
-      if (deepTarget){
-
-
-
-
-
-        var host = deepTarget.closest ? deepTarget.closest(".view") : null;
-
-
-
-
-
-        if (host) v = host.id.replace("view-", "");
-
-
-
-
-
-      }
-
-
-
-
-
-    }
-
-
-
-
-
-    var applyView = function(){
-
-
-
-
-
-      VIEWS.forEach(function(k){
-
-
-
-
-
-        if (viewEls[k]) viewEls[k].classList.toggle("active", k === v);
-
-
-
-
-
-      });
-
-
-
-
-
-      syncNav(v);
-
-
-
-
-
-      syncTitle(v);
-
-
-
-
-
-    };
-
-
-
-
-
-    if (cur && cur.id !== "view-" + v) window.scrollTo(0, 0);
-    if (!window.__firstNav && doc.startViewTransition && !window.__vtRunning){
-
-
-
-
-
-      try{
-
-
-
-
-
-        var vt = doc.startViewTransition(applyView);
-
-
-
-
-
-        window.__vtRunning = true;
-
-
-
-
-
-        var clr = function(){ window.__vtRunning = false; };
-
-
-
-
-
-        ["ready","finished","updateCallbackDone"].forEach(function(k){
-
-
-
-
-
-          if (vt[k] && vt[k].then){ vt[k].then(clr).catch(clr); }
-
-
-
-
-
-        });
-
-
-
-
-
-      }catch(e){ applyView(); }
-
-
-
-
-
-    } else { applyView(); }
-
-
-
-
-
-    closeOverlays();
-
-
-
-
-
-    var fx = doc.getElementById("fxwipe");
-
-
-
-
-
-    if (fx && !reduce){ fx.classList.remove("run"); void fx.offsetWidth; fx.classList.add("run"); }
-
-
-
-
-
-    if (deepTarget && viewEls[v] && viewEls[v].contains(deepTarget)){
-
-
-
-
-
-      smoothTo(deepTarget);
-
-
-
-
-
-      return;
-
-
-
-
-
-    }
-
-
-
-
-
-    if (h && h !== v && h !== "top"){
-
-
-
-
-
-      var t = doc.getElementById(h);
-
-
-
-
-
-      if (t){
-
-
-
-
-
-
-
-
-
-
-        if (viewEls[v] && viewEls[v].contains(t)){ smoothTo(t); return; }
-
-
-
-
-
-      }
-
-
-
-
-
-    }
-
-
-
-
-
-    window.scrollTo(0, 0);
-
-
-
-
-
-    /* 压过浏览器原生锚点跳转：切换视图后滚回顶部，并立即亮起首屏揭示元素 */
-
-
-
-
-
-    setTimeout(function(){ window.scrollTo(0, 0); }, 80);
-
-
-
-
-
-    setTimeout(function(){
-
-
-
-
-
-      Array.prototype.forEach.call(doc.querySelectorAll(".view.active .reveal"), function(el){
-
-
-
-
-
-        var rc = el.getBoundingClientRect();
-
-
-
-
-
-        if (rc.top < window.innerHeight && rc.bottom > 0) el.classList.add("in");
-
-
-
-
-
-      });
-
-
-
-
-
-    }, 220);
-
-
-
-
-
+  }
+  window.NW.markRouteOrigin = markRouteOrigin;
+
+  doc.addEventListener("pointerdown", function(e){
+    var a = e.target && e.target.closest ? e.target.closest("a[href^='#']") : null;
+    if (a) markRouteOrigin(e.clientX, e.clientY);
+  }, { passive:true });
+
+  function pulseRoute(point){
+    if (reduce || !point) return;
+    var dot = doc.createElement("span");
+    dot.className = "route-ripple";
+    dot.style.left = point.x + "px";
+    dot.style.top = point.y + "px";
+    doc.body.appendChild(dot);
+    setTimeout(function(){ if (dot.parentNode) dot.parentNode.removeChild(dot); }, 680);
   }
 
+  function routeStart(){
+    if (routeBar){
+      routeBar.classList.remove("run");
+      void routeBar.offsetWidth;
+      routeBar.classList.add("run");
+    }
+    doc.body.classList.add("is-routing");
+    try{ doc.body.setAttribute("aria-busy", "true"); }catch(e){}
+  }
 
+  function routeDone(){
+    routeBusy = false;
+    doc.body.classList.remove("is-routing");
+    try{ doc.body.removeAttribute("aria-busy"); }catch(e){}
+    if (routeBar) routeBar.classList.remove("run");
+    if (routePending){
+      routePending = false;
+      setTimeout(navigate, 0);
+    }
+  }
 
+  function commitView(v){
+    VIEWS.forEach(function(k){
+      if (viewEls[k]) viewEls[k].classList.toggle("active", k === v);
+    });
+    syncNav(v);
+    syncTitle(v);
+  }
 
+  function revealActive(v){
+    setTimeout(function(){
+      var root = viewEls[v];
+      if (!root) return;
+      Array.prototype.forEach.call(root.querySelectorAll(".reveal"), function(el){
+        var rc = el.getBoundingClientRect();
+        if (rc.top < window.innerHeight && rc.bottom > 0) el.classList.add("in");
+      });
+    }, 220);
+  }
+
+  function settleRoute(h, v, deepTarget){
+    var target = null;
+    if (deepTarget && viewEls[v] && viewEls[v].contains(deepTarget)) target = deepTarget;
+    if (!target && h && h !== "top"){
+      var t = doc.getElementById(h);
+      if (t && viewEls[v] && viewEls[v].contains(t)) target = t;
+    }
+    if (target){
+      smoothTo(target);
+      return;
+    }
+    window.scrollTo(0, 0);
+    setTimeout(function(){ window.scrollTo(0, 0); }, 80);
+    revealActive(v);
+  }
+
+  function markEntering(v){
+    var el = viewEls[v];
+    if (!el) return;
+    el.classList.add("is-entering");
+    setTimeout(function(){ el.classList.remove("is-entering"); }, 680);
+  }
+
+  function playCurtainTransition(commit, done, label){
+    var pA = sceneCurtain && sceneCurtain.querySelector(".scene-curtain__panel--a");
+    var pB = sceneCurtain && sceneCurtain.querySelector(".scene-curtain__panel--b");
+    if (!sceneCurtain || !pA || !pB){
+      commit(); done(); return;
+    }
+    var dest = sceneCurtain.querySelector(".scene-curtain__dest");
+    if (dest) dest.textContent = label || "";
+    var mobile = window.matchMedia && window.matchMedia("(max-width:640px)").matches;
+    var inDur = mobile ? 230 : 300;
+    var outDur = mobile ? 300 : 360;
+
+    sceneCurtain.classList.remove("is-cover", "is-reveal");
+    sceneCurtain.classList.add("is-active");
+    void sceneCurtain.offsetWidth;
+    sceneCurtain.classList.add("is-cover");
+    setTimeout(function(){
+      commit();
+      sceneCurtain.classList.remove("is-cover");
+      sceneCurtain.classList.add("is-reveal");
+      setTimeout(function(){
+        sceneCurtain.classList.remove("is-active", "is-reveal");
+        done();
+      }, outDur + 120);
+    }, inDur + 30);
+  }
+
+  function navigate(){
+    if (routeBusy){ routePending = true; return; }
+
+    var h = (location.hash || "").replace(/^#/, "").replace(/%20/g, " ");
+    var cur = doc.querySelector(".view.active");
+    var v = cur ? cur.id.replace("view-", "") : "home";
+    if (VIEWS.indexOf(h) >= 0) v = h;
+
+    if (/^hall-\d+$/.test(h) && doc.getElementById(h)){ v = "halls"; setSolo(h); }
+    else if (/^hall-\d+$/.test(h)){ try{ history.replaceState(null, "", "#halls"); }catch(e){} h = "halls"; setSolo(null); }
+    else if (!/^w-/.test(h)){ setSolo(null); }
+
+    if (/^w-/.test(h)){
+      VIEWS.forEach(function(k){ if (viewEls[k]) viewEls[k].classList.toggle("active", k === "halls"); });
+      var no = decodeURIComponent(h.slice(2)).replace(/^NW-/, "");
+      var hit = false;
+      if (window.NW && window.NW.openByNo){ try { hit = !!window.NW.openByNo(no); } catch(e){} }
+      if (!hit){
+        var tries = 0;
+        var iv = setInterval(function(){
+          tries++;
+          var box = doc.getElementById("lightbox");
+          if (box && box.open){ clearInterval(iv); return; }
+          var ok = false;
+          if (window.NW && window.NW.openByNo){ try { ok = !!window.NW.openByNo(no); } catch(e){} }
+          if (ok){ clearInterval(iv); }
+          else if (tries > 40){ clearInterval(iv); try{ history.replaceState(null, "", "#halls"); }catch(e){} }
+        }, 120);
+      }
+      return;
+    }
+
+    var deepTarget = null;
+    if (VIEWS.indexOf(h) < 0 && h && h !== "top"){
+      deepTarget = doc.getElementById(h);
+      if (deepTarget){
+        var host = deepTarget.closest ? deepTarget.closest(".view") : null;
+        if (host) v = host.id.replace("view-", "");
+      }
+    }
+
+    var changing = !!cur && cur.id !== "view-" + v;
+    if (!changing){
+      commitView(v);
+      closeOverlays();
+      settleRoute(h, v, deepTarget);
+      return;
+    }
+
+    routeBusy = true;
+    pulseRoute(routePoint && Date.now() - routePoint.t < 1400 ? routePoint : null);
+    routePoint = null;
+    routeStart();
+
+    var committed = false;
+    function commit(enter){
+      if (committed) return;
+      committed = true;
+      commitView(v);
+      closeOverlays();
+      settleRoute(h, v, deepTarget);
+      if (enter) markEntering(v);
+    }
+    function finish(){ routeDone(); }
+
+    if (!reduce){
+      playCurtainTransition(function(){ commit(true); }, finish, VIEW_TITLES[v] || "");
+    } else {
+      commit(false);
+      finish();
+    }
+  }
 
   window.addEventListener("hashchange", navigate);
 
@@ -21429,12 +21173,6 @@ button:disabled,.hall__arrow:disabled{opacity:.28;cursor:not-allowed;pointer-eve
 
 
   if (!location.hash){ try{ history.replaceState(null, "", "#home"); }catch(e){} }
-
-
-
-
-
-  window.__firstNav = true;
 
 
 
@@ -27801,11 +27539,31 @@ button:disabled,.hall__arrow:disabled{opacity:.28;cursor:not-allowed;pointer-eve
 
 
 
-<script>/* 主题开关 */
+<script>/* 主题开关：原生转场从按钮位置绽开，不支持时软切底色 */
 (function(){var root=document.documentElement,btn=document.getElementById("themeBtn");if(!btn)return;
+var reduce=false;try{reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;}catch(e){}
 function cur(){return root.getAttribute("data-theme")==="light"?"light":"dark";}
 function paint(){var l=cur()==="light";btn.setAttribute("aria-pressed",l?"true":"false");btn.setAttribute("aria-label",l?"切换到深色主题":"切换到浅色主题");btn.title=l?"深色主题":"浅色主题";}
-btn.addEventListener("click",function(){var n=cur()==="light"?"dark":"light";root.setAttribute("data-theme",n);try{localStorage.setItem("nlu-theme",n);}catch(e){}paint();});
+function apply(n){root.setAttribute("data-theme",n);try{localStorage.setItem("nlu-theme",n);}catch(e){}paint();}
+btn.addEventListener("click",function(e){
+  var n=cur()==="light"?"dark":"light";
+  btn.classList.add("is-spinning");setTimeout(function(){btn.classList.remove("is-spinning");},560);
+  if (!reduce){ root.classList.add("theme-fade");setTimeout(function(){root.classList.remove("theme-fade");},560); }
+  if(document.startViewTransition && !reduce && !window.__vtRunning){
+    var r=btn.getBoundingClientRect();
+    root.style.setProperty("--route-x",(r.left+r.width/2)+"px");
+    root.style.setProperty("--route-y",(r.top+r.height/2)+"px");
+    window.__vtRunning=true;
+    try{
+      var vt=document.startViewTransition(function(){apply(n);});
+      var done=function(){window.__vtRunning=false;};
+      if(vt.finished&&vt.finished.then)vt.finished.then(done).catch(done);else done();
+      setTimeout(done,900);
+    }catch(err){window.__vtRunning=false;apply(n);}
+  }else{
+    apply(n);
+  }
+});
 paint();})();
 </script>
 
@@ -27858,6 +27616,10 @@ paint();})();
     var href=a.getAttribute('href')||'';
     if(href.charAt(0)!=='#' || href.length<2) return;
     e.preventDefault();
+    if(window.NW && window.NW.markRouteOrigin){
+      if(e.detail) window.NW.markRouteOrigin(e.clientX,e.clientY);
+      else window.NW.markRouteOrigin(undefined,undefined);
+    }
     if(href==='#top'){ window.scrollTo({top:0,behavior:'smooth'}); return; }
     if(location.hash===href){ if(window.NW && window.NW.navigate) window.NW.navigate(); return; }
     try{ history.pushState(null,'',href); }catch(err){ location.hash=href; }

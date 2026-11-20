@@ -304,7 +304,7 @@
 
 
 
-  var VIEW_TITLES = { home:"圣殿之门", halls:"常设展", chronicle:"艺术史长河", visit:"朝圣之路", friends:"友站星图", search:"馆藏检索", about:"游客中心" };
+  var VIEW_TITLES = { home:"圣殿之门", halls:"常设展", chronicle:"艺术史长河", visit:"朝圣之路", relics:"圣物图鉴", friends:"友站星图", search:"馆藏检索", about:"游客中心" };
 
 
 
@@ -419,503 +419,201 @@
 
 
 
-  function navigate(){
-
-
-
-
-
-    var h = (location.hash || "").replace(/^#/, "").replace(/%20/g, " ");
-
-
-
-
-
-    var cur = doc.querySelector(".view.active");
-
-
-
-
-
-    var v = cur ? cur.id.replace("view-", "") : "home";
-
-
-
-
-
-    if (VIEWS.indexOf(h) >= 0) v = h;
-
-
-
-
-
-    /* 单厅视图 #hall-N：留在展厅界面，只陈列该厅（厅号不存在时回落全部展厅，避免白屏） */
-
-
-
-
-
-    if (/^hall-\d+$/.test(h) && doc.getElementById(h)){ v = "halls"; setSolo(h); }
-
-
-
-
-
-    else if (/^hall-\d+$/.test(h)){ try{ history.replaceState(null, "", "#halls"); }catch(e){} h = "halls"; setSolo(null); }
-
-
-
-
-
-    else if (!/^w-/.test(h)){ setSolo(null); }
-
-
-
-
-
-    /* 作品深链 #w-<编号>：不关闭灯箱、不回滚顶部；兼容 #w-NW-x-xxx 带前缀写法，编号不存在时清理脏 hash */
-
-
-
-
-
-    if (/^w-/.test(h)){
-
-
-
-
-
-      VIEWS.forEach(function(k){ if (viewEls[k]) viewEls[k].classList.toggle("active", k === "halls"); });
-
-
-
-
-
-      var no = decodeURIComponent(h.slice(2)).replace(/^NW-/, "");
-
-
-
-
-
-      var hit = false;
-
-
-
-
-
-      if (window.NW && window.NW.openByNo){
-
-
-
-
-
-        try { hit = !!window.NW.openByNo(no); } catch(e){}
-
-
-
-
-
-      }
-
-
-
-
-
-      if (!hit){
-
-
-
-
-
-        /* 首屏冷加载时灯箱模块尚未就绪：保留深链，轮询等它起来；编号无效才回落 */
-
-
-
-
-
-        var tries = 0;
-
-
-
-
-
-        var iv = setInterval(function(){
-
-
-
-
-
-          tries++;
-
-
-
-
-
-          var box = doc.getElementById("lightbox");
-
-
-
-
-
-          if (box && box.open){ clearInterval(iv); return; }
-
-
-
-
-
-          var ok = false;
-
-
-
-
-
-          if (window.NW && window.NW.openByNo){
-
-
-
-
-
-            try { ok = !!window.NW.openByNo(no); } catch(e){}
-
-
-
-
-
-          }
-
-
-
-
-
-          if (ok){ clearInterval(iv); }
-
-
-
-
-
-          else if (tries > 40){ clearInterval(iv); try{ history.replaceState(null, "", "#halls"); }catch(e){} }
-
-
-
-
-
-        }, 120);
-
-
-
-
-
-      }
-
-
-
-
-
-      return;
-
-
-
-
-
+  /* ---- v18.7.5 路由转场：点击反馈 → 换页 → 收尾 ---- */
+  var routeBar = doc.getElementById("routeProgress");
+  var sceneCurtain = doc.getElementById("sceneCurtain");
+  var routeBusy = false;
+  var routePending = false;
+  var routePoint = null;
+
+  try{
+    if ((navigator.hardwareConcurrency || 8) <= 4 || (navigator.deviceMemory || 8) <= 4) doc.documentElement.dataset.motion = "lite";
+  }catch(e){}
+
+  function markRouteOrigin(x, y){
+    if (typeof x === "number" && typeof y === "number" && isFinite(x) && isFinite(y)){
+      routePoint = { x:x, y:y, t:Date.now() };
     }
-
-
-
-
-
-    var deepTarget = null;
-
-
-
-
-
-    if (VIEWS.indexOf(h) < 0 && h && h !== "top"){
-
-
-
-
-
-      deepTarget = doc.getElementById(h);
-
-
-
-
-
-      if (deepTarget){
-
-
-
-
-
-        var host = deepTarget.closest ? deepTarget.closest(".view") : null;
-
-
-
-
-
-        if (host) v = host.id.replace("view-", "");
-
-
-
-
-
-      }
-
-
-
-
-
-    }
-
-
-
-
-
-    var applyView = function(){
-
-
-
-
-
-      VIEWS.forEach(function(k){
-
-
-
-
-
-        if (viewEls[k]) viewEls[k].classList.toggle("active", k === v);
-
-
-
-
-
-      });
-
-
-
-
-
-      syncNav(v);
-
-
-
-
-
-      syncTitle(v);
-
-
-
-
-
-    };
-
-
-
-
-
-    if (cur && cur.id !== "view-" + v) window.scrollTo(0, 0);
-    if (!window.__firstNav && doc.startViewTransition && !window.__vtRunning){
-
-
-
-
-
-      try{
-
-
-
-
-
-        var vt = doc.startViewTransition(applyView);
-
-
-
-
-
-        window.__vtRunning = true;
-
-
-
-
-
-        var clr = function(){ window.__vtRunning = false; };
-
-
-
-
-
-        ["ready","finished","updateCallbackDone"].forEach(function(k){
-
-
-
-
-
-          if (vt[k] && vt[k].then){ vt[k].then(clr).catch(clr); }
-
-
-
-
-
-        });
-
-
-
-
-
-      }catch(e){ applyView(); }
-
-
-
-
-
-    } else { applyView(); }
-
-
-
-
-
-    closeOverlays();
-
-
-
-
-
-    var fx = doc.getElementById("fxwipe");
-
-
-
-
-
-    if (fx && !reduce){ fx.classList.remove("run"); void fx.offsetWidth; fx.classList.add("run"); }
-
-
-
-
-
-    if (deepTarget && viewEls[v] && viewEls[v].contains(deepTarget)){
-
-
-
-
-
-      smoothTo(deepTarget);
-
-
-
-
-
-      return;
-
-
-
-
-
-    }
-
-
-
-
-
-    if (h && h !== v && h !== "top"){
-
-
-
-
-
-      var t = doc.getElementById(h);
-
-
-
-
-
-      if (t){
-
-
-
-
-
-
-
-
-
-
-        if (viewEls[v] && viewEls[v].contains(t)){ smoothTo(t); return; }
-
-
-
-
-
-      }
-
-
-
-
-
-    }
-
-
-
-
-
-    window.scrollTo(0, 0);
-
-
-
-
-
-    /* 压过浏览器原生锚点跳转：切换视图后滚回顶部，并立即亮起首屏揭示元素 */
-
-
-
-
-
-    setTimeout(function(){ window.scrollTo(0, 0); }, 80);
-
-
-
-
-
-    setTimeout(function(){
-
-
-
-
-
-      Array.prototype.forEach.call(doc.querySelectorAll(".view.active .reveal"), function(el){
-
-
-
-
-
-        var rc = el.getBoundingClientRect();
-
-
-
-
-
-        if (rc.top < window.innerHeight && rc.bottom > 0) el.classList.add("in");
-
-
-
-
-
-      });
-
-
-
-
-
-    }, 220);
-
-
-
-
-
+  }
+  window.NW.markRouteOrigin = markRouteOrigin;
+
+  doc.addEventListener("pointerdown", function(e){
+    var a = e.target && e.target.closest ? e.target.closest("a[href^='#']") : null;
+    if (a) markRouteOrigin(e.clientX, e.clientY);
+  }, { passive:true });
+
+  function pulseRoute(point){
+    if (reduce || !point) return;
+    var dot = doc.createElement("span");
+    dot.className = "route-ripple";
+    dot.style.left = point.x + "px";
+    dot.style.top = point.y + "px";
+    doc.body.appendChild(dot);
+    setTimeout(function(){ if (dot.parentNode) dot.parentNode.removeChild(dot); }, 680);
   }
 
+  function routeStart(){
+    if (routeBar){
+      routeBar.classList.remove("run");
+      void routeBar.offsetWidth;
+      routeBar.classList.add("run");
+    }
+    doc.body.classList.add("is-routing");
+    try{ doc.body.setAttribute("aria-busy", "true"); }catch(e){}
+  }
 
+  function routeDone(){
+    routeBusy = false;
+    doc.body.classList.remove("is-routing");
+    try{ doc.body.removeAttribute("aria-busy"); }catch(e){}
+    if (routeBar) routeBar.classList.remove("run");
+    if (routePending){
+      routePending = false;
+      setTimeout(navigate, 0);
+    }
+  }
 
+  function commitView(v){
+    VIEWS.forEach(function(k){
+      if (viewEls[k]) viewEls[k].classList.toggle("active", k === v);
+    });
+    syncNav(v);
+    syncTitle(v);
+  }
 
+  function revealActive(v){
+    setTimeout(function(){
+      var root = viewEls[v];
+      if (!root) return;
+      Array.prototype.forEach.call(root.querySelectorAll(".reveal"), function(el){
+        var rc = el.getBoundingClientRect();
+        if (rc.top < window.innerHeight && rc.bottom > 0) el.classList.add("in");
+      });
+    }, 220);
+  }
+
+  function settleRoute(h, v, deepTarget){
+    var target = null;
+    if (deepTarget && viewEls[v] && viewEls[v].contains(deepTarget)) target = deepTarget;
+    if (!target && h && h !== "top"){
+      var t = doc.getElementById(h);
+      if (t && viewEls[v] && viewEls[v].contains(t)) target = t;
+    }
+    if (target){
+      smoothTo(target);
+      return;
+    }
+    window.scrollTo(0, 0);
+    setTimeout(function(){ window.scrollTo(0, 0); }, 80);
+    revealActive(v);
+  }
+
+  function markEntering(v){
+    var el = viewEls[v];
+    if (!el) return;
+    el.classList.add("is-entering");
+    setTimeout(function(){ el.classList.remove("is-entering"); }, 680);
+  }
+
+  function playCurtainTransition(commit, done, label){
+    var pA = sceneCurtain && sceneCurtain.querySelector(".scene-curtain__panel--a");
+    var pB = sceneCurtain && sceneCurtain.querySelector(".scene-curtain__panel--b");
+    if (!sceneCurtain || !pA || !pB){
+      commit(); done(); return;
+    }
+    var dest = sceneCurtain.querySelector(".scene-curtain__dest");
+    if (dest) dest.textContent = label || "";
+    var mobile = window.matchMedia && window.matchMedia("(max-width:640px)").matches;
+    var inDur = mobile ? 230 : 300;
+    var outDur = mobile ? 300 : 360;
+
+    sceneCurtain.classList.remove("is-cover", "is-reveal");
+    sceneCurtain.classList.add("is-active");
+    void sceneCurtain.offsetWidth;
+    sceneCurtain.classList.add("is-cover");
+    setTimeout(function(){
+      commit();
+      sceneCurtain.classList.remove("is-cover");
+      sceneCurtain.classList.add("is-reveal");
+      setTimeout(function(){
+        sceneCurtain.classList.remove("is-active", "is-reveal");
+        done();
+      }, outDur + 120);
+    }, inDur + 30);
+  }
+
+  function navigate(){
+    if (routeBusy){ routePending = true; return; }
+
+    var h = (location.hash || "").replace(/^#/, "").replace(/%20/g, " ");
+    var cur = doc.querySelector(".view.active");
+    var v = cur ? cur.id.replace("view-", "") : "home";
+    if (VIEWS.indexOf(h) >= 0) v = h;
+
+    if (/^hall-\d+$/.test(h) && doc.getElementById(h)){ v = "halls"; setSolo(h); }
+    else if (/^hall-\d+$/.test(h)){ try{ history.replaceState(null, "", "#halls"); }catch(e){} h = "halls"; setSolo(null); }
+    else if (!/^w-/.test(h)){ setSolo(null); }
+
+    if (/^w-/.test(h)){
+      VIEWS.forEach(function(k){ if (viewEls[k]) viewEls[k].classList.toggle("active", k === "halls"); });
+      var no = decodeURIComponent(h.slice(2)).replace(/^NW-/, "");
+      var hit = false;
+      if (window.NW && window.NW.openByNo){ try { hit = !!window.NW.openByNo(no); } catch(e){} }
+      if (!hit){
+        var tries = 0;
+        var iv = setInterval(function(){
+          tries++;
+          var box = doc.getElementById("lightbox");
+          if (box && box.open){ clearInterval(iv); return; }
+          var ok = false;
+          if (window.NW && window.NW.openByNo){ try { ok = !!window.NW.openByNo(no); } catch(e){} }
+          if (ok){ clearInterval(iv); }
+          else if (tries > 40){ clearInterval(iv); try{ history.replaceState(null, "", "#halls"); }catch(e){} }
+        }, 120);
+      }
+      return;
+    }
+
+    var deepTarget = null;
+    if (VIEWS.indexOf(h) < 0 && h && h !== "top"){
+      deepTarget = doc.getElementById(h);
+      if (deepTarget){
+        var host = deepTarget.closest ? deepTarget.closest(".view") : null;
+        if (host) v = host.id.replace("view-", "");
+      }
+    }
+
+    var changing = !!cur && cur.id !== "view-" + v;
+    if (!changing){
+      commitView(v);
+      closeOverlays();
+      settleRoute(h, v, deepTarget);
+      return;
+    }
+
+    routeBusy = true;
+    pulseRoute(routePoint && Date.now() - routePoint.t < 1400 ? routePoint : null);
+    routePoint = null;
+    routeStart();
+
+    var committed = false;
+    function commit(enter){
+      if (committed) return;
+      committed = true;
+      commitView(v);
+      closeOverlays();
+      settleRoute(h, v, deepTarget);
+      if (enter) markEntering(v);
+    }
+    function finish(){ routeDone(); }
+
+    if (!reduce){
+      playCurtainTransition(function(){ commit(true); }, finish, VIEW_TITLES[v] || "");
+    } else {
+      commit(false);
+      finish();
+    }
+  }
 
   window.addEventListener("hashchange", navigate);
 
@@ -924,12 +622,6 @@
 
 
   if (!location.hash){ try{ history.replaceState(null, "", "#home"); }catch(e){} }
-
-
-
-
-
-  window.__firstNav = true;
 
 
 
@@ -7296,11 +6988,31 @@
 
 
 
-<script>/* 主题开关 */
+<script>/* 主题开关：原生转场从按钮位置绽开，不支持时软切底色 */
 (function(){var root=document.documentElement,btn=document.getElementById("themeBtn");if(!btn)return;
+var reduce=false;try{reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;}catch(e){}
 function cur(){return root.getAttribute("data-theme")==="light"?"light":"dark";}
 function paint(){var l=cur()==="light";btn.setAttribute("aria-pressed",l?"true":"false");btn.setAttribute("aria-label",l?"切换到深色主题":"切换到浅色主题");btn.title=l?"深色主题":"浅色主题";}
-btn.addEventListener("click",function(){var n=cur()==="light"?"dark":"light";root.setAttribute("data-theme",n);try{localStorage.setItem("nlu-theme",n);}catch(e){}paint();});
+function apply(n){root.setAttribute("data-theme",n);try{localStorage.setItem("nlu-theme",n);}catch(e){}paint();}
+btn.addEventListener("click",function(e){
+  var n=cur()==="light"?"dark":"light";
+  btn.classList.add("is-spinning");setTimeout(function(){btn.classList.remove("is-spinning");},560);
+  if (!reduce){ root.classList.add("theme-fade");setTimeout(function(){root.classList.remove("theme-fade");},560); }
+  if(document.startViewTransition && !reduce && !window.__vtRunning){
+    var r=btn.getBoundingClientRect();
+    root.style.setProperty("--route-x",(r.left+r.width/2)+"px");
+    root.style.setProperty("--route-y",(r.top+r.height/2)+"px");
+    window.__vtRunning=true;
+    try{
+      var vt=document.startViewTransition(function(){apply(n);});
+      var done=function(){window.__vtRunning=false;};
+      if(vt.finished&&vt.finished.then)vt.finished.then(done).catch(done);else done();
+      setTimeout(done,900);
+    }catch(err){window.__vtRunning=false;apply(n);}
+  }else{
+    apply(n);
+  }
+});
 paint();})();
 </script>
 
@@ -7353,6 +7065,10 @@ paint();})();
     var href=a.getAttribute('href')||'';
     if(href.charAt(0)!=='#' || href.length<2) return;
     e.preventDefault();
+    if(window.NW && window.NW.markRouteOrigin){
+      if(e.detail) window.NW.markRouteOrigin(e.clientX,e.clientY);
+      else window.NW.markRouteOrigin(undefined,undefined);
+    }
     if(href==='#top'){ window.scrollTo({top:0,behavior:'smooth'}); return; }
     if(location.hash===href){ if(window.NW && window.NW.navigate) window.NW.navigate(); return; }
     try{ history.pushState(null,'',href); }catch(err){ location.hash=href; }

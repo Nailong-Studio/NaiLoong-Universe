@@ -123,25 +123,27 @@
 
 
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
 
 
 
 
 
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
 
 
 
 
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Noto+Serif+SC:wght@300;400;600;900&family=Noto+Sans+SC:wght@300;400;500&display=swap">
 
 
 
 
 
 <style>
+/* 自托管字体：Noto Serif/Sans CJK SC 子集，OFL 授权 */
+@font-face{font-family:"Naiwa Serif";src:url("fonts/naiwa-serif-400.woff2") format("woff2");font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:"Naiwa Serif";src:url("fonts/naiwa-serif-600.woff2") format("woff2");font-weight:600;font-style:normal;font-display:swap}
+@font-face{font-family:"Naiwa Sans";src:url("fonts/naiwa-sans-400.woff2") format("woff2");font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:"Naiwa Sans";src:url("fonts/naiwa-sans-500.woff2") format("woff2");font-weight:500;font-style:normal;font-display:swap}
 
 
 
@@ -220,19 +222,19 @@
 
 
 
-  --serif:"Noto Serif SC","Songti SC","SimSun",serif;
+  --serif:"Naiwa Serif","Songti SC","STSong","Noto Serif CJK SC","Source Han Serif SC","SimSun",serif;
 
 
 
 
 
-  --serif-lat:"Cormorant Garamond","Noto Serif SC",serif;
+  --serif-lat:"Naiwa Serif","Iowan Old Style","Baskerville","Palatino Linotype",Palatino,Georgia,serif;
 
 
 
 
 
-  --sans:"Noto Sans SC","PingFang SC","Microsoft YaHei",sans-serif;
+  --sans:"Naiwa Sans","PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans CJK SC",sans-serif;
 
 
 
@@ -275,18 +277,18 @@
 
 
 html[data-theme="light"]{
-  --void:#F5EEE2;
-  --ash:#EDE3D2;
-  --ash-2:#E3D7C3;
-  --gold:#8A6720;
-  --gold-bright:#9E7420;
-  --gold-dim:rgba(138,103,32,.26);
-  --eye:#2F7D33;
-  --ivory:#231E16;
-  --ink-strong:#120E09;
-  --ivory-dim:#5E5241;
-  --line:rgba(138,103,32,.34);
-  --glass:rgba(255,252,245,.84);
+  --void:#F3E9DA;
+  --ash:#EADCC7;
+  --ash-2:#DCC8A9;
+  --gold:#7A5312;
+  --gold-bright:#A66A12;
+  --gold-dim:rgba(122,83,18,.34);
+  --eye:#2F6E38;
+  --ivory:#17120D;
+  --ink-strong:#080503;
+  --ivory-dim:#4C3A26;
+  --line:rgba(122,83,18,.42);
+  --glass:rgba(255,250,241,.92);
   color-scheme:light;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -295,7 +297,7 @@ html[data-theme="light"]{
 
 
 
-html{scroll-behavior:smooth}
+html{scroll-behavior:auto} /* 页面切换瞬间归位；站内锚点用 smoothTo 显式平滑 */
 
 
 
@@ -8371,7 +8373,7 @@ html[data-theme="light"] #searchInput::placeholder,html[data-theme="light"] #vau
   .relic__grid .wall:hover img,.relic__grid.emotes .emo:hover img{transform:none}
 }
 /* ============================================================
-   v18.7.2 · 双端分展
+   v18.7.3 · 双端分展
    统一页头 / 展签卡片 / 金尘浮光 / 移动端检索
    ============================================================ */
 
@@ -8745,6 +8747,59 @@ section[id]:not([id^="view-"]){scroll-margin-top:180px}
   .view:not(#view-home) .view__bar{padding-top:calc(70px + env(safe-area-inset-top,0px))}
   .halls-nav{top:calc(70px + env(safe-area-inset-top,0px))}
 }
+
+/* v18.7.3 · 字体/配色/顶栏安全区/动态细节 */
+:root{--safe-top:0px}
+@media (display-mode: standalone), (display-mode: fullscreen){
+  :root{--safe-top:env(safe-area-inset-top,0px)}
+}
+@media (max-width:640px){
+  .nav{padding:calc(10px + var(--safe-top)) 20px 10px}
+  .nav.scrolled{padding-top:calc(8px + var(--safe-top));padding-bottom:8px}
+  .masthead{padding-top:calc(70px + var(--safe-top))}
+  .view:not(#view-home) .view__bar{padding-top:calc(70px + var(--safe-top))}
+  .halls-nav{top:calc(70px + var(--safe-top))}
+}
+@media (max-width:860px){
+  .nav__links{padding-top:calc(84px + var(--safe-top))}
+}
+.chamber__close{top:calc(18px + var(--safe-top))}
+body{font-weight:400;text-rendering:optimizeLegibility}
+.masthead__title,.creed__title,.daily-banner .daily__title,.section__title,.view__title,.portal__title,.era__title,.relic__title,.chamber__title,.footer__bless{font-weight:600}
+.masthead__lede{color:color-mix(in srgb,var(--ivory) 94%,transparent);font-weight:400}
+.masthead__meta{color:color-mix(in srgb,var(--ivory-dim) 92%,transparent);font-weight:400}
+.creed__lead,.creed__sub,.section__note,.daily-banner .daily__hall{font-weight:400}
+html[data-theme="light"] .masthead__lede{color:#2B2116}
+html[data-theme="light"] .masthead__meta{color:#5B452E}
+html[data-theme="light"] .section__note{color:#4A3823}
+html[data-theme="light"] .masthead__eyebrow{color:#6C4A0E}
+
+/* 双向滑字带：两行反向移动，作为门厅与序言之间的呼吸 */
+.ticker{position:relative;overflow:hidden;border-block:1px solid var(--line);background:color-mix(in srgb,var(--ash) 42%,transparent);padding:9px 0 8px;margin:0}
+.ticker__row{display:flex;gap:0;width:max-content;white-space:nowrap;animation:tickerLeft 26s linear infinite;will-change:transform}
+.ticker__row + .ticker__row{margin-top:3px;animation-name:tickerRight;animation-duration:34s;opacity:.74}
+.ticker__row span{display:inline-flex;align-items:center;gap:.8rem;padding-right:2.4rem;font-family:var(--sans);font-size:.64rem;letter-spacing:.2em;color:var(--ivory-dim);text-transform:uppercase}
+.ticker__row b{color:var(--gold);font-weight:500}
+@keyframes tickerLeft{to{transform:translateX(-50%)}}
+@keyframes tickerRight{from{transform:translateX(-50%)}to{transform:translateX(0)}}
+@media (prefers-reduced-motion:reduce){
+  .ticker__row{animation:none;width:auto;flex-wrap:wrap}
+}
+
+/* 打字机：只用于门厅的英文题签，避免拖慢中文正文 */
+.typewriter{display:inline-flex;align-items:center;min-height:1.15em;white-space:nowrap}
+.typewriter::after{content:"";display:inline-block;width:1px;height:1em;margin-left:.16em;background:var(--gold);vertical-align:middle}
+.typewriter.typing::after{animation:caretBlink .78s steps(1) infinite}
+.typewriter.typed::after{opacity:0}
+@keyframes caretBlink{50%{opacity:0}}
+
+/* 页面入场更柔：轻微上浮，不拖慢首屏 */
+.view.active{animation:viewIn .55s var(--ease) both}
+@keyframes viewIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+::view-transition-old(root){animation:vtOut .32s var(--ease) both}
+::view-transition-new(root){animation:vtIn .5s var(--ease) both}
+@keyframes vtIn{from{opacity:0;transform:translateY(14px) scale(.996)}to{opacity:1;transform:none}}
+
 </style>
 
 
@@ -8754,6 +8809,7 @@ section[id]:not([id^="view-"]){scroll-margin-top:180px}
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"WebSite","name":"奶蛙艺术圣殿","alternateName":"Naiwa Art Universe","url":"https://nailoong-universe.pages.dev/","description":"四百年西方美术的奶蛙版圣像馆：187 件馆藏、8 间展厅、406 件图鉴。","inLanguage":"zh-CN","isFamilyFriendly":true}
 </script>
+<!-- 字体自托管：国内网络可用，不依赖 Google Fonts -->
 </head>
 
 

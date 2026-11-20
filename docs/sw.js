@@ -1,8 +1,10 @@
-/* 奶蛙艺术圣殿 · Service Worker（v18.7.2）
+/* 奶蛙艺术圣殿 · Service Worker（v18.7.3）
    外壳 network-first + 离线回退；同源媒体 cache-first 运行时缓存（上限 240 条）。
    纯静态站点：换版本改 VERSION 即可全量失效旧缓存。 */
-var VERSION = "nw-v18.7.2";
-var SHELL = ["./", "./index.html", "./data/collection.json", "./manifest.webmanifest"];
+var VERSION = "nw-v18.7.3";
+var SHELL = ["./", "./index.html", "./data/collection.json", "./manifest.webmanifest",
+  "./fonts/naiwa-serif-400.woff2", "./fonts/naiwa-serif-600.woff2",
+  "./fonts/naiwa-sans-400.woff2", "./fonts/naiwa-sans-500.woff2"];
 
 self.addEventListener("install", function (e) {
   e.waitUntil(
@@ -46,7 +48,7 @@ self.addEventListener("fetch", function (e) {
   }
 
   /* 同源媒体：cache-first + 运行时缓存（只缓存 200 全量响应，防 206 视频分片污染） */
-  if (/\.(png|jpe?g|webp|gif|svg|mp3|mp4|webm)$/i.test(url.pathname)) {
+  if (/\.(png|jpe?g|webp|gif|svg|woff2|mp3|mp4|webm)$/i.test(url.pathname)) {
     e.respondWith(
       caches.match(req).then(function (hit) {
         if (hit) return hit;

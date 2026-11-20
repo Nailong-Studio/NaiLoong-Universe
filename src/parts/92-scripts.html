@@ -7403,6 +7403,27 @@ function paint(){var l=cur()==="light";btn.setAttribute("aria-pressed",l?"true":
 btn.addEventListener("click",function(){var n=cur()==="light"?"dark":"light";root.setAttribute("data-theme",n);try{localStorage.setItem("nlu-theme",n);}catch(e){}paint();});
 paint();})();
 </script>
+
+<script>/* 门厅英文题签：打字机 */
+(function(){
+  var el=document.querySelector('[data-typewriter]');
+  if(!el) return;
+  var full=(el.textContent||'').trim();
+  if(!full) return;
+  var reduce=false; try{ reduce=matchMedia('(prefers-reduced-motion: reduce)').matches; }catch(e){}
+  el.setAttribute('aria-label',full);
+  if(reduce){ el.classList.add('typed'); return; }
+  el.textContent=''; el.classList.add('typing');
+  var i=0;
+  function tick(){
+    i++;
+    el.textContent=full.slice(0,i);
+    if(i<full.length){ setTimeout(tick,36); }
+    else { el.classList.remove('typing'); el.classList.add('typed'); }
+  }
+  setTimeout(tick,120);
+})();
+</script>
 </body>
 
 

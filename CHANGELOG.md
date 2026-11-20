@@ -1,5 +1,23 @@
 # 变更日志
 
+## v18.1.2（2026-11-20）· 搜索引擎基建与取景修正
+
+**新增**
+
+- `docs/robots.txt` 与 `docs/sitemap.xml`，站点首次对爬虫给出明确入口
+- `<link rel="canonical">` 指向主域 `https://nailoong-universe.pages.dev/`
+- `WebSite` 结构化数据（JSON-LD），补 `name / alternateName / url / inLanguage`
+
+**修复**
+
+- `og:url` 与 `og:image` 仍指向 GitHub Pages 镜像，与主域不一致，已改到 Cloudflare 域
+- 展厅横滑卡固定 `object-position:center`，竖构图名画的头部被裁掉，改为 `center 32%`
+- 图鉴最小列宽 168px 在 1910 宽下只有 168px 一列，改为 190px（实测 6 列 / 203px）
+
+**工程**
+
+- `check_site.py` 的 HTML 门禁把 JSON-LD 当 JS 解析而误报，现跳过 `application/ld+json` 等非 JS 内联块
+
 ## v18.1.1（2026-11-20）· 顶栏回归修复
 
 **修复**

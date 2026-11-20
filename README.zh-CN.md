@@ -180,7 +180,7 @@
 
 **NAIWA ART UNIVERSE** · 圣殿长明，欢迎常来
 
-如果这个项目让你笑了，[点个 Star](https://github.com/Nailong-Studio/NaiLoong-Universe/stargazers) 给圣殿添灯；
+如果奶蛙系列让你笑了一下，给五个项目各点一颗 Star：[圣殿](https://github.com/Nailong-Studio/NaiLoong-Universe)、[素材仓库](https://github.com/Nailong-Studio/NaiWa-Wallpaper)、[新标签页扩展](https://github.com/Nailong-Studio/NaiWa-NewTab)、[像素游戏](https://github.com/Nailong-Studio/naiwa)、[像素表情技能](https://github.com/Nailong-Studio/naiwa-pixel-stickers)。
 要是它让你笑出声了，[提交一件素材](https://github.com/Nailong-Studio/NaiWa-Wallpaper/blob/main/CONTRIBUTING.md) 直接当圣殿股东。
 再不行，把它分享给一个笑点低的朋友——也算积德。
 

@@ -154,6 +154,12 @@ VERSIONING.md                SemVer rules and the release checklist
 Read [CONTRIBUTING.md](CONTRIBUTING.md). Short version: fork, run the gate, keep
 the commit subject imperative, do not hand-edit generated blocks.
 
+## Star the NaiWa five
+
+If the museum made you smile, give all five projects a star: [NaiLoong-Universe](https://github.com/Nailong-Studio/NaiLoong-Universe), [NaiWa-Wallpaper](https://github.com/Nailong-Studio/NaiWa-Wallpaper), [NaiWa-NewTab](https://github.com/Nailong-Studio/NaiWa-NewTab), [naiwa](https://github.com/Nailong-Studio/naiwa), and [naiwa-pixel-stickers](https://github.com/Nailong-Studio/naiwa-pixel-stickers).
+
+Stars are public bookmarks; no payment, no new account.
+
 ## Licence
 
 Code is [MIT](LICENSE). Naiwa is a fan-made derivative character; the original

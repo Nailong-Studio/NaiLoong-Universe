@@ -111,7 +111,8 @@
 
 
 
-<noscript><style>.reveal,.stagger{opacity:1!important;transform:none!important;animation:none!important}</style></noscript>
+<noscript><style>.reveal,.stagger{opacity:1!important;transform:none!important;animation:none!important}
+</style></noscript>
 
 
 
@@ -8800,6 +8801,159 @@ html[data-theme="light"] .masthead__eyebrow{color:#6C4A0E}
 ::view-transition-new(root){animation:vtIn .5s var(--ease) both}
 @keyframes vtIn{from{opacity:0;transform:translateY(14px) scale(.996)}to{opacity:1;transform:none}}
 
+/* ============================================================
+   v18.7.4 · 可读性、性能与动态交互补强
+   1) 字体加粗与浅色主题对比度：正文 500，标题 600，金色压深
+   2) 八厅罗盘：CSS 旋转圆环 + 可点击厅节点，无外部依赖
+   3) 品牌光环、打字机/滑字带、按钮按压与边缘禁用状态
+   4) 图鉴/检索卡 content-visibility，减少长列表渲染开销
+   ============================================================ */
+:root{
+  --serif:"Naiwa Serif","Source Han Serif SC","Noto Serif CJK SC","Songti SC","STSong","SimSun",serif;
+  --sans:"Naiwa Sans","Source Han Sans SC","Noto Sans CJK SC","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+}
+html[data-theme="light"]{
+  --void:#F7EEE1;
+  --ash:#E9D7C0;
+  --ash-2:#D9C3A4;
+  --gold:#67430A;
+  --gold-bright:#8A550B;
+  --gold-dim:rgba(103,67,10,.38);
+  --ivory:#100B06;
+  --ivory-dim:#392817;
+  --line:rgba(103,67,10,.55);
+  --glass:rgba(255,251,244,.94);
+}
+body{font-weight:500;letter-spacing:.012em}
+.masthead__lede,.creed__lead,.creed__sub,.section__note,.portal__desc,.daily__hall,
+.about__body,.footer__note,.term__body,.work__cap,.vault-card b{font-weight:500}
+.masthead__title,.creed__title,.daily-banner .daily__title,.section__title,.view__title,
+.portal__title,.era__title,.relic__title,.chamber__title,.footer__bless{font-weight:600}
+.section__kicker,.fact__label,.portal__num,.masthead__meta,.hall__count,.allies__no{font-weight:500}
+html[data-theme="light"] .masthead__title,
+html[data-theme="light"] .creed__title,
+html[data-theme="light"] .section__title,
+html[data-theme="light"] .daily__title{text-shadow:0 1px 0 rgba(255,255,255,.45)}
+html[data-theme="light"] .masthead__lede,
+html[data-theme="light"] .creed__lead{color:#21170D}
+html[data-theme="light"] .creed__sub,
+html[data-theme="light"] .section__note,
+html[data-theme="light"] .portal__desc,
+html[data-theme="light"] .masthead__meta,
+html[data-theme="light"] .ticker__row span{color:#3B2A18}
+html[data-theme="light"] .ticker__row b{color:#5C3A08}
+html[data-theme="light"] .fact__label{color:#3D2C1A}
+html[data-theme="light"] .mh-btn:not(.mh-btn--solid){color:#33230F;border-color:rgba(103,67,10,.62)}
+html[data-theme="light"] .mh-btn:not(.mh-btn--solid):hover{background:rgba(103,67,10,.10)}
+
+/* 全站统一按压/焦点反馈 */
+:where(a,button,input,textarea,select):focus-visible{outline:2px solid var(--gold-bright);outline-offset:3px}
+:where(a.mh-btn,a.view__back,.vault-more,.daily__go,.hall__enter,.install-cta,.search__clear,.vault-chip,.chip):not(:disabled):active{transform:translateY(1px) scale(.975)}
+button:disabled,.hall__arrow:disabled{opacity:.28;cursor:not-allowed;pointer-events:none;filter:grayscale(.4)}
+.install-cta.is-hint{white-space:normal;line-height:1.5;color:var(--gold-bright);border-color:var(--gold-bright);max-width:28em}
+
+/* 品牌图标的旋转金色弧线 */
+.nav__brand{position:relative}
+.nav__brand::before{
+  content:"";position:absolute;left:22px;top:50%;width:36px;height:36px;margin:-18px 0 0 -18px;
+  border-radius:50%;pointer-events:none;opacity:.62;
+  background:conic-gradient(from 0deg,transparent 0 286deg,color-mix(in srgb,var(--gold-bright) 92%,transparent) 292deg 310deg,transparent 316deg 360deg);
+  -webkit-mask:radial-gradient(circle,transparent calc(100% - 2px),#000 calc(100% - 1px));
+  mask:radial-gradient(circle,transparent calc(100% - 2px),#000 calc(100% - 1px));
+  animation:brandHalo 16s linear infinite;
+}
+@media (max-width:640px){.nav__brand::before{left:14px;width:32px;height:32px;margin:-16px 0 0 -16px}}
+@keyframes brandHalo{to{transform:rotate(360deg)}}
+
+/* 滑字带：悬停暂停，方便阅读 */
+.ticker:hover .ticker__row{animation-play-state:paused}
+
+/* 八厅罗盘 */
+.compass-section{padding-top:clamp(8px,2.4vw,22px);padding-bottom:clamp(18px,4vw,38px)}
+.compass-wrap{display:grid;grid-template-columns:minmax(0,1.02fr) minmax(0,.98fr);gap:clamp(24px,5vw,66px);align-items:center}
+.compass{position:relative;width:clamp(248px,29vw,330px);aspect-ratio:1;margin:auto;isolation:isolate}
+.compass::before{
+  content:"";position:absolute;inset:-12%;border-radius:50%;z-index:-1;pointer-events:none;
+  background:radial-gradient(circle,color-mix(in srgb,var(--gold) 14%,transparent),transparent 68%);
+  animation:compassGlow 6s ease-in-out infinite alternate;
+}
+.compass__ring{
+  position:absolute;inset:0;border-radius:50%;
+  background:repeating-conic-gradient(from 0deg,transparent 0 9deg,color-mix(in srgb,var(--gold) 66%,transparent) 9deg 11deg,transparent 11deg 26deg);
+  -webkit-mask:radial-gradient(circle,transparent calc(100% - 3px),#000 calc(100% - 2px));
+  mask:radial-gradient(circle,transparent calc(100% - 3px),#000 calc(100% - 2px));
+  animation:compassSpin 34s linear infinite;pointer-events:none;
+}
+.compass__ring::after{
+  content:"";position:absolute;inset:12%;border:1px solid color-mix(in srgb,var(--line) 78%,transparent);border-radius:50%;
+}
+.compass__needle{
+  position:absolute;left:50%;top:19%;width:1px;height:31%;background:linear-gradient(180deg,transparent,color-mix(in srgb,var(--gold-bright) 78%,transparent));
+  transform-origin:50% 100%;animation:needleSweep 22s cubic-bezier(.45,0,.55,1) infinite;pointer-events:none;opacity:.7;
+}
+.compass__core{
+  position:absolute;inset:29%;border-radius:50%;display:grid;place-items:center;text-align:center;
+  background:radial-gradient(circle at 50% 34%,color-mix(in srgb,var(--gold) 13%,var(--void)),var(--void) 68%);
+  border:1px solid var(--line);box-shadow:0 0 0 7px color-mix(in srgb,var(--gold) 4%,transparent),0 20px 55px rgba(0,0,0,.16);
+  animation:coreBreathe 5.6s ease-in-out infinite;
+}
+.compass__core b{display:block;font-family:var(--serif);font-size:clamp(1.5rem,3vw,2rem);line-height:1;color:var(--gold-bright)}
+.compass__core span{display:block;margin-top:5px;font-size:.62rem;letter-spacing:.22em;color:var(--ivory-dim)}
+.compass__node{
+  --r:clamp(96px,11.6vw,128px);
+  position:absolute;left:50%;top:50%;width:44px;height:44px;margin:-22px;border-radius:50%;
+  display:grid;place-items:center;text-decoration:none;
+  color:var(--gold-bright);background:color-mix(in srgb,var(--void) 78%,transparent);
+  border:1px solid color-mix(in srgb,var(--gold) 55%,transparent);
+  font-family:var(--serif);font-weight:600;font-size:.7rem;letter-spacing:.04em;
+  transform:rotate(calc(var(--i) * 45deg)) translateY(calc(var(--r) * -1)) rotate(calc(var(--i) * -45deg));
+  box-shadow:0 0 0 0 color-mix(in srgb,var(--gold) 0%,transparent);
+  transition:color .22s,border-color .22s,background .22s,box-shadow .22s;
+}
+.compass__node:hover,.compass__node:focus-visible{
+  color:var(--ivory);background:var(--gold);border-color:var(--gold-bright);
+  box-shadow:0 0 0 5px color-mix(in srgb,var(--gold) 15%,transparent),0 8px 22px rgba(0,0,0,.2);
+}
+.compass__node::after{
+  content:attr(data-label);position:absolute;top:calc(100% + 7px);left:50%;transform:translateX(-50%);
+  white-space:nowrap;font-family:var(--sans);font-size:.6rem;letter-spacing:.16em;color:var(--ivory-dim);
+  background:color-mix(in srgb,var(--void) 88%,transparent);border:1px solid var(--line);border-radius:999px;
+  padding:2px 9px;opacity:0;translate:0 -3px;transition:.18s;pointer-events:none;
+}
+.compass__node:hover::after,.compass__node:focus-visible::after{opacity:1;translate:0 0}
+.compass__copy{max-width:520px}
+.compass__copy .section__kicker{color:var(--gold)}
+.compass__copy h2{font-family:var(--serif);font-size:clamp(1.55rem,3.1vw,2.45rem);line-height:1.35;font-weight:600;letter-spacing:.04em;color:var(--ivory)}
+.compass__copy h2 em{font-style:normal;color:var(--gold-bright)}
+.compass__copy p{margin-top:14px;color:var(--ivory-dim);font-size:.92rem;line-height:1.9}
+.compass__hint{display:inline-flex;align-items:center;gap:8px;margin-top:20px;font-size:.68rem;letter-spacing:.18em;color:var(--gold);text-transform:uppercase}
+.compass__hint::before{content:"";width:26px;height:1px;background:var(--gold)}
+@media (max-width:860px){
+  .compass-wrap{grid-template-columns:1fr;gap:26px}
+  .compass{width:min(76vw,300px)}
+  .compass__copy{order:2;text-align:center;margin:0 auto}
+  .compass__hint{justify-content:center}
+}
+@media (prefers-reduced-motion:reduce){
+  .compass__ring,.compass__needle,.compass__core,.compass::before,.nav__brand::before{animation:none!important}
+  .ticker__row{animation:none!important}
+}
+
+/* 长列表用懒加载/分批与图片解码，不强上 content-visibility，避免交互卡被跳过渲染 */
+
+/* 键盘/屏幕阅读器：罗盘节点有明确名称 */
+.compass__node[aria-label]{cursor:pointer}
+
+@keyframes compassSpin{to{transform:rotate(360deg)}}
+@keyframes needleSweep{to{transform:rotate(360deg)}}
+@keyframes compassGlow{from{opacity:.55;transform:scale(.96)}to{opacity:1;transform:scale(1.04)}}
+@keyframes coreBreathe{0%,100%{box-shadow:0 0 0 7px color-mix(in srgb,var(--gold) 4%,transparent),0 20px 55px rgba(0,0,0,.16)}50%{box-shadow:0 0 0 13px color-mix(in srgb,var(--gold) 7%,transparent),0 24px 70px rgba(0,0,0,.22)}}
+
+/* 放映厅/灯箱：图片的 Ken Burns 缩放会在按下与抬起之间偷走 pointerup，
+   让左右箭头看起来“点了不动”。图片只负责显示，点击交给父容器。 */
+.chamber__img,.lightbox__img{pointer-events:none}
+.chamber__close,.chamber__nav,.lightbox__close,.lightbox__nav{z-index:12}
+.chamber__stage,.lightbox__plate{position:relative}
 </style>
 
 
@@ -8810,6 +8964,9 @@ html[data-theme="light"] .masthead__eyebrow{color:#6C4A0E}
 {"@context":"https://schema.org","@type":"WebSite","name":"奶蛙艺术圣殿","alternateName":"Naiwa Art Universe","url":"https://nailoong-universe.pages.dev/","description":"四百年西方美术的奶蛙版圣像馆：187 件馆藏、8 间展厅、406 件图鉴。","inLanguage":"zh-CN","isFamilyFriendly":true}
 </script>
 <!-- 字体自托管：国内网络可用，不依赖 Google Fonts -->
+<link rel="preload" href="fonts/naiwa-serif-600.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/naiwa-sans-500.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/classic-coronation.webp" as="image" fetchpriority="high">
 </head>
 
 

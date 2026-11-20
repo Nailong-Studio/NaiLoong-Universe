@@ -413,6 +413,7 @@
 
 
   window.NW.syncTitle = syncTitle;
+  window.NW.navigate = navigate;
 
 
 
@@ -712,6 +713,7 @@
 
 
 
+    if (cur && cur.id !== "view-" + v) window.scrollTo(0, 0);
     if (!window.__firstNav && doc.startViewTransition && !window.__vtRunning){
 
 
@@ -1293,13 +1295,15 @@
 
 
 
+    function syncArrows(){
+      if (prev) prev.disabled = track.scrollLeft <= 2;
+      if (next) next.disabled = track.scrollLeft >= track.scrollWidth - track.clientWidth - 2;
+    }
     if (prev) prev.addEventListener("click", function(){ step(-1); });
-
-
-
-
-
     if (next) next.addEventListener("click", function(){ step(1); });
+    track.addEventListener("scroll", syncArrows, {passive:true});
+    window.addEventListener("resize", syncArrows);
+    requestAnimationFrame(syncArrows);
 
 
 
@@ -2325,13 +2329,13 @@
 
 
 
-    lbImg.addEventListener("click", feedAgain);
-
-
-
-
-
     lbImg.addEventListener("keydown", feedAgain);
+    /* 图片 pointer-events:none 后，点击落到 plate；保底保留“再喂一口”，但不拦截箭头/关闭 */
+    var lbPlate = lbImg.closest ? lbImg.closest(".lightbox__plate") : null;
+    if (lbPlate) lbPlate.addEventListener("click", function(e){
+      if (e.target && e.target.closest && e.target.closest(".lightbox__nav,.lightbox__close")) return;
+      feedAgain(e);
+    });
 
 
 
@@ -3513,36 +3517,27 @@
 
 
 
+  function syncNavMusic(on){
+    var nm = doc.getElementById("navMusic");
+    if (!nm) return;
+    nm.setAttribute("aria-pressed", on ? "true" : "false");
+    var b = nm.querySelector("b");
+    if (b) b.textContent = on ? "开" : "关";
+  }
+  function markMusicBlocked(){
+    var nm = doc.getElementById("navMusic");
+    if (!nm) return;
+    var b = nm.querySelector("b");
+    if (!b) return;
+    b.textContent = "受限";
+    setTimeout(function(){ if (b) b.textContent = musicOn ? "开" : "关"; }, 1600);
+  }
   function setBtn(on){
-
-
-
-
-
     if (!musicBtn) return;
-
-
-
-
-
     musicBtn.setAttribute("aria-pressed", on ? "true" : "false");
-
-
-
-
-
     musicBtn.setAttribute("aria-label", on ? "静默圣殿" : "奏响圣殿琴音");
-
-
-
-
-
     musicBtn.setAttribute("title", on ? "静默圣殿" : "奏响圣殿琴音");
-
-
-
-
-
+    syncNavMusic(on);
   }
 
 
@@ -3742,65 +3737,17 @@
 
 
   function tryPlay(){
-
-
-
-
-
     if (musicOn || !bgm) return;
-
-
-
-
-
     resumeCtx();
-
-
-
-
-
-    var pp = bgm.play();
-
-
-
-
-
+    var pp;
+    try { pp = bgm.play(); }
+    catch(e){ musicOn = false; setBtn(false); markMusicBlocked(); return; }
     var done = function(){ musicOn = true; setBtn(true); if (musicBtn) musicBtn.classList.remove("hint"); };
-
-
-
-
-
     if (pp && pp.then){
-
-
-
-
-
-      pp.then(done).catch(function(){ /* 被浏览器拦截：保持待播，等待手势重试 */ });
-
-
-
-
-
+      pp.then(done).catch(function(){ musicOn = false; setBtn(false); markMusicBlocked(); });
     } else {
-
-
-
-
-
       done();
-
-
-
-
-
     }
-
-
-
-
-
   }
 
 
@@ -3808,36 +3755,18 @@
 
 
   function tryPause(){
-
-
-
-
-
     if (!musicOn || !bgm) return;
-
-
-
-
-
     bgm.pause();
-
-
-
-
-
     musicOn = false;
-
-
-
-
-
     setBtn(false);
-
-
-
-
-
   }
+  function toggleMusic(){
+    if (!bgm){ setBtn(false); return; }
+    buildGraph(); resumeCtx();
+    if (musicOn) tryPause();
+    else { setBtn(true); tryPlay(); } /* 先给 UI 反馈，失败时回退 */
+  }
+  window.NWMusic = { toggle: toggleMusic, isOn: function(){ return musicOn; } };
 
 
 
@@ -3861,13 +3790,7 @@
 
 
 
-    bgm.load();
-
-
-
-
-
-    tryPlay(); /* 默认即有圣殿琴音（浏览器允许时）；被拦则首次轻触/滑动即响 */
+    /* 不在首屏 load/autoplay：避免 612KB 音频抢占带宽；首次手势由 firstTap 启动 */
 
 
 
@@ -3880,23 +3803,7 @@
 
 
   if (musicBtn) musicBtn.addEventListener("click", function(){
-
-
-
-
-
-    buildGraph(); resumeCtx();        /* 首次交互才建图（满足浏览器手势要求） */
-
-
-
-
-
-    if (musicOn) tryPause(); else tryPlay();
-
-
-
-
-
+    toggleMusic();
   });
 
 
@@ -3957,7 +3864,7 @@
 
 
 
-    if (e && e.target && e.target.closest && e.target.closest("#musicBtn")){
+    if (e && e.target && e.target.closest && e.target.closest("#musicBtn,#navMusic")){
 
 
 
@@ -6809,17 +6716,10 @@
 
 
     if (clear) clear.addEventListener("click", function(){
-
-
-
-
-
-      if (input){ input.value = ""; render(); input.focus(); }
-
-
-
-
-
+      if (input){ input.value = ""; input.focus(); }
+      cur = "all"; /* 清空 = 清搜索词 + 回到全部展厅，避免点击后计数不变 */
+      if (chips) Array.prototype.forEach.call(chips.children, function(c){ c.classList.toggle("on", c.getAttribute("data-hall") === "all"); });
+      render();
     });
 
 
@@ -7269,17 +7169,13 @@
 
 
     installBtn.addEventListener("click", function(){
-
-
-
-
-
-      if (!deferredPrompt) return;
-
-
-
-
-
+      if (!deferredPrompt){
+        var oldText = installBtn.textContent;
+        installBtn.textContent = "当前浏览器不支持一键安装，请用菜单添加到主屏幕";
+        installBtn.classList.add("is-hint");
+        setTimeout(function(){ installBtn.textContent = oldText; installBtn.classList.remove("is-hint"); }, 2200);
+        return;
+      }
       deferredPrompt.prompt();
 
 
@@ -7375,7 +7271,11 @@
       if(nm&&mb){ var mOn=mb.getAttribute("aria-pressed")==="true"; nm.setAttribute("aria-pressed",mOn?"true":"false"); nm.querySelector("b").textContent=mOn?"开":"关"; }
       if(ns&&sb){ var sOn=sb.getAttribute("aria-pressed")==="true"; ns.setAttribute("aria-pressed",sOn?"true":"false"); ns.querySelector("b").textContent=sOn?"开":"关"; }
     }
-    if(nm) nm.addEventListener("click",function(){ var mb=doc.getElementById("musicBtn"); if(mb) mb.click(); syncAudio(); setTimeout(syncAudio,80); });
+    if(nm) nm.addEventListener("click",function(){
+      if(window.NWMusic && window.NWMusic.toggle) window.NWMusic.toggle();
+      else { var mb=doc.getElementById("musicBtn"); if(mb) mb.click(); }
+      syncAudio(); setTimeout(syncAudio,180);
+    });
     if(ns) ns.addEventListener("click",function(){ var sb=doc.getElementById("sfxBtn"); if(sb) sb.click(); syncAudio(); setTimeout(syncAudio,80); });
     syncAudio();
     btn.addEventListener("click",function(){ set(!links.classList.contains("open")); });
@@ -7404,24 +7304,60 @@ btn.addEventListener("click",function(){var n=cur()==="light"?"dark":"light";roo
 paint();})();
 </script>
 
-<script>/* 门厅英文题签：打字机 */
+<script>/* 打字机：门厅题签 + 罗盘英文题签；首屏立即，次屏进入视口再启动 */
 (function(){
-  var el=document.querySelector('[data-typewriter]');
-  if(!el) return;
-  var full=(el.textContent||'').trim();
-  if(!full) return;
+  var els=Array.prototype.slice.call(document.querySelectorAll('[data-typewriter]'));
+  if(!els.length) return;
   var reduce=false; try{ reduce=matchMedia('(prefers-reduced-motion: reduce)').matches; }catch(e){}
-  el.setAttribute('aria-label',full);
-  if(reduce){ el.classList.add('typed'); return; }
-  el.textContent=''; el.classList.add('typing');
-  var i=0;
-  function tick(){
-    i++;
-    el.textContent=full.slice(0,i);
-    if(i<full.length){ setTimeout(tick,36); }
-    else { el.classList.remove('typing'); el.classList.add('typed'); }
+  function run(el){
+    var full=(el.textContent||'').trim();
+    if(!full) return;
+    el.setAttribute('aria-label',full);
+    if(reduce){ el.classList.add('typed'); return; }
+    el.textContent=''; el.classList.add('typing');
+    var i=0;
+    function tick(){
+      i++;
+      el.textContent=full.slice(0,i);
+      if(i<full.length){ setTimeout(tick,36); }
+      else { el.classList.remove('typing'); el.classList.add('typed'); }
+    }
+    setTimeout(tick,30);
   }
-  setTimeout(tick,120);
+  if(reduce){ els.forEach(function(el){ el.classList.add('typed'); }); return; }
+  setTimeout(function(){ if(els[0]) run(els[0]); },120);
+  els.slice(1).forEach(function(el){
+    if('IntersectionObserver' in window){
+      var io=new IntersectionObserver(function(entries){
+        if(entries[0] && entries[0].isIntersecting){ io.disconnect(); setTimeout(function(){ run(el); },260); }
+      },{threshold:.18});
+      io.observe(el);
+    } else {
+      setTimeout(function(){ run(el); },1200);
+    }
+  });
+})();
+</script>
+<script>/* v18.7.4 · 站内路由点击接管：避免浏览器先滚到旧页锚点，造成“从底部滑到顶部” */
+(function(){
+  var doc=document;
+  try{ if('scrollRestoration' in history) history.scrollRestoration='manual'; }catch(e){}
+  doc.addEventListener('click', function(e){
+    if(e.defaultPrevented || e.button!==0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    var a=e.target && e.target.closest ? e.target.closest('a[href]') : null;
+    if(!a || a.hasAttribute('download')) return;
+    var target=(a.getAttribute('target')||'').toLowerCase();
+    if(target && target!=='_self') return;
+    var rel=(a.getAttribute('rel')||'').toLowerCase();
+    if(rel.indexOf('external')>=0) return;
+    var href=a.getAttribute('href')||'';
+    if(href.charAt(0)!=='#' || href.length<2) return;
+    e.preventDefault();
+    if(href==='#top'){ window.scrollTo({top:0,behavior:'smooth'}); return; }
+    if(location.hash===href){ if(window.NW && window.NW.navigate) window.NW.navigate(); return; }
+    try{ history.pushState(null,'',href); }catch(err){ location.hash=href; }
+    if(window.NW && window.NW.navigate) window.NW.navigate();
+  });
 })();
 </script>
 </body>

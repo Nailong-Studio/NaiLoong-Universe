@@ -6334,6 +6334,11 @@
 
 
     var cnt = doc.getElementById("searchCount");
+    var more = doc.getElementById("searchMore");
+    var shown = 0;
+    function batchSize(){
+      return (window.matchMedia && window.matchMedia("(max-width:640px)").matches) ? 30 : 60;
+    }
 
 
 
@@ -6555,7 +6560,8 @@
 
 
 
-    function render(){
+    function render(reset){
+      if (reset !== false || !shown) shown = batchSize();
 
 
 
@@ -6609,7 +6615,7 @@
 
 
 
-      hits.slice(0, 120).forEach(function(it){
+      hits.slice(0, shown).forEach(function(it){
 
 
 
@@ -6730,48 +6736,20 @@
 
 
       if (empty){
-
-
-
-
-
         empty.hidden = hits.length > 0;
-
-
-
-
-
-        empty.textContent = hits.length
-
-
-
-
-
-          ? "匹配 " + hits.length + " 件，先列出前 120 件——再添关键词可缩小范围。"
-
-
-
-
-
-          : "没有匹配的圣像，换个词或换间展厅试试。";
-
-
-
-
-
-        if (hits.length > 120) empty.hidden = false;
-
-
-
-
-
+        empty.textContent = "没有匹配的圣像，换个词或换间展厅试试。";
       }
 
 
 
 
 
-      if (cnt) cnt.textContent = (q || cur !== "all") ? ("命中 " + hits.length + " 件") : "馆藏可检索";
+      if (cnt) cnt.textContent = (q || cur !== "all") ? ("命中 " + hits.length + " 件") : (hits.length + " 件可检索");
+      if (more){
+        var remain = Math.max(0, hits.length - shown);
+        more.hidden = remain <= 0;
+        if (remain > 0) more.textContent = "再展 " + Math.min(batchSize(), remain) + " 件 · 余 " + remain + " 件";
+      }
 
 
 
@@ -6782,6 +6760,11 @@
 
 
 
+
+    if (more) more.addEventListener("click", function(){
+      shown += batchSize();
+      render(false);
+    });
 
     if (input){
 
@@ -7038,7 +7021,7 @@
 
 
 
-    var chips = Array.prototype.slice.call(doc.querySelectorAll("#vaultChips .vault-chip"));
+    var chips = Array.prototype.slice.call(doc.querySelectorAll(".vault-chips .vault-chip"));
 
 
 
@@ -7062,155 +7045,54 @@
 
 
 
-    var cat = "all", q = "";
+    var cat = "all", q = "", shown = 0, batch = 0, hits = [];
 
+    var more = doc.getElementById("vaultMore");
 
-
-
-
-    function apply(){
-
-
-
-
-
-      var n = 0;
-
-
-
-
-
-      cards.forEach(function(c){
-
-
-
-
-
-        var okCat = cat === "all" || c.getAttribute("data-cat") === cat;
-
-
-
-
-
-        var okText = !q || (c.getAttribute("data-text") || "").indexOf(q) >= 0;
-
-
-
-
-
-        var ok = okCat && okText;
-
-
-
-
-
-        c.hidden = !ok;
-
-
-
-
-
-        if (ok) n++;
-
-
-
-
-
-      });
-
-
-
-
-
-      if (count) count.textContent = n + " 件";
-
-
-
-
-
-      if (empty) empty.hidden = n > 0;
-
-
-
-
-
+    function batchSize(){
+      return (window.matchMedia && window.matchMedia("(max-width:640px)").matches) ? 32 : 60;
     }
 
+    function apply(reset){
+      batch = batchSize();
+      if (reset !== false || !shown) shown = batch;
+      hits = [];
+      cards.forEach(function(c){
+        var okCat = cat === "all" || c.getAttribute("data-cat") === cat;
+        var okText = !q || (c.getAttribute("data-text") || "").indexOf(q) >= 0;
+        var ok = okCat && okText;
+        if (ok) hits.push(c);
+        c.hidden = true;
+      });
+      hits.slice(0, shown).forEach(function(c){ c.hidden = false; });
+      if (count) count.textContent = hits.length + " 件";
+      if (more){
+        var remain = Math.max(0, hits.length - shown);
+        more.hidden = remain <= 0;
+        if (remain > 0) more.textContent = "再展 " + Math.min(batch, remain) + " 件 · 余 " + remain + " 件";
+      }
+      if (empty) empty.hidden = hits.length > 0;
+    }
 
-
-
+    if (more) more.addEventListener("click", function(){
+      shown += batchSize();
+      apply(false);
+    });
 
     chips.forEach(function(btn){
-
-
-
-
-
       btn.addEventListener("click", function(){
-
-
-
-
-
         cat = btn.getAttribute("data-cat") || "all";
-
-
-
-
-
         chips.forEach(function(b){ b.classList.toggle("on", b === btn); });
-
-
-
-
-
-        apply();
-
-
-
-
-
+        apply(true);
       });
-
-
-
-
-
     });
-
-
-
-
 
     if (input) input.addEventListener("input", function(){
-
-
-
-
-
       q = String(input.value || "").trim().toLowerCase();
-
-
-
-
-
-      apply();
-
-
-
-
-
+      apply(true);
     });
 
-
-
-
-
-    apply();
-
-
-
-
+    apply(true);
 
   });
 

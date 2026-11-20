@@ -1193,6 +1193,7 @@ body::before{
 
 
 .nav__links a.on::after{left:0;right:0}
+li.nav__audio{display:none}  /* 桌面顶栏不出现，仅在 ≤860 抽屉内展开 */
 
 
 
@@ -8273,7 +8274,7 @@ html.js .work__frame.broken::after{
   .nav__links a{display:block;padding:12px 6px;font-size:.86rem;letter-spacing:.18em}
   .nav__links a::after{bottom:9px;background:linear-gradient(90deg,var(--gold-bright),transparent)}
   .nav__links a.on::after{left:6px;right:auto;width:34px}
-  .nav__audio{display:flex;gap:8px;margin-top:24px;padding-top:18px;border-top:1px solid var(--line)}
+  .nav__links .nav__audio{display:flex;gap:8px;margin-top:24px;padding-top:18px;border-top:1px solid var(--line)}
   .nav__audio-btn{flex:1;padding:11px 4px;border:1px solid var(--line);background:transparent;color:var(--ivory-dim);font-size:.72rem;letter-spacing:.08em;cursor:pointer;font-family:inherit}
   .nav__audio-btn[aria-pressed=true]{color:var(--gold);border-color:rgba(200,162,74,.5)}
   .nav__audio-btn b{font-weight:400;color:var(--ivory);margin-left:4px}

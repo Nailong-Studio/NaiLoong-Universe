@@ -19,9 +19,35 @@
       </div>
     </div>
     <div class="masthead__art" aria-hidden="true">
-      <a href="#hall-1"><img src="assets/classic-coronation.webp" width="1920" height="1080" alt=""></a>
-      <a href="#hall-1"><img src="assets/classic-four-horsemen.webp" width="1920" height="1080" alt=""></a>
-      <a href="#hall-1"><img src="assets/classic-angel-apparition.webp" width="1920" height="1080" alt=""></a>
+      <a href="#hall-1"><img src="assets/classic-coronation.webp" width="1920" height="1080" alt="" loading="eager" fetchpriority="high" decoding="async"></a>
+      <a href="#hall-1"><img src="assets/classic-four-horsemen.webp" width="1920" height="1080" alt="" loading="lazy" decoding="async"></a>
+      <a href="#hall-1"><img src="assets/classic-angel-apparition.webp" width="1920" height="1080" alt="" loading="lazy" decoding="async"></a>
+    </div>
+  </div>
+</section>
+
+
+<!-- ===================== 八厅罗盘 ===================== -->
+<section class="section compass-section" aria-label="八厅罗盘">
+  <div class="wrap compass-wrap">
+    <div class="compass" role="group" aria-label="八厅罗盘，点击数字进入对应展厅">
+      <div class="compass__ring" aria-hidden="true"></div>
+      <div class="compass__needle" aria-hidden="true"></div>
+      <div class="compass__core" aria-hidden="true"><b>8</b><span>间展厅</span></div>
+      <a class="compass__node" style="--i:0" href="#hall-1" data-label="圣典" aria-label="进入壹 · 圣典展厅"><span>壹</span></a>
+      <a class="compass__node" style="--i:1" href="#hall-2" data-label="圣迹" aria-label="进入贰 · 圣迹展厅"><span>贰</span></a>
+      <a class="compass__node" style="--i:2" href="#hall-3" data-label="欢颂" aria-label="进入叁 · 欢颂展厅"><span>叁</span></a>
+      <a class="compass__node" style="--i:3" href="#hall-4" data-label="艺廊" aria-label="进入肆 · 艺廊展厅"><span>肆</span></a>
+      <a class="compass__node" style="--i:4" href="#hall-5" data-label="咏颂" aria-label="进入伍 · 咏颂展厅"><span>伍</span></a>
+      <a class="compass__node" style="--i:5" href="#hall-6" data-label="竖屏" aria-label="进入陆 · 竖屏展厅"><span>陆</span></a>
+      <a class="compass__node" style="--i:6" href="#hall-7" data-label="影音" aria-label="进入柒 · 影音展厅"><span>柒</span></a>
+      <a class="compass__node" style="--i:7" href="#hall-8" data-label="大笑藏馆" aria-label="进入捌 · 大笑藏馆"><span>捌</span></a>
+    </div>
+    <div class="compass__copy">
+      <p class="section__kicker typewriter" data-typewriter>EIGHT HALLS</p>
+      <h2>八厅罗盘，<em>随金线转一圈</em></h2>
+      <p>不用按顺序。罗盘上的八个数字对应八间展厅，点哪一个，就从哪一间开始。圆环会一直缓慢旋转，像圣殿里一枚不会停的指针。</p>
+      <span class="compass__hint">点数字入厅 · 圆环持续旋转</span>
     </div>
   </div>
 </section>

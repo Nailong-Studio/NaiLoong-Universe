@@ -6210,7 +6210,7 @@ body.hall-solo .hall__all{display:inline-flex}
 
 
 
-.search__card img{width:100%;aspect-ratio:16/9;object-fit:cover;display:block;background:var(--ash-2)}
+.search__card img{width:100%;height:auto;aspect-ratio:16/9;object-fit:cover;display:block;background:var(--ash-2)}
 
 
 
@@ -7134,7 +7134,7 @@ html.js .work__frame.broken::after{
 
 
 
-.vault-card img{width:100%;aspect-ratio:4/3;object-fit:cover;display:block;background:var(--ash-2)}
+.vault-card img{width:100%;height:auto;aspect-ratio:4/3;object-fit:cover;display:block;background:var(--ash-2)}
 
 
 
@@ -8224,7 +8224,7 @@ html.js .work__frame.broken::after{
 .mh-btn--solid:hover{background:#E8C979;color:#1A130A}
 .masthead__art{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;align-items:end}
 .masthead__art a{display:block;border:1px solid var(--line);overflow:hidden;transition:border-color .4s,transform .4s}
-.masthead__art img{display:block;width:100%;aspect-ratio:2/3;object-fit:cover;filter:saturate(.95)}
+.masthead__art img{display:block;width:100%;height:auto;aspect-ratio:2/3;object-fit:cover;filter:saturate(.95)}
 .masthead__art a:nth-child(1){margin-bottom:26px}
 .masthead__art a:nth-child(3){margin-bottom:46px}
 .masthead__art a:hover{border-color:var(--gold);transform:translateY(-6px)}
@@ -8421,6 +8421,7 @@ html.js .work__frame.broken::after{
 
 
       <li><a href="#visit">朝圣</a></li>
+      <li><a href="#relics">图鉴</a></li>
 
 
 
@@ -16020,13 +16021,30 @@ html.js .work__frame.broken::after{
 
 
 
+
+
+    <p class="visit__more reveal"><a class="relic__cta" href="#relics">打开圣物全图鉴 · 410 件素材</a></p>
+    
+
+
+
+
+
+</section>
+
+<section id="view-relics" class="view" aria-label="圣物图鉴">
+  <div class="view__bar">
+    <a class="view__back" href="#home">返回目录</a>
+    <span class="view__title">圣 物 图 鉴</span>
+    <span class="view__count">素材总览 · 分类筛选与关键词检索</span>
+  </div>
 <!-- 素材总览：全部资源由素材仓库同步而来 -->
 
 
 
 
 
-<section class="section vault" id="relics" aria-label="素材总览">
+<section class="section vault" aria-label="素材总览">
 
 
 
@@ -16038,31 +16056,7 @@ html.js .work__frame.broken::after{
 
 
 
-    <header class="section__head reveal">
-
-
-
-
-
-      <p class="section__kicker">素材总览</p>
-
-
-
-
-
-      <h2 class="section__title"><em>圣 物 全 图 鉴</em></h2>
-
-
-
-
-
-      <span class="arch" aria-hidden="true"><svg viewBox="0 0 52 30" fill="none"><path d="M2 30 L2 16 Q2 2 26 2 Q50 2 50 16 L50 30" stroke="currentColor" stroke-width="1.4"/><path d="M20 30 L20 18 Q20 10 26 10 Q32 10 32 18 L32 30" stroke="currentColor" stroke-width="1"/></svg></span>
-
-
-
-
-
-    </header>
+    
 
 
 
@@ -18623,12 +18617,8 @@ html.js .work__frame.broken::after{
 
 
 </section>
-
-
-
-
-
 </section>
+
 
 
 
@@ -19907,7 +19897,7 @@ html.js .work__frame.broken::after{
 
 
 
-  var VIEWS = ["home", "halls", "chronicle", "visit", "friends", "search", "about"];
+  var VIEWS = ["home", "halls", "chronicle", "visit", "relics", "friends", "search", "about"];
 
 
 

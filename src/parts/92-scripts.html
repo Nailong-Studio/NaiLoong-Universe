@@ -1,0 +1,7535 @@
+<script>
+
+
+
+
+
+(function(){
+
+
+
+
+
+  "use strict";
+
+
+
+
+
+  var doc = document;
+
+
+
+
+
+  doc.documentElement.classList.add("js");
+
+
+
+
+
+  var reduce = false;
+
+
+
+
+
+  try{ reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches; }catch(e){}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  function safe(fn){
+
+
+
+
+
+    try { fn(); }
+
+
+
+
+
+    catch(e){ if (window.console && window.console.warn) window.console.warn("[圣殿]", e && e.message ? e.message : e); }
+
+
+
+
+
+  }
+
+
+
+
+
+  safe(function(){
+
+
+
+
+
+  /* ---- 多视图路由：hash 驱动，主界面=目录入口，其余分界面 ---- */
+
+
+
+
+
+  var VIEWS = ["home", "halls", "chronicle", "visit", "relics", "friends", "search", "about"];
+
+
+
+
+
+  var viewEls = {};
+
+
+
+
+
+  VIEWS.forEach(function(v){ viewEls[v] = doc.getElementById("view-" + v); });
+
+
+
+
+
+  function closeOverlays(){
+
+
+
+
+
+    var ch = doc.getElementById("chamber");
+
+
+
+
+
+    if (ch && !ch.hidden){
+
+
+
+
+
+      ch.hidden = true;
+
+
+
+
+
+      var v = doc.getElementById("chamberVid");
+
+
+
+
+
+      if (v && v.pause) v.pause();
+
+
+
+
+
+    }
+
+
+
+
+
+    var box = doc.getElementById("lightbox");
+
+
+
+
+
+    if (box && typeof box.close === "function" && box.open){
+
+
+
+
+
+      try{ if (window.NW && window.NW.closeSilent) window.NW.closeSilent(); else box.close(); }catch(e){}
+
+
+
+
+
+    }
+
+
+
+
+
+  }
+
+
+
+
+
+  function smoothTo(el){
+
+
+
+
+
+    if (!el) return;
+
+
+
+
+
+    setTimeout(function(){
+
+
+
+
+
+      el.scrollIntoView({behavior: reduce ? "auto" : "smooth", block:"start"});
+
+
+
+
+
+    }, 70);
+
+
+
+
+
+  }
+
+
+
+
+
+  function setSolo(hallId){
+
+
+
+
+
+    var body = doc.body;
+
+
+
+
+
+    Array.prototype.forEach.call(doc.querySelectorAll("section.hall"), function(sec){
+
+
+
+
+
+      sec.classList.toggle("hall--solo", !!hallId && sec.id === hallId);
+
+
+
+
+
+    });
+
+
+
+
+
+    body.classList.toggle("hall-solo", !!hallId);
+
+
+
+
+
+  }
+
+
+
+
+
+  /* ---- 顶部导航当前态 + 文档标题同步（浏览器历史/分享卡片可见） ---- */
+
+
+
+
+
+  var topLinks = {};
+
+
+
+
+
+  Array.prototype.forEach.call(doc.querySelectorAll(".nav__links a"), function(a){
+
+
+
+
+
+    var id = (a.getAttribute("href") || "").replace("#", "");
+
+
+
+
+
+    if (id) topLinks[id] = a;
+
+
+
+
+
+  });
+
+
+
+
+
+  var BASE_TITLE = doc.title || "奶蛙艺术宇宙 · 艺术圣殿";
+
+
+
+
+
+  window.__baseTitle = BASE_TITLE;
+
+
+
+
+
+  var VIEW_TITLES = { home:"圣殿之门", halls:"常设展", chronicle:"艺术史长河", visit:"朝圣之路", friends:"友站星图", search:"馆藏检索", about:"游客中心" };
+
+
+
+
+
+  function syncNav(v){
+
+
+
+
+
+    Object.keys(topLinks).forEach(function(k){
+
+
+
+
+
+      var on = k === v;
+
+
+
+
+
+      topLinks[k].classList.toggle("on", on);
+
+
+
+
+
+      if (on) topLinks[k].setAttribute("aria-current", "page");
+
+
+
+
+
+      else topLinks[k].removeAttribute("aria-current");
+
+
+
+
+
+    });
+
+
+
+
+
+  }
+
+
+
+
+
+  function syncTitle(v){
+
+
+
+
+
+    var t = VIEW_TITLES[v] || "";
+
+
+
+
+
+    if (v === "halls" && doc.body.classList.contains("hall-solo")){
+
+
+
+
+
+      var nm = doc.querySelector(".hall--solo .hall__name");
+
+
+
+
+
+      if (nm && nm.textContent.trim()) t = nm.textContent.trim() + " · 常设展";
+
+
+
+
+
+    }
+
+
+
+
+
+    doc.title = t ? t + " · " + BASE_TITLE : BASE_TITLE;
+
+
+
+
+
+  }
+
+
+
+
+
+  window.NW = window.NW || {};
+
+
+
+
+
+  window.NW.syncTitle = syncTitle;
+
+
+
+
+
+  function navigate(){
+
+
+
+
+
+    var h = (location.hash || "").replace(/^#/, "").replace(/%20/g, " ");
+
+
+
+
+
+    var cur = doc.querySelector(".view.active");
+
+
+
+
+
+    var v = cur ? cur.id.replace("view-", "") : "home";
+
+
+
+
+
+    if (VIEWS.indexOf(h) >= 0) v = h;
+
+
+
+
+
+    /* 单厅视图 #hall-N：留在展厅界面，只陈列该厅（厅号不存在时回落全部展厅，避免白屏） */
+
+
+
+
+
+    if (/^hall-\d+$/.test(h) && doc.getElementById(h)){ v = "halls"; setSolo(h); }
+
+
+
+
+
+    else if (/^hall-\d+$/.test(h)){ try{ history.replaceState(null, "", "#halls"); }catch(e){} h = "halls"; setSolo(null); }
+
+
+
+
+
+    else if (!/^w-/.test(h)){ setSolo(null); }
+
+
+
+
+
+    /* 作品深链 #w-<编号>：不关闭灯箱、不回滚顶部；兼容 #w-NW-x-xxx 带前缀写法，编号不存在时清理脏 hash */
+
+
+
+
+
+    if (/^w-/.test(h)){
+
+
+
+
+
+      VIEWS.forEach(function(k){ if (viewEls[k]) viewEls[k].classList.toggle("active", k === "halls"); });
+
+
+
+
+
+      var no = decodeURIComponent(h.slice(2)).replace(/^NW-/, "");
+
+
+
+
+
+      var hit = false;
+
+
+
+
+
+      if (window.NW && window.NW.openByNo){
+
+
+
+
+
+        try { hit = !!window.NW.openByNo(no); } catch(e){}
+
+
+
+
+
+      }
+
+
+
+
+
+      if (!hit){
+
+
+
+
+
+        /* 首屏冷加载时灯箱模块尚未就绪：保留深链，轮询等它起来；编号无效才回落 */
+
+
+
+
+
+        var tries = 0;
+
+
+
+
+
+        var iv = setInterval(function(){
+
+
+
+
+
+          tries++;
+
+
+
+
+
+          var box = doc.getElementById("lightbox");
+
+
+
+
+
+          if (box && box.open){ clearInterval(iv); return; }
+
+
+
+
+
+          var ok = false;
+
+
+
+
+
+          if (window.NW && window.NW.openByNo){
+
+
+
+
+
+            try { ok = !!window.NW.openByNo(no); } catch(e){}
+
+
+
+
+
+          }
+
+
+
+
+
+          if (ok){ clearInterval(iv); }
+
+
+
+
+
+          else if (tries > 40){ clearInterval(iv); try{ history.replaceState(null, "", "#halls"); }catch(e){} }
+
+
+
+
+
+        }, 120);
+
+
+
+
+
+      }
+
+
+
+
+
+      return;
+
+
+
+
+
+    }
+
+
+
+
+
+    var deepTarget = null;
+
+
+
+
+
+    if (VIEWS.indexOf(h) < 0 && h && h !== "top"){
+
+
+
+
+
+      deepTarget = doc.getElementById(h);
+
+
+
+
+
+      if (deepTarget){
+
+
+
+
+
+        var host = deepTarget.closest ? deepTarget.closest(".view") : null;
+
+
+
+
+
+        if (host) v = host.id.replace("view-", "");
+
+
+
+
+
+      }
+
+
+
+
+
+    }
+
+
+
+
+
+    var applyView = function(){
+
+
+
+
+
+      VIEWS.forEach(function(k){
+
+
+
+
+
+        if (viewEls[k]) viewEls[k].classList.toggle("active", k === v);
+
+
+
+
+
+      });
+
+
+
+
+
+      syncNav(v);
+
+
+
+
+
+      syncTitle(v);
+
+
+
+
+
+    };
+
+
+
+
+
+    if (!window.__firstNav && doc.startViewTransition && !window.__vtRunning){
+
+
+
+
+
+      try{
+
+
+
+
+
+        var vt = doc.startViewTransition(applyView);
+
+
+
+
+
+        window.__vtRunning = true;
+
+
+
+
+
+        var clr = function(){ window.__vtRunning = false; };
+
+
+
+
+
+        ["ready","finished","updateCallbackDone"].forEach(function(k){
+
+
+
+
+
+          if (vt[k] && vt[k].then){ vt[k].then(clr).catch(clr); }
+
+
+
+
+
+        });
+
+
+
+
+
+      }catch(e){ applyView(); }
+
+
+
+
+
+    } else { applyView(); }
+
+
+
+
+
+    closeOverlays();
+
+
+
+
+
+    var fx = doc.getElementById("fxwipe");
+
+
+
+
+
+    if (fx && !reduce){ fx.classList.remove("run"); void fx.offsetWidth; fx.classList.add("run"); }
+
+
+
+
+
+    if (deepTarget && viewEls[v] && viewEls[v].contains(deepTarget)){
+
+
+
+
+
+      smoothTo(deepTarget);
+
+
+
+
+
+      return;
+
+
+
+
+
+    }
+
+
+
+
+
+    if (h && h !== v && h !== "top"){
+
+
+
+
+
+      var t = doc.getElementById(h);
+
+
+
+
+
+      if (t){
+
+
+
+
+
+
+
+
+
+
+        if (viewEls[v] && viewEls[v].contains(t)){ smoothTo(t); return; }
+
+
+
+
+
+      }
+
+
+
+
+
+    }
+
+
+
+
+
+    window.scrollTo(0, 0);
+
+
+
+
+
+    /* 压过浏览器原生锚点跳转：切换视图后滚回顶部，并立即亮起首屏揭示元素 */
+
+
+
+
+
+    setTimeout(function(){ window.scrollTo(0, 0); }, 80);
+
+
+
+
+
+    setTimeout(function(){
+
+
+
+
+
+      Array.prototype.forEach.call(doc.querySelectorAll(".view.active .reveal"), function(el){
+
+
+
+
+
+        var rc = el.getBoundingClientRect();
+
+
+
+
+
+        if (rc.top < window.innerHeight && rc.bottom > 0) el.classList.add("in");
+
+
+
+
+
+      });
+
+
+
+
+
+    }, 220);
+
+
+
+
+
+  }
+
+
+
+
+
+  window.addEventListener("hashchange", navigate);
+
+
+
+
+
+  if (!location.hash){ try{ history.replaceState(null, "", "#home"); }catch(e){} }
+
+
+
+
+
+  window.__firstNav = true;
+
+
+
+
+
+  navigate();
+
+
+
+
+
+  /* 直接打开 #halls/#chronicle 等视图深链时，浏览器原生锚点会在视图显示后再次滚动；
+
+
+
+
+
+     加载完成后再归位一次，避免视图头被固定导航遮住 */
+
+
+
+
+
+  var initialViewHash = VIEWS.indexOf((location.hash || "").replace(/^#/, "")) >= 0;
+
+
+
+
+
+  if (initialViewHash) window.addEventListener("load", function(){ window.scrollTo(0, 0); });
+
+
+
+
+
+  /* 单厅深链 #hall-N 下按 Esc 返回全部展厅（灯箱/放映厅打开时交给各自处理） */
+
+
+
+
+
+  doc.addEventListener("keydown", function(e){
+
+
+
+
+
+    if (e.key !== "Escape") return;
+
+
+
+
+
+    var lb = doc.getElementById("lightbox");
+
+
+
+
+
+    var ch = doc.getElementById("chamber");
+
+
+
+
+
+    if (lb && lb.open) return;
+
+
+
+
+
+    if (ch && !ch.hidden) return;
+
+
+
+
+
+    if (doc.body.classList.contains("hall-solo")){ try{ location.hash = "#halls"; }catch(err){} }
+
+
+
+
+
+  });
+
+
+
+
+
+  });
+
+
+
+
+
+  safe(function(){
+
+
+
+
+
+  /* ---- 导航滚动状态 ---- */
+
+
+
+
+
+  var nav = doc.getElementById("nav");
+
+
+
+
+
+  var pbar = doc.getElementById("progressBar");
+
+
+
+
+
+  var toTop = doc.getElementById("toTop");
+
+
+
+
+
+  function onScroll(){
+
+
+
+
+
+    var y = window.scrollY;
+
+
+
+
+
+    nav.classList.toggle("scrolled", y > 40);
+
+
+
+
+
+    if (pbar){
+
+
+
+
+
+      var max = doc.documentElement.scrollHeight - window.innerHeight;
+
+
+
+
+
+      pbar.style.width = (max > 0 ? Math.min(100, y / max * 100) : 0) + "%";
+
+
+
+
+
+    }
+
+
+
+
+
+    if (toTop) toTop.classList.toggle("show", y > 640);
+
+
+
+
+
+    /* 长廊吸顶导览：下滚收起让位，停手或上滚即回 */
+
+
+
+
+
+    var hn = doc.querySelector(".halls-nav");
+
+
+
+
+
+    if (hn){
+
+
+
+
+
+      if (y > 420 && y > onScroll._ly + 4){
+
+
+
+
+
+        hn.classList.add("nav-autohide");
+
+
+
+
+
+        clearTimeout(onScroll._ht);
+
+
+
+
+
+        onScroll._ht = setTimeout(function(){ hn.classList.remove("nav-autohide"); }, 1100);
+
+
+
+
+
+      }
+
+
+
+
+
+      else if (y < onScroll._ly - 4 || y <= 420){
+
+
+
+
+
+        hn.classList.remove("nav-autohide");
+
+
+
+
+
+        clearTimeout(onScroll._ht);
+
+
+
+
+
+      }
+
+
+
+
+
+    }
+
+
+
+
+
+    onScroll._ly = y;
+
+
+
+
+
+  }
+
+
+
+
+
+  window.addEventListener("scroll", onScroll, {passive:true});
+
+
+
+
+
+  if (toTop) toTop.addEventListener("click", function(){
+
+
+
+
+
+    try{ window.scrollTo({top:0, behavior:"smooth"}); }catch(e){ window.scrollTo(0,0); }
+
+
+
+
+
+  });
+
+
+
+
+
+  onScroll();
+
+
+
+
+
+  onScroll();
+
+
+
+
+
+  });
+
+
+
+
+
+  safe(function(){
+
+
+
+
+
+  /* ---- 展厅横滑：箭头滚动 ---- */
+
+
+
+
+
+  Array.prototype.forEach.call(doc.querySelectorAll(".hall__ctl"), function(ctl){
+
+
+
+
+
+    var track = ctl.parentElement.querySelector(".hall__track");
+
+
+
+
+
+    if (!track) return;
+
+
+
+
+
+    var prev = ctl.querySelector("[data-prev]");
+
+
+
+
+
+    var next = ctl.querySelector("[data-next]");
+
+
+
+
+
+    function step(dir){
+
+
+
+
+
+      track.scrollBy({left: dir * Math.max(320, track.clientWidth * 0.82), behavior:"smooth"});
+
+
+
+
+
+    }
+
+
+
+
+
+    if (prev) prev.addEventListener("click", function(){ step(-1); });
+
+
+
+
+
+    if (next) next.addEventListener("click", function(){ step(1); });
+
+
+
+
+
+  });
+
+
+
+
+
+  });
+
+
+
+
+
+  /* ---- 趣味音效：点开作品=喂到，哈哈大笑；说明牌里再喂一口=被吃，噶就塞 ----
+
+
+
+
+
+     issue #1（a72148508-hash）：「奶龙吃到就会哈哈大笑，被吃就是噶就塞」
+
+
+
+
+
+     全部用 Web Audio 现场合成，不引入任何外部音频素材；无 AudioContext 的环境静默降级。 */
+
+
+
+
+
+  safe(function(){
+
+
+
+
+
+    var AC = window.AudioContext || window.webkitAudioContext;
+
+
+
+
+
+    if (!AC) return;
+
+
+
+
+
+    var btn = doc.getElementById("sfxBtn");
+
+
+
+
+
+    var stored = null;
+
+
+
+
+
+    try { stored = window.localStorage.getItem("nwSfx"); } catch(e){}
+
+
+
+
+
+    var on = stored !== "off";
+
+
+
+
+
+    var ctx = null;
+
+
+
+
+
+    var armed = false;   /* 浏览器自动播放策略：只有真实手势之后才发声 */
+
+
+
+
+
+    function arm(){ armed = true; }
+
+
+
+
+
+    doc.addEventListener("pointerdown", arm, true);
+
+
+
+
+
+    doc.addEventListener("keydown", arm, true);
+
+
+
+
+
+    function ensure(){
+
+
+
+
+
+      if (!ctx){ try { ctx = new AC(); } catch(e){ return null; } }
+
+
+
+
+
+      if (ctx.state === "suspended"){ try { ctx.resume(); } catch(e){} }
+
+
+
+
+
+      return ctx;
+
+
+
+
+
+    }
+
+
+
+
+
+    function tone(c, o){
+
+
+
+
+
+      var osc = c.createOscillator(), g = c.createGain(), out = g, bq = null;
+
+
+
+
+
+      osc.type = o.type || "triangle";
+
+
+
+
+
+      osc.frequency.setValueAtTime(o.f0, o.t);
+
+
+
+
+
+      if (o.f1 && o.f1 !== o.f0){ osc.frequency.exponentialRampToValueAtTime(Math.max(24, o.f1), o.t + o.dur); }
+
+
+
+
+
+      g.gain.setValueAtTime(0.0001, o.t);
+
+
+
+
+
+      g.gain.exponentialRampToValueAtTime(Math.max(0.001, o.peak), o.t + Math.min(0.02, o.dur * 0.25));
+
+
+
+
+
+      g.gain.exponentialRampToValueAtTime(0.0001, o.t + o.dur);
+
+
+
+
+
+      osc.connect(g);
+
+
+
+
+
+      if (o.filter){
+
+
+
+
+
+        bq = c.createBiquadFilter(); bq.type = o.filter;
+
+
+
+
+
+        bq.frequency.value = o.fc || 1200; bq.Q.value = o.q || 0.8;
+
+
+
+
+
+        g.connect(bq); out = bq;
+
+
+
+
+
+      }
+
+
+
+
+
+      out.connect(c.destination);
+
+
+
+
+
+      osc.start(o.t); osc.stop(o.t + o.dur + 0.03);
+
+
+
+
+
+    }
+
+
+
+
+
+    /* 哈哈大笑：6 声短促的“he he he”，音高逐级下滑，带一点高次泛音 */
+
+
+
+
+
+    function laugh(){
+
+
+
+
+
+      if (!on || !armed) return false;
+
+
+
+
+
+      var c = ensure(); if (!c) return false;
+
+
+
+
+
+      var t0 = c.currentTime + 0.01;
+
+
+
+
+
+      for (var i = 0; i < 6; i++){
+
+
+
+
+
+        var f = 700 * Math.pow(0.93, i);
+
+
+
+
+
+        tone(c, {t: t0 + i * 0.095, type: "triangle", f0: f * 0.82, f1: f, dur: 0.085, peak: 0.22 - i * 0.022, filter: "bandpass", fc: 1500, q: 0.7});
+
+
+
+
+
+        tone(c, {t: t0 + i * 0.095, type: "sine", f0: f * 1.98, f1: f * 1.9, dur: 0.07, peak: 0.045});
+
+
+
+
+
+      }
+
+
+
+
+
+      return true;
+
+
+
+
+
+    }
+
+
+
+
+
+    /* 噶就塞：先一记下滑的“噶”，再两声闷下去的“塞” */
+
+
+
+
+
+    function gone(){
+
+
+
+
+
+      if (!on || !armed) return false;
+
+
+
+
+
+      var c = ensure(); if (!c) return false;
+
+
+
+
+
+      var t0 = c.currentTime + 0.01;
+
+
+
+
+
+      tone(c, {t: t0,           type: "sawtooth", f0: 320, f1: 96, dur: 0.2,  peak: 0.15, filter: "lowpass", fc: 1100});
+
+
+
+
+
+      tone(c, {t: t0 + 0.23,    type: "sine",     f0: 196, f1: 78, dur: 0.3,  peak: 0.18});
+
+
+
+
+
+      tone(c, {t: t0 + 0.27,    type: "square",   f0: 120, f1: 62, dur: 0.12, peak: 0.06, filter: "lowpass", fc: 380});
+
+
+
+
+
+      return true;
+
+
+
+
+
+    }
+
+
+
+
+
+    function paint(){
+
+
+
+
+
+      if (!btn) return;
+
+
+
+
+
+      btn.setAttribute("aria-pressed", on ? "true" : "false");
+
+
+
+
+
+      btn.setAttribute("aria-label", on ? "趣味音效已开，点击关闭" : "趣味音效已关，点击开启");
+
+
+
+
+
+      btn.setAttribute("title", on ? "趣味音效已开" : "趣味音效已关");
+
+
+
+
+
+    }
+
+
+
+
+
+    paint();
+
+
+
+
+
+    if (btn) btn.addEventListener("click", function(){
+
+
+
+
+
+      on = !on; armed = true; paint();
+
+
+
+
+
+      try { window.localStorage.setItem("nwSfx", on ? "on" : "off"); } catch(e){}
+
+
+
+
+
+      if (on) laugh();
+
+
+
+
+
+    });
+
+
+
+
+
+    window.NWSFX = { laugh: laugh, gone: gone, enabled: function(){ return on; }, armed: function(){ return armed; } };
+
+
+
+
+
+  });
+
+
+
+
+
+  safe(function(){
+
+
+
+
+
+  /* ---- 灯箱：支持左右翻页 + 淡入过渡 ---- */
+
+
+
+
+
+  var box = doc.getElementById("lightbox");
+
+
+
+
+
+  if (box) {
+
+
+
+
+
+    var lbNative = (typeof box.showModal === "function");
+
+
+
+
+
+    var lbReturnHash = "#halls";
+
+
+
+
+
+    var lbRestore = false;
+
+
+
+
+
+    function lbOpenBox(){ if (lbNative) box.showModal(); else { box.setAttribute("open",""); box.classList.add("shown"); } }
+
+
+
+
+
+    function lbCloseBox(restore){
+
+
+
+
+
+      lbRestore = restore !== false;
+
+
+
+
+
+      if (lbNative) box.close(); else { box.removeAttribute("open"); box.classList.remove("shown"); }
+
+
+
+
+
+      try{ lbVid.pause(); }catch(e){}
+
+
+
+
+
+    }
+
+
+
+
+
+    var lbImg = doc.getElementById("lbImg");
+
+
+
+
+
+    var lbVid = doc.getElementById("lbVid");
+
+
+
+
+
+    var lbTitle = doc.getElementById("lbTitle");
+
+
+
+
+
+    var lbHall = doc.getElementById("lbHall");
+
+
+
+
+
+    var lbStory = doc.getElementById("lbStory");
+
+
+
+
+
+    var lbCount = doc.getElementById("lbCount");
+
+
+
+
+
+    var lbFull = doc.getElementById("lbFull");
+
+
+
+
+
+    var lbNo = doc.getElementById("lbNo");
+
+
+
+
+
+    var lbType = doc.getElementById("lbType");
+
+
+
+
+
+    var lbOrigin = doc.getElementById("lbOrigin");
+
+
+
+
+
+    /* 说明牌字段：馆藏编号 / 形制 / 原作对照（均由页面已有数据推导，不臆造年代与材质） */
+
+
+
+
+
+    function typeLabel(media, isVid){
+
+
+
+
+
+      if (isVid) return "圣影 · 视频短片";
+
+
+
+
+
+      var src = media.getAttribute("src") || "";
+
+
+
+
+
+      if (/\.gif($|\?)/i.test(src)) return "动态圣像 · GIF";
+
+
+
+
+
+      return "静态圣像 · 数字绘画";
+
+
+
+
+
+    }
+
+
+
+
+
+    function originLabel(raw){
+
+
+
+
+
+      if (!raw || raw === "#") return "本馆自藏";
+
+
+
+
+
+      if (raw.charAt(0) === "#"){
+
+
+
+
+
+        var eraEl = doc.getElementById(raw.slice(1));
+
+
+
+
+
+        var tag = eraEl ? eraEl.querySelector(".era__tag") : null;
+
+
+
+
+
+        return tag ? ("见艺术史长河 · " + String(tag.textContent).split("·")[0].trim()) : "本馆自藏";
+
+
+
+
+
+      }
+
+
+
+
+
+      if (raw.indexOf("http") !== 0) return "本馆自藏 · 原图随站分发";
+
+
+
+
+
+      var fn = "";
+
+
+
+
+
+      try { fn = decodeURIComponent(raw.split("/").pop()); } catch(e){ fn = raw.split("/").pop(); }
+
+
+
+
+
+      return fn.replace(/\.[A-Za-z0-9]+$/, "").replace(/_0?\d+$/, "");
+
+
+
+
+
+    }
+
+
+
+
+
+    var lbClose = doc.getElementById("lbClose");
+
+
+
+
+
+    var lbPrev = doc.getElementById("lbPrev");
+
+
+
+
+
+    var lbNext = doc.getElementById("lbNext");
+
+
+
+
+
+    var items = [];
+
+
+
+
+
+    var hallSeq = {};
+
+
+
+
+
+    var works = doc.querySelectorAll("#view-halls .work__frame img:not(.vid__cover), #view-halls .work__frame video");
+
+
+
+
+
+    Array.prototype.forEach.call(works, function(media, idx){
+
+
+
+
+
+      var isVid = media.tagName === "VIDEO";
+
+
+
+
+
+      var sec = media.closest ? media.closest("section.hall") : null;
+
+
+
+
+
+      var hid = sec ? sec.id.replace("hall-", "") : "X";
+
+
+
+
+
+      hallSeq[hid] = (hallSeq[hid] || 0) + 1;
+
+
+
+
+
+      var raw = media.getAttribute("data-original") || "#";
+
+
+
+
+
+      items.push({
+
+
+
+
+
+        img: media,
+
+
+
+
+
+        src: media.getAttribute("src") || "",
+
+
+
+
+
+        alt: media.getAttribute("alt") || media.getAttribute("aria-label") || "",
+
+
+
+
+
+        title: media.getAttribute("data-title") || "",
+
+
+
+
+
+        hall: media.getAttribute("data-hall") || "",
+
+
+
+
+
+        story: media.getAttribute("data-narrative") || "",
+
+
+
+
+
+        original: raw,
+
+
+
+
+
+        no: "NW-" + hid + "-" + String(hallSeq[hid]).padStart(3, "0"),
+
+
+
+
+
+        typeLabel: typeLabel(media, isVid),
+
+
+
+
+
+        originLabel: originLabel(raw),
+
+
+
+
+
+        type: isVid ? "video" : "img"
+
+
+
+
+
+      });
+
+
+
+
+
+      media.setAttribute("tabindex", "0");
+
+
+
+
+
+      media.setAttribute("role", "button");
+
+
+
+
+
+      media.setAttribute("aria-label", (media.getAttribute("data-title") || "馆藏作品") + " · 打开作品说明牌");
+
+
+
+
+
+      media.addEventListener("click", function(){
+
+
+
+
+
+        showWork(idx);
+
+
+
+
+
+      });
+
+
+
+
+
+      media.addEventListener("keydown", function(e){
+
+
+
+
+
+        if (e.key === "Enter" || e.key === " "){ e.preventDefault(); showWork(idx); }
+
+
+
+
+
+      });
+
+
+
+
+
+    });
+
+
+
+
+
+    var cur = -1;
+
+
+
+
+
+    var lbFadeTO = null;
+
+
+
+
+
+    lbImg.addEventListener("load", function(){
+
+
+
+
+
+      clearTimeout(lbFadeTO);
+
+
+
+
+
+      lbImg.classList.remove("lb-fade");
+
+
+
+
+
+      var nw = lbImg.naturalWidth || 0;
+
+
+
+
+
+      if (nw > 0 && nw < 800) lbImg.classList.add("lb-small");
+
+
+
+
+
+      else lbImg.classList.remove("lb-small");
+
+
+
+
+
+    });
+
+
+
+
+
+    /* 再喂一口：说明牌里点大图 = 它被吃了（键盘 Enter/Space 同效） */
+
+
+
+
+
+    lbImg.setAttribute("tabindex", "0");
+
+
+
+
+
+    lbImg.setAttribute("role", "button");
+
+
+
+
+
+    lbImg.setAttribute("aria-label", String(lbImg.getAttribute("alt") || "作品大图") + "（再喂一口试试）");
+
+
+
+
+
+    function feedAgain(e){
+
+
+
+
+
+      if (e && e.type === "keydown" && !(e.key === "Enter" || e.key === " " || e.key === "Spacebar")) return;
+
+
+
+
+
+      if (e && e.type === "keydown") e.preventDefault();
+
+
+
+
+
+      try { window.NWSFX && window.NWSFX.gone(); } catch(err){}
+
+
+
+
+
+    }
+
+
+
+
+
+    lbImg.addEventListener("click", feedAgain);
+
+
+
+
+
+    lbImg.addEventListener("keydown", feedAgain);
+
+
+
+
+
+    function showWork(i){
+
+
+
+
+
+      if (!box.open){
+
+
+
+
+
+        var h0 = (location.hash || "").replace(/^#/, "");
+
+
+
+
+
+        lbReturnHash = (h0 === "search" || /^hall-\d+$/.test(h0)) ? "#" + h0 : "#halls";
+
+
+
+
+
+      }
+
+
+
+
+
+      cur = (i + items.length) % items.length;
+
+
+
+
+
+      var it = items[cur];
+
+
+
+
+
+      if (it.type === "video"){
+
+
+
+
+
+        lbImg.classList.remove("show");
+
+
+
+
+
+        lbImg.removeAttribute("src");
+
+
+
+
+
+        lbImg.classList.remove("lb-small");
+
+
+
+
+
+        if (lbVid.getAttribute("src") !== it.src) lbVid.setAttribute("src", it.src);
+
+
+
+
+
+        lbVid.classList.add("show");
+
+
+
+
+
+        try { var vp = lbVid.play(); if (vp && vp.catch) vp.catch(function(){}); } catch(e){}
+
+
+
+
+
+        lbFull.style.display = "none";
+
+
+
+
+
+      } else {
+
+
+
+
+
+        lbVid.pause();
+
+
+
+
+
+        lbVid.removeAttribute("src");
+
+
+
+
+
+        lbVid.classList.remove("show");
+
+
+
+
+
+        lbImg.classList.add("show");
+
+
+
+
+
+        if (lbImg.getAttribute("src") !== it.src){
+
+
+
+
+
+          lbImg.classList.add("lb-fade");
+
+
+
+
+
+          lbImg.setAttribute("src", it.src);
+
+
+
+
+
+          clearTimeout(lbFadeTO);
+
+
+
+
+
+          if (lbImg.complete && lbImg.naturalWidth > 0){
+
+
+
+
+
+            lbImg.classList.remove("lb-fade");
+
+
+
+
+
+          } else {
+
+
+
+
+
+            lbFadeTO = setTimeout(function(){ lbImg.classList.remove("lb-fade"); }, 160);
+
+
+
+
+
+          }
+
+
+
+
+
+        } else {
+
+
+
+
+
+          lbImg.classList.remove("lb-fade");
+
+
+
+
+
+        }
+
+
+
+
+
+        lbFull.style.display = "";
+
+
+
+
+
+      }
+
+
+
+
+
+      lbImg.setAttribute("alt", it.alt);
+
+
+
+
+
+      lbTitle.textContent = it.title;
+
+
+
+
+
+      lbHall.textContent = it.hall;
+
+
+
+
+
+      /* 说明牌同步文档标题：分享/历史记录直达该作品 */
+
+
+
+
+
+      doc.title = (it.title ? it.title + " ｜ " : "") + (window.__baseTitle || "奶蛙艺术宇宙 · 艺术圣殿");
+
+
+
+
+
+      recordRecent(it);
+
+
+
+
+
+      /* 趣味音效：喂到了 —— 奶娃哈哈大笑 */
+
+
+
+
+
+      try { window.NWSFX && window.NWSFX.laugh(); } catch(e){}
+
+
+
+
+
+      /* 预载相邻作品：翻页秒开 */
+
+
+
+
+
+      [cur + 1, cur - 1].forEach(function(k){
+
+
+
+
+
+        var n = items[(k + items.length) % items.length];
+
+
+
+
+
+        if (n && n.src && n.src !== "#"){ var pr = new Image(); pr.src = n.src; }
+
+
+
+
+
+      });
+
+
+
+
+
+      if (lbCount) lbCount.textContent = (cur + 1) + " / " + items.length;
+
+
+
+
+
+      lbStory.textContent = it.story;
+
+
+
+
+
+      if (lbNo) lbNo.textContent = it.no || "";
+
+
+
+
+
+      if (lbType) lbType.textContent = it.typeLabel || "";
+
+
+
+
+
+      if (lbOrigin) lbOrigin.textContent = it.originLabel || "";
+
+
+
+
+
+      lbFull.setAttribute("href", it.original);
+
+
+
+
+
+      if (!box.open){
+
+
+
+
+
+        box.classList.remove("shown");
+
+
+
+
+
+        lbOpenBox();
+
+
+
+
+
+        requestAnimationFrame(function(){ box.classList.add("shown"); });
+
+
+
+
+
+      }
+
+
+
+
+
+      /* 同步深链：#w-<馆藏编号>，便于分享单件作品 */
+
+
+
+
+
+      if (window.history && window.history.replaceState && it.no){
+
+
+
+
+
+        try { window.history.replaceState(null, "", "#w-" + it.no.replace("NW-", "")); } catch(e){}
+
+
+
+
+
+      }
+
+
+
+
+
+    }
+
+
+
+
+
+    function restoreHash(){
+
+
+
+
+
+      if (!lbRestore) return;
+
+
+
+
+
+      lbRestore = false;
+
+
+
+
+
+      var target = lbReturnHash || "#halls";
+
+
+
+
+
+      try {
+
+
+
+
+
+        if ((location.hash || "").indexOf("#w-") === 0) window.history.replaceState(null, "", target);
+
+
+
+
+
+      } catch(e){}
+
+
+
+
+
+      var v = target.replace(/^#/, "");
+
+
+
+
+
+      if (/^hall-\d+$/.test(v)) v = "halls";
+
+
+
+
+
+      if (window.NW && window.NW.syncTitle) window.NW.syncTitle(v);
+
+
+
+
+
+    }
+
+
+
+
+
+    if (lbPrev) lbPrev.addEventListener("click", function(){ showWork(cur - 1); });
+
+
+
+
+
+    if (lbNext) lbNext.addEventListener("click", function(){ showWork(cur + 1); });
+
+
+
+
+
+    /* 对外暴露：检索结果 / 深链可直达对应作品说明牌 */
+
+
+
+
+
+    window.NW = window.NW || {};
+
+
+
+
+
+    window.NW.open = function(i){ showWork(i); };
+
+
+
+
+
+    window.NW.openByNo = function(no){
+
+
+
+
+
+      for (var i = 0; i < items.length; i++){
+
+
+
+
+
+        if (items[i].no === "NW-" + no){ showWork(i); return true; }
+
+
+
+
+
+      }
+
+
+
+
+
+      return false;
+
+
+
+
+
+    };
+
+
+
+
+
+    window.NW.currentNo = function(){ return cur >= 0 && items[cur] ? items[cur].no : ""; };
+
+
+
+
+
+    /* 路由切换时静默关闭灯箱，避免 close 事件把地址栏又拽回原视图 */
+
+
+
+
+
+    window.NW.closeSilent = function(){ if (box.open) lbCloseBox(false); };
+
+
+
+
+
+    /* 复制深链：一键分享当前说明牌（地址栏已带 #w-<编号>） */
+
+
+
+
+
+    var lbCopy = doc.getElementById("lbCopy");
+
+
+
+
+
+    var lbCopied = doc.getElementById("lbCopied");
+
+
+
+
+
+    function copyDone(){
+
+
+
+
+
+      if (!lbCopied) return;
+
+
+
+
+
+      lbCopied.hidden = false;
+
+
+
+
+
+      setTimeout(function(){ lbCopied.hidden = true; }, 1800);
+
+
+
+
+
+    }
+
+
+
+
+
+    function copyFallback(text){
+
+
+
+
+
+      try{
+
+
+
+
+
+        var ta = doc.createElement("textarea");
+
+
+
+
+
+        ta.value = text;
+
+
+
+
+
+        ta.setAttribute("readonly", "");
+
+
+
+
+
+        ta.style.position = "fixed";
+
+
+
+
+
+        ta.style.opacity = "0";
+
+
+
+
+
+        doc.body.appendChild(ta);
+
+
+
+
+
+        ta.select();
+
+
+
+
+
+        var ok = doc.execCommand("copy");
+
+
+
+
+
+        doc.body.removeChild(ta);
+
+
+
+
+
+        if (ok) copyDone();
+
+
+
+
+
+      }catch(e){}
+
+
+
+
+
+    }
+
+
+
+
+
+    if (lbCopy) lbCopy.addEventListener("click", function(){
+
+
+
+
+
+      var link = location.href;
+
+
+
+
+
+      if (navigator.clipboard && navigator.clipboard.writeText){
+
+
+
+
+
+        navigator.clipboard.writeText(link).then(copyDone).catch(function(){ copyFallback(link); });
+
+
+
+
+
+      } else {
+
+
+
+
+
+        copyFallback(link);
+
+
+
+
+
+      }
+
+
+
+
+
+    });
+
+
+
+
+
+    /* 参观足迹：最近看过的圣像（仅存本机 localStorage，最多 8 件） */
+
+
+
+
+
+    function readRecent(){
+
+
+
+
+
+      try{
+
+
+
+
+
+        var arr = JSON.parse(window.localStorage.getItem("nwRecent") || "[]");
+
+
+
+
+
+        return Array.isArray(arr) ? arr.filter(function(r){ return r && r.no; }) : [];
+
+
+
+
+
+      }catch(e){ return []; }
+
+
+
+
+
+    }
+
+
+
+
+
+    function recordRecent(it){
+
+
+
+
+
+      try{
+
+
+
+
+
+        if (!it.no || !it.title || !window.localStorage) return;
+
+
+
+
+
+        var arr = readRecent().filter(function(r){ return r.no !== it.no; });
+
+
+
+
+
+        arr.unshift({ no: it.no, title: it.title, hall: it.hall || "", src: it.src || "" });
+
+
+
+
+
+        window.localStorage.setItem("nwRecent", JSON.stringify(arr.slice(0, 8)));
+
+
+
+
+
+        renderRecent();
+
+
+
+
+
+      }catch(e){}
+
+
+
+
+
+    }
+
+
+
+
+
+    function renderRecent(){
+
+
+
+
+
+      var grid = doc.getElementById("recentGrid");
+
+
+
+
+
+      var card = doc.getElementById("recentCard");
+
+
+
+
+
+      if (!grid || !card) return;
+
+
+
+
+
+      var arr = readRecent();
+
+
+
+
+
+      card.hidden = arr.length === 0;
+
+
+
+
+
+      grid.textContent = "";
+
+
+
+
+
+      arr.forEach(function(r){
+
+
+
+
+
+        var b = doc.createElement("button");
+
+
+
+
+
+        b.type = "button";
+
+
+
+
+
+        b.className = "recent__item";
+
+
+
+
+
+        b.setAttribute("aria-label", "重新打开《" + (r.title || r.no) + "》");
+
+
+
+
+
+        var isVid = /\.(mp4|webm)$/i.test(r.src || "");
+
+
+
+
+
+        if (r.src && !isVid){
+
+
+
+
+
+          var im = doc.createElement("img");
+
+
+
+
+
+          im.src = r.src;
+
+
+
+
+
+          im.alt = "";
+
+
+
+
+
+          im.setAttribute("loading", "lazy");
+
+
+
+
+
+          im.setAttribute("decoding", "async");
+
+
+
+
+
+          b.appendChild(im);
+
+
+
+
+
+        }
+
+
+
+
+
+        var t = doc.createElement("b");
+
+
+
+
+
+        t.textContent = r.title || r.no;
+
+
+
+
+
+        b.appendChild(t);
+
+
+
+
+
+        b.addEventListener("click", function(){
+
+
+
+
+
+          try{ location.hash = "#w-" + String(r.no).replace(/^NW-/, ""); }catch(e){}
+
+
+
+
+
+        });
+
+
+
+
+
+        grid.appendChild(b);
+
+
+
+
+
+      });
+
+
+
+
+
+    }
+
+
+
+
+
+    renderRecent();
+
+
+
+
+
+    var recentClear = doc.getElementById("recentClear");
+
+
+
+
+
+    if (recentClear) recentClear.addEventListener("click", function(){
+
+
+
+
+
+      try{ window.localStorage.removeItem("nwRecent"); }catch(e){}
+
+
+
+
+
+      renderRecent();
+
+
+
+
+
+    });
+
+
+
+
+
+    /* 首屏即为作品深链时，等其它模块就绪后打开 */
+
+
+
+
+
+    var dm = (location.hash || "").match(/^#w-(.+)$/);
+
+
+
+
+
+    if (dm){ window.setTimeout(function(){ try{ window.NW.openByNo(decodeURIComponent(dm[1]).replace(/^NW-/, "")); }catch(e){} }, 80); }
+
+
+
+
+
+    lbClose.addEventListener("click", function(){ lbCloseBox(); });
+
+
+
+
+
+    box.addEventListener("close", restoreHash);
+
+
+
+
+
+    box.addEventListener("cancel", function(e){
+
+
+
+
+
+      if (e.preventDefault) e.preventDefault();
+
+
+
+
+
+      lbCloseBox();
+
+
+
+
+
+    });
+
+
+
+
+
+    box.addEventListener("click", function(e){
+
+
+
+
+
+      if (e.target === box) lbCloseBox();
+
+
+
+
+
+    });
+
+
+
+
+
+    doc.addEventListener("keydown", function(e){
+
+
+
+
+
+      if (!box.open) return;
+
+
+
+
+
+      if (e.key === "ArrowLeft"){ e.preventDefault(); showWork(cur - 1); }
+
+
+
+
+
+      if (e.key === "ArrowRight"){ e.preventDefault(); showWork(cur + 1); }
+
+
+
+
+
+      if (e.key === "Escape"){ e.preventDefault(); lbCloseBox(); }
+
+
+
+
+
+    });
+
+
+
+
+
+  }
+
+
+
+
+
+  });
+
+
+
+
+
+  safe(function(){
+
+
+
+
+
+  /* ---- 圣殿琴音：默认起播；被拦则首次交互重试（修复“首次点按钮被自身手势静音”的冲突） ---- */
+
+
+
+
+
+  var bgm = doc.getElementById("bgm");
+
+
+
+
+
+  var musicBtn = doc.getElementById("musicBtn");
+
+
+
+
+
+  var musicOn = false;
+
+
+
+
+
+  var actx = null, graphOK = false;
+
+
+
+
+
+  function setBtn(on){
+
+
+
+
+
+    if (!musicBtn) return;
+
+
+
+
+
+    musicBtn.setAttribute("aria-pressed", on ? "true" : "false");
+
+
+
+
+
+    musicBtn.setAttribute("aria-label", on ? "静默圣殿" : "奏响圣殿琴音");
+
+
+
+
+
+    musicBtn.setAttribute("title", on ? "静默圣殿" : "奏响圣殿琴音");
+
+
+
+
+
+  }
+
+
+
+
+
+  /* 宏大感：合成教堂混响（ConvolverNode）+ 主增益；任何失败都回退到普通播放 */
+
+
+
+
+
+  function makeIR(ctx, secs, decay){
+
+
+
+
+
+    var rate = ctx.sampleRate, len = Math.max(1, Math.floor(rate * secs));
+
+
+
+
+
+    var buf = ctx.createBuffer(2, len, rate), c, d, i;
+
+
+
+
+
+    for (c=0;c<2;c++){
+
+
+
+
+
+      d = buf.getChannelData(c);
+
+
+
+
+
+      for (i=0;i<len;i++){ d[i] = (Math.random()*2-1) * Math.pow(1 - i/len, decay); }
+
+
+
+
+
+    }
+
+
+
+
+
+    return buf;
+
+
+
+
+
+  }
+
+
+
+
+
+  function buildGraph(){
+
+
+
+
+
+    if (graphOK || !bgm) return;
+
+
+
+
+
+    var AC = window.AudioContext || window.webkitAudioContext;
+
+
+
+
+
+    if (!AC) return;
+
+
+
+
+
+    try{
+
+
+
+
+
+      actx = new AC();
+
+
+
+
+
+      var src = actx.createMediaElementSource(bgm);
+
+
+
+
+
+      var conv = actx.createConvolver();
+
+
+
+
+
+      conv.buffer = makeIR(actx, 2.8, 2.2);
+
+
+
+
+
+      var dry = actx.createGain(); dry.gain.value = 0.82;
+
+
+
+
+
+      var wet = actx.createGain(); wet.gain.value = 0.42;
+
+
+
+
+
+      var master = actx.createGain(); master.gain.value = 1.0;
+
+
+
+
+
+      src.connect(dry); dry.connect(master);
+
+
+
+
+
+      src.connect(conv); conv.connect(wet); wet.connect(master);
+
+
+
+
+
+      master.connect(actx.destination);
+
+
+
+
+
+      bgm.volume = 1;            /* 音量交由主增益统一控制 */
+
+
+
+
+
+      graphOK = true;
+
+
+
+
+
+    }catch(e){ actx = null; graphOK = false; }
+
+
+
+
+
+  }
+
+
+
+
+
+  function resumeCtx(){
+
+
+
+
+
+    if (actx && actx.state === "suspended"){ try{ actx.resume(); }catch(e){} }
+
+
+
+
+
+  }
+
+
+
+
+
+  function tryPlay(){
+
+
+
+
+
+    if (musicOn || !bgm) return;
+
+
+
+
+
+    resumeCtx();
+
+
+
+
+
+    var pp = bgm.play();
+
+
+
+
+
+    var done = function(){ musicOn = true; setBtn(true); if (musicBtn) musicBtn.classList.remove("hint"); };
+
+
+
+
+
+    if (pp && pp.then){
+
+
+
+
+
+      pp.then(done).catch(function(){ /* 被浏览器拦截：保持待播，等待手势重试 */ });
+
+
+
+
+
+    } else {
+
+
+
+
+
+      done();
+
+
+
+
+
+    }
+
+
+
+
+
+  }
+
+
+
+
+
+  function tryPause(){
+
+
+
+
+
+    if (!musicOn || !bgm) return;
+
+
+
+
+
+    bgm.pause();
+
+
+
+
+
+    musicOn = false;
+
+
+
+
+
+    setBtn(false);
+
+
+
+
+
+  }
+
+
+
+
+
+  if (bgm){
+
+
+
+
+
+    bgm.volume = graphOK ? 1 : 0.5;   /* 未建图时先以普通音量起播，建图后归位 */
+
+
+
+
+
+    if (musicBtn) musicBtn.classList.add("hint");
+
+
+
+
+
+    bgm.load();
+
+
+
+
+
+    tryPlay(); /* 默认即有圣殿琴音（浏览器允许时）；被拦则首次轻触/滑动即响 */
+
+
+
+
+
+  }
+
+
+
+
+
+  if (musicBtn) musicBtn.addEventListener("click", function(){
+
+
+
+
+
+    buildGraph(); resumeCtx();        /* 首次交互才建图（满足浏览器手势要求） */
+
+
+
+
+
+    if (musicOn) tryPause(); else tryPlay();
+
+
+
+
+
+  });
+
+
+
+
+
+  /* 首次交互：建图+恢复音频上下文并起播；但点音乐按钮自身不算（交给它的 click 处理，避免“一播一停”） */
+
+
+
+
+
+  var cleanupFirstTap = function(){
+
+
+
+
+
+    doc.removeEventListener("pointerdown", firstTap);
+
+
+
+
+
+    doc.removeEventListener("keydown", firstTap);
+
+
+
+
+
+    doc.removeEventListener("touchstart", firstTap);
+
+
+
+
+
+    doc.removeEventListener("scroll", firstTap);
+
+
+
+
+
+  };
+
+
+
+
+
+  var firstTap = function(e){
+
+
+
+
+
+    buildGraph(); resumeCtx();
+
+
+
+
+
+    if (e && e.target && e.target.closest && e.target.closest("#musicBtn")){
+
+
+
+
+
+      cleanupFirstTap(); return;   /* 按钮自己会处理，避免同一次手势“播了又被自己的 click 静音” */
+
+
+
+
+
+    }
+
+
+
+
+
+    if (!musicOn) tryPlay();
+
+
+
+
+
+    cleanupFirstTap();
+
+
+
+
+
+  };
+
+
+
+
+
+  if (musicBtn){
+
+
+
+
+
+    ["pointerdown","keydown","touchstart","scroll"].forEach(function(ev){
+
+
+
+
+
+      doc.addEventListener(ev, firstTap, {passive:true});
+
+
+
+
+
+    });
+
+
+
+
+
+  }
+
+
+
+
+
+  });
+
+
+
+
+
+  safe(function(){
+
+
+
+
+
+  /* ---- 圣殿之门金尘：JS 注入漂浮粒子（尊重减弱动效） ---- */
+
+
+
+
+
+  if (!reduce){
+
+
+
+
+
+    var dust = doc.getElementById("dust");
+
+
+
+
+
+    if (dust){
+
+
+
+
+
+      var pc = 30;
+
+
+
+
+
+      for (var di=0; di<pc; di++){
+
+
+
+
+
+        var p = doc.createElement("i");
+
+
+
+
+
+        var sz = (Math.random()*3 + 1.4).toFixed(1);
+
+
+
+
+
+        p.style.left = (Math.random()*100).toFixed(2) + "%";
+
+
+
+
+
+        p.style.width = sz + "px";
+
+
+
+
+
+        p.style.height = sz + "px";
+
+
+
+
+
+        p.style.animationDuration = (Math.random()*9 + 9).toFixed(1) + "s";
+
+
+
+
+
+        p.style.animationDelay = (-Math.random()*18).toFixed(1) + "s";
+
+
+
+
+
+        dust.appendChild(p);
+
+
+
+
+
+      }
+
+
+
+
+
+    }
+
+
+
+
+
+  }
+
+
+
+
+
+  });
+
+
+
+
+
+  safe(function(){
+
+
+
+
+
+  /* ---- 展厅页码：当前件 / 总数，随横滑实时更新（绑定原有 .hall__ctl 页码） ---- */
+
+
+
+
+
+  Array.prototype.forEach.call(doc.querySelectorAll(".hall__ctl"), function(ctl){
+
+
+
+
+
+    var track = ctl.parentElement.querySelector(".hall__track");
+
+
+
+
+
+    var cnt = ctl.querySelector(".hall__count");
+
+
+
+
+
+    if (!track || !cnt) return;
+
+
+
+
+
+    var works = track.querySelectorAll(".work");
+
+
+
+
+
+    var total = works.length;
+
+
+
+
+
+    var curEl = cnt.querySelector(".c-cur");
+
+
+
+
+
+    var totEl = cnt.querySelector(".c-total");
+
+
+
+
+
+    if (!total || !curEl) return;
+
+
+
+
+
+    if (totEl) totEl.textContent = total;
+
+
+
+
+
+    function upd(){
+
+
+
+
+
+      var gap = 0;
+
+
+
+
+
+      try{ gap = parseFloat(getComputedStyle(track).gap) || 0; }catch(e){}
+
+
+
+
+
+      var w = (works[0] ? works[0].offsetWidth : 0) + gap;
+
+
+
+
+
+      var idx = w > 0 ? Math.round(track.scrollLeft / w) : 0;
+
+
+
+
+
+      idx = Math.max(0, Math.min(total - 1, idx));
+
+
+
+
+
+      curEl.textContent = (idx + 1).toString().padStart(2, "0");
+
+
+
+
+
+    }
+
+
+
+
+
+    track.addEventListener("scroll", upd, {passive:true});
+
+
+
+
+
+    track.addEventListener("touchend", upd, {passive:true});
+
+
+
+
+
+    upd();
+
+
+
+
+
+  });
+
+
+
+
+
+  });
+
+
+
+
+
+  safe(function(){
+
+
+
+
+
+  /* ---- 滚动揭示：块级 reveal + 子项交错 stagger ---- */
+
+
+
+
+
+  if ("IntersectionObserver" in window && !reduce){
+
+
+
+
+
+    var io = new IntersectionObserver(function(entries){
+
+
+
+
+
+      entries.forEach(function(en){
+
+
+
+
+
+        if (!en.isIntersecting) return;
+
+
+
+
+
+        var el = en.target;
+
+
+
+
+
+        el.classList.add("in");
+
+
+
+
+
+        var kids = el.querySelectorAll(".stagger");
+
+
+
+
+
+        Array.prototype.forEach.call(kids, function(k, i){
+
+
+
+
+
+          k.style.animationDelay = (i * 70) + "ms";
+
+
+
+
+
+          k.classList.add("in");
+
+
+
+
+
+        });
+
+
+
+
+
+        io.unobserve(el);
+
+
+
+
+
+      });
+
+
+
+
+
+    }, {threshold:.15});
+
+
+
+
+
+    Array.prototype.forEach.call(doc.querySelectorAll(".reveal"), function(el){
+
+
+
+
+
+      io.observe(el);
+
+
+
+
+
+    });
+
+
+
+
+
+  } else {
+
+
+
+
+
+    Array.prototype.forEach.call(doc.querySelectorAll(".reveal, .stagger"), function(el){
+
+
+
+
+
+      el.classList.add("in");
+
+
+
+
+
+    });
+
+
+
+
+
+  }
+
+
+
+
+
+  });
+
+
+
+
+
+  safe(function(){
+
+
+
+
+
+  /* ---- hero 视差：滚动时圣殿之门缓移淡出 ---- */
+
+
+
+
+
+  var heroInner = doc.querySelector(".hero__inner");
+
+
+
+
+
+  if (heroInner && !reduce){
+
+
+
+
+
+    window.addEventListener("scroll", function(){
+
+
+
+
+
+      var y = window.scrollY;
+
+
+
+
+
+      var vh = window.innerHeight || 844;
+
+
+
+
+
+      if (y < vh * 1.1){
+
+
+
+
+
+        heroInner.style.transform = "translateY(" + (y * .26) + "px)";
+
+
+
+
+
+        heroInner.style.opacity = String(Math.max(0, 1 - y / (vh * .9)));
+
+
+
+
+
+      }
+
+
+
+
+
+    }, {passive:true});
+
+
+
+
+
+  }
+
+
+
+
+
+  });
+
+
+
+
+
+  safe(function(){
+
+
+
+
+
+  /* ---- 沉浸展厅：步入展厅 · 自动巡展 ---- */
+
+
+
+
+
+  var chamber = doc.getElementById("chamber");
+
+
+
+
+
+  if (chamber){
+
+
+
+
+
+    var chamberImg = doc.getElementById("chamberImg");
+
+
+
+
+
+    var chamberVid = doc.getElementById("chamberVid");
+
+
+
+
+
+    var chamberTitle = doc.getElementById("chamberTitle");
+
+
+
+
+
+    var chamberStory = doc.getElementById("chamberStory");
+
+
+
+
+
+    var chamberCounter = doc.getElementById("chamberCounter");
+
+
+
+
+
+    var chamberBar = doc.getElementById("chamberBar");
+
+
+
+
+
+    var chamberPlay = doc.getElementById("chamberPlay");
+
+
+
+
+
+    var chamberPrev = doc.getElementById("chamberPrev");
+
+
+
+
+
+    var chamberNext = doc.getElementById("chamberNext");
+
+
+
+
+
+    var chamberClose = doc.getElementById("chamberClose");
+
+
+
+
+
+    var chamberStage = doc.querySelector(".chamber__stage");
+
+
+
+
+
+    var hallItems = [];
+
+
+
+
+
+    Array.prototype.forEach.call(doc.querySelectorAll("section.hall"), function(sec){
+
+
+
+
+
+      var arr = [];
+
+
+
+
+
+      Array.prototype.forEach.call(sec.querySelectorAll(".work__frame img:not(.vid__cover), .work__frame video"), function(media){
+
+
+
+
+
+        arr.push({
+
+
+
+
+
+          src: media.getAttribute("src") || "",
+
+
+
+
+
+          title: media.getAttribute("data-title") || "",
+
+
+
+
+
+          story: media.getAttribute("data-narrative") || "",
+
+
+
+
+
+          type: media.tagName === "VIDEO" ? "video" : "img"
+
+
+
+
+
+        });
+
+
+
+
+
+      });
+
+
+
+
+
+      hallItems.push(arr);
+
+
+
+
+
+    });
+
+
+
+
+
+    var chCur = 0, chArr = [], chTimer = null, chBusy = false;
+
+
+
+
+
+    function chShow(i, restart){
+
+
+
+
+
+      chCur = (i + chArr.length) % chArr.length;
+
+
+
+
+
+      var it = chArr[chCur];
+
+
+
+
+
+      if (it.type === "video"){
+
+
+
+
+
+        chamberImg.classList.remove("show");
+
+
+
+
+
+        chamberImg.removeAttribute("src");
+
+
+
+
+
+        chamberVid.setAttribute("src", it.src);
+
+
+
+
+
+        chamberVid.classList.add("show");
+
+
+
+
+
+        try { var cvp = chamberVid.play(); if (cvp && cvp.catch) cvp.catch(function(){}); } catch(e){}
+
+
+
+
+
+      } else {
+
+
+
+
+
+        chamberVid.pause();
+
+
+
+
+
+        chamberVid.removeAttribute("src");
+
+
+
+
+
+        chamberVid.classList.remove("show");
+
+
+
+
+
+        chamberImg.setAttribute("src", it.src);
+
+
+
+
+
+        chamberImg.classList.add("show");
+
+
+
+
+
+      }
+
+
+
+
+
+      chamberImg.setAttribute("alt", it.title);
+
+
+
+
+
+      chamberTitle.textContent = it.title;
+
+
+
+
+
+      chamberStory.textContent = it.story;
+
+
+
+
+
+      chamberCounter.textContent = (chCur + 1) + " / " + chArr.length;
+
+
+
+
+
+      if (chamberBar) chamberBar.style.width = chArr.length ? (((chCur + 1) / chArr.length) * 100) + "%" : "0";
+
+
+
+
+
+      /* 邻近预载：只预取前后各 2 件，避免整厅一次拉满 */
+
+
+
+
+
+      [chCur + 1, chCur + 2, chCur - 1, chCur - 2].forEach(function(k){
+
+
+
+
+
+        var n = chArr[(k + chArr.length) % chArr.length];
+
+
+
+
+
+        if (n && n.type !== "video" && n.src){ var pre = new Image(); pre.src = n.src; }
+
+
+
+
+
+      });
+
+
+
+
+
+      if (restart){
+
+
+
+
+
+        chamberImg.classList.remove("ken");
+
+
+
+
+
+        void chamberImg.offsetWidth;
+
+
+
+
+
+        chamberImg.classList.add("ken");
+
+
+
+
+
+      }
+
+
+
+
+
+    }
+
+
+
+
+
+    var chPlaying = true;
+
+
+
+
+
+    var chamberLastFocus = null;
+
+
+
+
+
+    function chRestart(){
+
+
+
+
+
+      if (chTimer) clearInterval(chTimer);
+
+
+
+
+
+      if (reduce || !chPlaying) return;
+
+
+
+
+
+      chTimer = setInterval(function(){ chShow(chCur + 1, true); }, 7000);
+
+
+
+
+
+    }
+
+
+
+
+
+    function chSyncPlay(){
+
+
+
+
+
+      if (chamberPlay){
+
+
+
+
+
+        chamberPlay.setAttribute("aria-pressed", chPlaying ? "true" : "false");
+
+
+
+
+
+        chamberPlay.textContent = chPlaying ? "暂停巡展" : "继续巡展";
+
+
+
+
+
+      }
+
+
+
+
+
+    }
+
+
+
+
+
+    function chToggle(){
+
+
+
+
+
+      chPlaying = !chPlaying;
+
+
+
+
+
+      if (chPlaying) chRestart(); else if (chTimer) clearInterval(chTimer);
+
+
+
+
+
+      chSyncPlay();
+
+
+
+
+
+    }
+
+
+
+
+
+    if (chamberPlay) chamberPlay.addEventListener("click", chToggle);
+
+
+
+
+
+    function chStart(idx){
+
+
+
+
+
+      chArr = hallItems[idx] || [];
+
+
+
+
+
+      if (!chArr.length) return;
+
+
+
+
+
+      chCur = -1;
+
+
+
+
+
+      chPlaying = true;
+
+
+
+
+
+      chSyncPlay();
+
+
+
+
+
+      chamber.hidden = false;
+
+
+
+
+
+      requestAnimationFrame(function(){ chamber.classList.add("on"); });
+
+
+
+
+
+      /* 焦点管理：进入放映厅即聚焦容器，Tab 圈闭在厅内 */
+
+
+
+
+
+      chamberLastFocus = doc.activeElement;
+
+
+
+
+
+      try{ chamber.focus(); }catch(e){}
+
+
+
+
+
+      chShow(0, true);
+
+
+
+
+
+      chRestart();
+
+
+
+
+
+    }
+
+
+
+
+
+    function chStop(){
+
+
+
+
+
+      if (chTimer) clearInterval(chTimer);
+
+
+
+
+
+      chPlaying = false;
+
+
+
+
+
+      chSyncPlay();
+
+
+
+
+
+      try{ chamberVid.pause(); }catch(e){}
+
+
+
+
+
+      chamber.classList.remove("on");
+
+
+
+
+
+      chamber.hidden = true;
+
+
+
+
+
+      if (chamberLastFocus && chamberLastFocus.focus){ try{ chamberLastFocus.focus(); }catch(e){} }
+
+
+
+
+
+      chamberLastFocus = null;
+
+
+
+
+
+    }
+
+
+
+
+
+    Array.prototype.forEach.call(doc.querySelectorAll(".hall__enter"), function(btn){
+
+
+
+
+
+      btn.addEventListener("click", function(){
+
+
+
+
+
+        chStart(parseInt(btn.getAttribute("data-hall"), 10) - 1);
+
+
+
+
+
+      });
+
+
+
+
+
+    });
+
+
+
+
+
+    if (chamberPrev) chamberPrev.addEventListener("click", function(){ chShow(chCur - 1, true); chRestart(); });
+
+
+
+
+
+    if (chamberNext) chamberNext.addEventListener("click", function(){ chShow(chCur + 1, true); chRestart(); });
+
+
+
+
+
+    if (chamberClose) chamberClose.addEventListener("click", chStop);
+
+
+
+
+
+    if (chamberStage) chamberStage.addEventListener("click", function(){
+
+
+
+
+
+      if (chBusy) return;
+
+
+
+
+
+      chBusy = true;
+
+
+
+
+
+      chShow(chCur + 1, true); chRestart();
+
+
+
+
+
+      setTimeout(function(){ chBusy = false; }, 400);
+
+
+
+
+
+    });
+
+
+
+
+
+    doc.addEventListener("keydown", function(e){
+
+
+
+
+
+      if (chamber.hidden) return;
+
+
+
+
+
+      if (e.key === "Escape") chStop();
+
+
+
+
+
+      if (e.key === "ArrowLeft") { chShow(chCur - 1, true); chRestart(); }
+
+
+
+
+
+      if (e.key === "ArrowRight") { chShow(chCur + 1, true); chRestart(); }
+
+
+
+
+
+      if (e.key === "Tab"){
+
+
+
+
+
+        var f = Array.prototype.filter.call(chamber.querySelectorAll("button, [href], [tabindex]"), function(el){
+
+
+
+
+
+          return el.getAttribute("tabindex") !== "-1" && el.offsetParent !== null;
+
+
+
+
+
+        });
+
+
+
+
+
+        if (!f.length) return;
+
+
+
+
+
+        var first = f[0], last = f[f.length - 1];
+
+
+
+
+
+        if (e.shiftKey && doc.activeElement === first){ e.preventDefault(); last.focus(); }
+
+
+
+
+
+        else if (!e.shiftKey && doc.activeElement === last){ e.preventDefault(); first.focus(); }
+
+
+
+
+
+      }
+
+
+
+
+
+    });
+
+
+
+
+
+  }
+
+
+
+
+
+  });
+
+
+
+
+
+  safe(function(){
+
+
+
+
+
+  /* ---- 画廊之门：视差画廊 + 双开圣门（纯 CSS 3D，无 WebGL） ---- */
+
+
+
+
+
+  (function(){
+
+
+
+
+
+    var stage = doc.getElementById("galstage");
+
+
+
+
+
+    if (!stage) return;
+
+
+
+
+
+    var scene = doc.getElementById("galscene");
+
+
+
+
+
+    var cta = doc.getElementById("galdoor");
+
+
+
+
+
+    if (!scene || !cta) return;
+
+
+
+
+
+    var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+
+
+
+
+    var walls = scene.querySelectorAll(".gal__wall");
+
+
+
+
+
+    var tx = 0, ty = 0, cx = 0, cy = 0, raf = null;
+
+
+
+
+
+    function setParallax(){
+
+
+
+
+
+      scene.style.transform = "rotateY(" + (tx * 2.4) + "deg) rotateX(" + (-ty * 1.6) + "deg)";
+
+
+
+
+
+    }
+
+
+
+
+
+    function loop(){
+
+
+
+
+
+      setParallax();
+
+
+
+
+
+      raf = null;
+
+
+
+
+
+    }
+
+
+
+
+
+    function onPointer(e){
+
+
+
+
+
+      var r = stage.getBoundingClientRect();
+
+
+
+
+
+      if (!r.width) return;
+
+
+
+
+
+      cx = (e.clientX - r.left) / r.width - .5;
+
+
+
+
+
+      cy = (e.clientY - r.top) / r.height - .5;
+
+
+
+
+
+      tx += (cx * 4 - tx) * .08;
+
+
+
+
+
+      ty += (cy * 4 - ty) * .08;
+
+
+
+
+
+      if (!raf) raf = requestAnimationFrame(loop);
+
+
+
+
+
+    }
+
+
+
+
+
+    if (!reduce){
+
+
+
+
+
+      stage.addEventListener("mousemove", onPointer);
+
+
+
+
+
+      stage.addEventListener("touchmove", onPointer, {passive:true});
+
+
+
+
+
+    }
+
+
+
+
+
+    var opened = false;
+
+
+
+
+
+    function openGate(){
+
+
+
+
+
+      if (opened) return;
+
+
+
+
+
+      opened = true;
+
+
+
+
+
+      stage.classList.add("gal__open");
+
+
+
+
+
+      setTimeout(function(){ location.hash = "halls"; }, 700);
+
+
+
+
+
+    }
+
+
+
+
+
+    cta.addEventListener("click", openGate);
+
+
+
+
+
+    cta.addEventListener("keydown", function(e){
+
+
+
+
+
+      if (e.key === "Enter" || e.key === " "){ e.preventDefault(); openGate(); }
+
+
+
+
+
+    });
+
+
+
+
+
+  })();
+
+
+
+
+
+  });
+
+
+
+
+
+
+
+
+
+
+
+  safe(function(){
+
+
+
+
+
+  /* ---- 艺术史长河：纪元浮现 + 导航高亮 + 平滑跳转 ---- */
+
+
+
+
+
+  (function(){
+
+
+
+
+
+    var art = doc.getElementById("artwalk");
+
+
+
+
+
+    if (!art) return;
+
+
+
+
+
+    var eras = art.querySelectorAll(".era");
+
+
+
+
+
+    var navLinks = art.querySelectorAll(".artwalk__nav a");
+
+
+
+
+
+    var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+
+
+
+
+    var io = ("IntersectionObserver" in window) ? new IntersectionObserver(function(entries){
+
+
+
+
+
+      entries.forEach(function(en){
+
+
+
+
+
+        if (en.isIntersecting){
+
+
+
+
+
+          en.target.classList.add("active");
+
+
+
+
+
+          var i = en.target.id ? parseInt(en.target.id.replace("era-",""), 10) : -1;
+
+
+
+
+
+          if (i >= 0){
+
+
+
+
+
+            Array.prototype.forEach.call(navLinks, function(a){
+
+
+
+
+
+              a.classList.toggle("on", parseInt(a.getAttribute("data-i"),10) === i);
+
+
+
+
+
+            });
+
+
+
+
+
+          }
+
+
+
+
+
+        }
+
+
+
+
+
+      });
+
+
+
+
+
+    }, {rootMargin:"-18% 0px -46% 0px"}) : null;
+
+
+
+
+
+    Array.prototype.forEach.call(eras, function(era, idx){
+
+
+
+
+
+      if (io) io.observe(era);
+
+
+
+
+
+      else if (idx === 0) era.classList.add("active");
+
+
+
+
+
+    });
+
+
+
+
+
+    if (!reduce){
+
+
+
+
+
+      Array.prototype.forEach.call(navLinks, function(a){
+
+
+
+
+
+        a.addEventListener("click", function(e){
+
+
+
+
+
+          var href = a.getAttribute("href");
+
+
+
+
+
+          if (href && href.charAt(0) === "#"){
+
+
+
+
+
+            e.preventDefault();
+
+
+
+
+
+            var target = doc.getElementById(href.slice(1));
+
+
+
+
+
+            if (target && target.scrollIntoView) target.scrollIntoView({behavior:"smooth", block:"start"});
+
+
+
+
+
+          }
+
+
+
+
+
+        });
+
+
+
+
+
+      });
+
+
+
+
+
+    }
+
+
+
+
+
+    /* 灯箱"原作"链接兜底：无真实原作时隐藏，避免死链 */
+
+
+
+
+
+    var lbFull = doc.getElementById("lbFull");
+
+
+
+
+
+    if (lbFull && lbFull.getAttribute("href") === "#") lbFull.style.display = "none";
+
+
+
+
+
+    if (lbFull){
+
+
+
+
+
+      var hideFull = function(){ lbFull.style.display = (lbFull.getAttribute("href") === "#") ? "none" : ""; };
+
+
+
+
+
+      var obsFull = new MutationObserver(function(){ hideFull(); });
+
+
+
+
+
+      obsFull.observe(lbFull, {attributes:true, attributeFilter:["href"]});
+
+
+
+
+
+      hideFull();
+
+
+
+
+
+    }
+
+
+
+
+
+  })();
+
+
+
+
+
+  });
+
+
+
+
+
+  /* ---- 视频封面：点击播放（影音厅转发灯箱 / 朝圣页内嵌播放） ---- */
+
+
+
+
+
+  safe(function(){
+
+
+
+
+
+    Array.prototype.forEach.call(doc.querySelectorAll(".vid__cover"), function(cv){
+
+
+
+
+
+      cv.addEventListener("click", function(){
+
+
+
+
+
+        var v = cv.parentElement.querySelector("video");
+
+
+
+
+
+        if (!v) return;
+
+
+
+
+
+        cv.classList.add("gone");
+
+
+
+
+
+        var bg = cv.parentElement.querySelector(".vid__badge");
+
+
+
+
+
+        if (bg) bg.classList.add("gone");
+
+
+
+
+
+        try { var pr = v.play(); if (pr && pr.catch) pr.catch(function(){}); } catch(e){}
+
+
+
+
+
+      });
+
+
+
+
+
+    });
+
+
+
+
+
+    Array.prototype.forEach.call(doc.querySelectorAll(".vid__poster"), function(po){
+
+
+
+
+
+      po.addEventListener("click", function(){
+
+
+
+
+
+        var box = po.parentElement;
+
+
+
+
+
+        var v = box.querySelector("video");
+
+
+
+
+
+        po.classList.add("gone");
+
+
+
+
+
+        var bg = box.querySelector(".vid__badge");
+
+
+
+
+
+        if (bg) bg.classList.add("gone");
+
+
+
+
+
+        if (v){ var pr = v.play(); if (pr && pr.catch) pr.catch(function(){}); }
+
+
+
+
+
+      });
+
+
+
+
+
+    });
+
+
+
+
+
+  });
+
+
+
+
+
+    /* ---- 作品呼吸动画：仅可见作品循环（性能兜底） ---- */
+
+
+
+
+
+  safe(function(){
+
+
+
+
+
+    var works = doc.querySelectorAll(".work__frame img");
+
+
+
+
+
+    if ("IntersectionObserver" in window){
+
+
+
+
+
+      var obs = new IntersectionObserver(function(entries){
+
+
+
+
+
+        entries.forEach(function(en){
+
+
+
+
+
+          en.target.classList.toggle("live", en.isIntersecting);
+
+
+
+
+
+        });
+
+
+
+
+
+      }, {rootMargin:"60px 0px"});
+
+
+
+
+
+      Array.prototype.forEach.call(works, function(img){ obs.observe(img); });
+
+
+
+
+
+    } else {
+
+
+
+
+
+      Array.prototype.forEach.call(works, function(img){ img.classList.add("live"); });
+
+
+
+
+
+    }
+
+
+
+
+
+  });
+
+
+
+
+
+  /* ---- 吸顶厅导航：滚动时高亮当前所在展厅 ---- */
+
+
+
+
+
+  safe(function(){
+
+
+
+
+
+    var nav = doc.querySelector(".halls-nav");
+
+
+
+
+
+    if (!nav || !("IntersectionObserver" in window)) return;
+
+
+
+
+
+    var links = {};
+
+
+
+
+
+    Array.prototype.forEach.call(nav.querySelectorAll("a"), function(a){
+
+
+
+
+
+      var id = (a.getAttribute("href") || "").replace("#", "");
+
+
+
+
+
+      if (id) links[id] = a;
+
+
+
+
+
+    });
+
+
+
+
+
+    var halls = Array.prototype.slice.call(doc.querySelectorAll("section.hall"));
+
+
+
+
+
+    var raf = null;
+
+
+
+
+
+    function mark(id){
+
+
+
+
+
+      Object.keys(links).forEach(function(k){ links[k].classList.toggle("on", k === id); });
+
+
+
+
+
+    }
+
+
+
+
+
+    function upd(){
+
+
+
+
+
+      raf = null;
+
+
+
+
+
+      var line = window.innerHeight * 0.35;
+
+
+
+
+
+      var current = null;
+
+
+
+
+
+      halls.forEach(function(h){
+
+
+
+
+
+        if (h.getBoundingClientRect().top <= line) current = h;
+
+
+
+
+
+      });
+
+
+
+
+
+      if (current) mark(current.id);
+
+
+
+
+
+      else if (halls.length) mark(halls[0].id);
+
+
+
+
+
+    }
+
+
+
+
+
+    window.addEventListener("scroll", function(){ if (!raf) raf = requestAnimationFrame(upd); }, {passive:true});
+
+
+
+
+
+    window.addEventListener("resize", upd, {passive:true});
+
+
+
+
+
+    upd();
+
+
+
+
+
+  });
+
+
+
+
+
+  /* ---- 馆藏检索：关键词 + 展厅筛选，结果直达作品说明牌 ---- */
+
+
+
+
+
+  safe(function(){
+
+
+
+
+
+    var grid = doc.getElementById("searchGrid");
+
+
+
+
+
+    if (!grid) return;
+
+
+
+
+
+    var input = doc.getElementById("searchInput");
+
+
+
+
+
+    var clear = doc.getElementById("searchClear");
+
+
+
+
+
+    var chips = doc.getElementById("searchChips");
+
+
+
+
+
+    var empty = doc.getElementById("searchEmpty");
+
+
+
+
+
+    var cnt = doc.getElementById("searchCount");
+
+
+
+
+
+    var idx = [];
+
+
+
+
+
+    Array.prototype.forEach.call(doc.querySelectorAll("#view-halls .hall__track .work"), function(w){
+
+
+
+
+
+      var m = w.querySelector(".work__frame img:not(.vid__cover), .work__frame video");
+
+
+
+
+
+      if (!m) return;
+
+
+
+
+
+      idx.push({
+
+
+
+
+
+        title: m.getAttribute("data-title") || "",
+
+
+
+
+
+        hall: m.getAttribute("data-hall") || "",
+
+
+
+
+
+        story: m.getAttribute("data-narrative") || "",
+
+
+
+
+
+        src: m.getAttribute("poster") || m.getAttribute("src") || "",
+
+
+
+
+
+        i: idx.length
+
+
+
+
+
+      });
+
+
+
+
+
+    });
+
+
+
+
+
+    if (cnt) cnt.textContent = idx.length + " 件可检索";
+
+
+
+
+
+    var halls = [];
+
+
+
+
+
+    idx.forEach(function(it){
+
+
+
+
+
+      var key = it.hall.split(" · ")[0];
+
+
+
+
+
+      if (key && halls.indexOf(key) < 0) halls.push(key);
+
+
+
+
+
+    });
+
+
+
+
+
+    var cur = "all";
+
+
+
+
+
+    if (chips){
+
+
+
+
+
+      var mk = function(key, label){
+
+
+
+
+
+        var b = doc.createElement("button");
+
+
+
+
+
+        b.type = "button";
+
+
+
+
+
+        b.className = "chip" + (key === "all" ? " on" : "");
+
+
+
+
+
+        b.setAttribute("data-hall", key);
+
+
+
+
+
+        b.textContent = label;
+
+
+
+
+
+        b.addEventListener("click", function(){
+
+
+
+
+
+          cur = key;
+
+
+
+
+
+          Array.prototype.forEach.call(chips.children, function(c){ c.classList.toggle("on", c === b); });
+
+
+
+
+
+          render();
+
+
+
+
+
+        });
+
+
+
+
+
+        chips.appendChild(b);
+
+
+
+
+
+      };
+
+
+
+
+
+      mk("all", "全部展厅");
+
+
+
+
+
+      halls.forEach(function(h){ mk(h, h); });
+
+
+
+
+
+    }
+
+
+
+
+
+    function render(){
+
+
+
+
+
+      var q = (input && input.value ? input.value : "").trim().toLowerCase();
+
+
+
+
+
+      var hits = idx.filter(function(it){
+
+
+
+
+
+        if (cur !== "all" && it.hall.split(" · ")[0] !== cur) return false;
+
+
+
+
+
+        if (!q) return true;
+
+
+
+
+
+        return (it.title + " " + it.story + " " + it.hall).toLowerCase().indexOf(q) >= 0;
+
+
+
+
+
+      });
+
+
+
+
+
+      grid.innerHTML = "";
+
+
+
+
+
+      var frag = doc.createDocumentFragment();
+
+
+
+
+
+      hits.slice(0, 120).forEach(function(it){
+
+
+
+
+
+        var card = doc.createElement("button");
+
+
+
+
+
+        card.type = "button";
+
+
+
+
+
+        card.className = "search__card";
+
+
+
+
+
+        var im = doc.createElement("img");
+
+
+
+
+
+        im.setAttribute("src", it.src);
+
+
+
+
+
+        im.setAttribute("alt", it.title);
+
+
+
+
+
+        im.setAttribute("loading", "lazy");
+
+
+
+
+
+        im.setAttribute("decoding", "async");
+
+
+
+
+
+        var t = doc.createElement("b");
+
+
+
+
+
+        t.textContent = it.title;
+
+
+
+
+
+        var s = doc.createElement("span");
+
+
+
+
+
+        s.textContent = it.hall;
+
+
+
+
+
+        card.appendChild(im); card.appendChild(t); card.appendChild(s);
+
+
+
+
+
+        card.addEventListener("click", function(){
+
+
+
+
+
+          if (window.NW && window.NW.open) window.NW.open(it.i);
+
+
+
+
+
+        });
+
+
+
+
+
+        frag.appendChild(card);
+
+
+
+
+
+      });
+
+
+
+
+
+      grid.appendChild(frag);
+
+
+
+
+
+      if (empty){
+
+
+
+
+
+        empty.hidden = hits.length > 0;
+
+
+
+
+
+        empty.textContent = hits.length
+
+
+
+
+
+          ? "匹配 " + hits.length + " 件，先列出前 120 件——再添关键词可缩小范围。"
+
+
+
+
+
+          : "没有匹配的圣像，换个词或换间展厅试试。";
+
+
+
+
+
+        if (hits.length > 120) empty.hidden = false;
+
+
+
+
+
+      }
+
+
+
+
+
+      if (cnt) cnt.textContent = (q || cur !== "all") ? ("命中 " + hits.length + " 件") : "馆藏可检索";
+
+
+
+
+
+    }
+
+
+
+
+
+    if (input){
+
+
+
+
+
+      var t = null;
+
+
+
+
+
+      input.addEventListener("input", function(){
+
+
+
+
+
+        if (t) clearTimeout(t);
+
+
+
+
+
+        t = setTimeout(render, 180);
+
+
+
+
+
+      });
+
+
+
+
+
+    }
+
+
+
+
+
+    if (clear) clear.addEventListener("click", function(){
+
+
+
+
+
+      if (input){ input.value = ""; render(); input.focus(); }
+
+
+
+
+
+    });
+
+
+
+
+
+    /* 随缘一观：随机打开一件馆藏 */
+
+
+
+
+
+    var lucky = doc.getElementById("luckyBtn");
+
+
+
+
+
+    if (lucky) lucky.addEventListener("click", function(){
+
+
+
+
+
+      if (!idx.length) return;
+
+
+
+
+
+      var pick = idx[Math.floor(Math.random() * idx.length)];
+
+
+
+
+
+      if (window.NW && window.NW.open) window.NW.open(pick.i);
+
+
+
+
+
+    });
+
+
+
+
+
+    /* 今日圣像：按日期确定性轮换，全站每天同一件 */
+
+
+
+
+
+    var dailyBtn = doc.getElementById("dailyBtn");
+
+
+
+
+
+    if (dailyBtn && idx.length){
+
+
+
+
+
+      var dayNo = Math.floor(new Date().setHours(0,0,0,0) / 86400000);
+
+
+
+
+
+      var dailyPick = idx[dayNo % idx.length];
+
+
+
+
+
+      var now = new Date();
+
+
+
+
+
+      var dD = doc.getElementById("dailyDate");
+
+
+
+
+
+      var dT = doc.getElementById("dailyTitle");
+
+
+
+
+
+      var dH = doc.getElementById("dailyHall");
+
+
+
+
+
+      if (dD) dD.textContent = "今 日 圣 像 · " + (now.getMonth() + 1) + " 月 " + now.getDate() + " 日";
+
+
+
+
+
+      if (dT) dT.textContent = "《" + (dailyPick.title || "无名圣像") + "》";
+
+
+
+
+
+      if (dH) dH.textContent = dailyPick.hall || "";
+      var dI = doc.getElementById("dailyImg");
+      if (dI && dailyPick.src){ dI.src = dailyPick.src; dI.alt = "《" + (dailyPick.title || "无名圣像") + "》"; }
+      if (dT) dT.setAttribute("data-src", dailyPick.src || "");
+
+
+
+
+
+      dailyBtn.addEventListener("click", function(){
+
+
+
+
+
+        if (window.NW && window.NW.open) window.NW.open(dailyPick.i);
+
+
+
+
+
+      });
+
+
+
+
+
+    }
+
+
+
+
+
+    var form = doc.getElementById("searchForm");
+
+
+
+
+
+    if (form) form.addEventListener("submit", function(e){ e.preventDefault(); render(); });
+
+
+
+
+
+    render();
+
+
+
+
+
+  });
+
+
+
+
+
+  /* ---- 素材总览：分类 + 关键词筛选 ---- */
+
+
+
+
+
+  safe(function(){
+
+
+
+
+
+    var grid = doc.getElementById("vaultGrid");
+
+
+
+
+
+    if (!grid) return;
+
+
+
+
+
+    var cards = Array.prototype.slice.call(grid.querySelectorAll(".vault-card"));
+
+
+
+
+
+    var chips = Array.prototype.slice.call(doc.querySelectorAll("#vaultChips .vault-chip"));
+
+
+
+
+
+    var input = doc.getElementById("vaultSearch");
+
+
+
+
+
+    var count = doc.getElementById("vaultCount");
+
+
+
+
+
+    var empty = doc.getElementById("vaultEmpty");
+
+
+
+
+
+    var cat = "all", q = "";
+
+
+
+
+
+    function apply(){
+
+
+
+
+
+      var n = 0;
+
+
+
+
+
+      cards.forEach(function(c){
+
+
+
+
+
+        var okCat = cat === "all" || c.getAttribute("data-cat") === cat;
+
+
+
+
+
+        var okText = !q || (c.getAttribute("data-text") || "").indexOf(q) >= 0;
+
+
+
+
+
+        var ok = okCat && okText;
+
+
+
+
+
+        c.hidden = !ok;
+
+
+
+
+
+        if (ok) n++;
+
+
+
+
+
+      });
+
+
+
+
+
+      if (count) count.textContent = n + " 件";
+
+
+
+
+
+      if (empty) empty.hidden = n > 0;
+
+
+
+
+
+    }
+
+
+
+
+
+    chips.forEach(function(btn){
+
+
+
+
+
+      btn.addEventListener("click", function(){
+
+
+
+
+
+        cat = btn.getAttribute("data-cat") || "all";
+
+
+
+
+
+        chips.forEach(function(b){ b.classList.toggle("on", b === btn); });
+
+
+
+
+
+        apply();
+
+
+
+
+
+      });
+
+
+
+
+
+    });
+
+
+
+
+
+    if (input) input.addEventListener("input", function(){
+
+
+
+
+
+      q = String(input.value || "").trim().toLowerCase();
+
+
+
+
+
+      apply();
+
+
+
+
+
+    });
+
+
+
+
+
+    apply();
+
+
+
+
+
+  });
+
+
+
+
+
+  /* ---- 图片渐进呈现：解码完成淡入，失败退回 LQIP 占位 ---- */
+
+
+
+
+
+  safe(function(){
+
+
+
+
+
+    Array.prototype.forEach.call(doc.querySelectorAll(".work__frame img"), function(img){
+
+
+
+
+
+      var done = function(){ img.classList.add("ld"); };
+
+
+
+
+
+      if (img.complete && img.naturalWidth > 0){ done(); return; }
+
+
+
+
+
+      img.addEventListener("load", done, {once:true});
+
+
+
+
+
+      img.addEventListener("error", function(){
+
+
+
+
+
+        img.classList.add("err");
+
+
+
+
+
+        var fr = img.closest ? img.closest(".work__frame") : null;
+
+
+
+
+
+        if (fr) fr.classList.add("broken");
+
+
+
+
+
+      }, {once:true});
+
+
+
+
+
+    });
+
+
+
+
+
+  });
+
+
+
+
+
+  safe(function(){
+
+
+
+
+
+  /* ---- PWA：Service Worker 注册 + 安装入口（仅 https 生效；file:// 打开自动跳过） ---- */
+
+
+
+
+
+  var installBtn = doc.getElementById("installBtn");
+
+
+
+
+
+  if ("serviceWorker" in navigator && location.protocol === "https:"){
+
+
+
+
+
+    window.addEventListener("load", function(){
+
+
+
+
+
+      navigator.serviceWorker.register("sw.js").catch(function(){});
+
+
+
+
+
+    });
+
+
+
+
+
+  }
+
+
+
+
+
+  if (installBtn){
+
+
+
+
+
+    var deferredPrompt = null;
+
+
+
+
+
+    window.addEventListener("beforeinstallprompt", function(e){
+
+
+
+
+
+      e.preventDefault();
+
+
+
+
+
+      deferredPrompt = e;
+
+
+
+
+
+      if (!window.matchMedia("(display-mode: standalone)").matches) installBtn.hidden = false;
+
+
+
+
+
+    });
+
+
+
+
+
+    installBtn.addEventListener("click", function(){
+
+
+
+
+
+      if (!deferredPrompt) return;
+
+
+
+
+
+      deferredPrompt.prompt();
+
+
+
+
+
+      deferredPrompt.userChoice.then(function(){ deferredPrompt = null; installBtn.hidden = true; }).catch(function(){});
+
+
+
+
+
+    });
+
+
+
+
+
+    if (window.matchMedia("(display-mode: standalone)").matches) installBtn.hidden = true;
+
+
+
+
+
+  }
+
+
+
+
+
+  });
+
+
+
+
+
+})();
+
+
+
+
+
+
+
+/* S2 · reveal 兜底：快速滚动/深链直达不再留下 opacity:0 的空白块 */
+(function(){
+  var doc=document, tick=false;
+  function flush(){
+    tick=false;
+    var vh=window.innerHeight||800;
+    var list=doc.querySelectorAll(".reveal:not(.in)");
+    for(var i=0;i<list.length;i++){
+      var r=list[i].getBoundingClientRect();
+      if(r.top < vh + 180) list[i].classList.add("in");
+    }
+  }
+  function queue(){ if(!tick){ tick=true; requestAnimationFrame(flush); } }
+  window.addEventListener("scroll", queue, {passive:true});
+  window.addEventListener("resize", queue);
+  window.addEventListener("hashchange", queue);
+  setTimeout(flush, 900);
+})();
+
+/* S2 · 今日圣像出图 + 移动端抽屉 */
+(function(){
+  var doc=document;
+  var dImg=doc.getElementById("dailyImg");
+  if(dImg){
+    var card=doc.getElementById("dailyCard");
+    // 数据由上方每日轮换逻辑写入，这里监听标题变化后补图
+    var t=doc.getElementById("dailyTitle");
+    if(t && card){
+      var apply=function(){
+        var src=t.getAttribute("data-src");
+        if(src && dImg.getAttribute("src")!==src){ dImg.src=src; dImg.alt=t.textContent||""; }
+      };
+      var mo=new MutationObserver(apply); mo.observe(t,{childList:true,characterData:true,subtree:true});
+      apply();
+    }
+  }
+  var btn=doc.getElementById("navToggle"), links=doc.getElementById("navLinks"), scrim=doc.getElementById("navScrim");
+  if(btn&&links){
+    var set=function(open){
+      links.classList.toggle("open",open);
+      btn.setAttribute("aria-expanded",open?"true":"false");
+      if(scrim) scrim.hidden=!open;
+      doc.body.style.overflow=open?"hidden":"";
+      if(typeof syncAudio==="function") syncAudio();
+    };
+    var nm=doc.getElementById("navMusic"), ns=doc.getElementById("navSfx");
+    function syncAudio(){
+      var mb=doc.getElementById("musicBtn"), sb=doc.getElementById("sfxBtn");
+      if(nm&&mb){ var mOn=mb.getAttribute("aria-pressed")==="true"; nm.setAttribute("aria-pressed",mOn?"true":"false"); nm.querySelector("b").textContent=mOn?"开":"关"; }
+      if(ns&&sb){ var sOn=sb.getAttribute("aria-pressed")==="true"; ns.setAttribute("aria-pressed",sOn?"true":"false"); ns.querySelector("b").textContent=sOn?"开":"关"; }
+    }
+    if(nm) nm.addEventListener("click",function(){ var mb=doc.getElementById("musicBtn"); if(mb) mb.click(); syncAudio(); setTimeout(syncAudio,80); });
+    if(ns) ns.addEventListener("click",function(){ var sb=doc.getElementById("sfxBtn"); if(sb) sb.click(); syncAudio(); setTimeout(syncAudio,80); });
+    syncAudio();
+    btn.addEventListener("click",function(){ set(!links.classList.contains("open")); });
+    if(scrim) scrim.addEventListener("click",function(){ set(false); });
+    links.addEventListener("click",function(e){ if(e.target.closest("a")) set(false); });
+    doc.addEventListener("keydown",function(e){ if(e.key==="Escape") set(false); });
+  }
+})();
+</script>
+
+
+
+
+
+
+
+
+
+
+
+<script>/* 主题开关 */
+(function(){var root=document.documentElement,btn=document.getElementById("themeBtn");if(!btn)return;
+function cur(){return root.getAttribute("data-theme")==="light"?"light":"dark";}
+function paint(){var l=cur()==="light";btn.setAttribute("aria-pressed",l?"true":"false");btn.setAttribute("aria-label",l?"切换到深色主题":"切换到浅色主题");btn.title=l?"深色主题":"浅色主题";}
+btn.addEventListener("click",function(){var n=cur()==="light"?"dark":"light";root.setAttribute("data-theme",n);try{localStorage.setItem("nlu-theme",n);}catch(e){}paint();});
+paint();})();
+</script>
+</body>
+
+
+
+
+
+</html>
+
+
+
+
+

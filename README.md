@@ -23,7 +23,7 @@ An art museum you can open in a browser tab. Every permanent exhibit is a
 Western painting — *The Last Judgment*, *The Creation of Adam*, *The Birth of
 Venus* — with its central figures replaced by **奶蛙 (Naiwa)**, a round yellow
 meme frog. There are eight galleries, a timeline of art history, a screening
-room for short films, and a searchable vault of all 387 source assets.
+room for short films, and a searchable vault of all 406 source assets.
 
 It runs on static files. No framework, no bundler, no server, no database. Open
 `docs/index.html` and the entire museum works — including offline, once the
@@ -35,7 +35,7 @@ service worker has cached the shell.
 <td width="50%"><img src="docs/readme-assets/shot-chronicle.png" alt="Art history timeline"><br><sub><b>Timeline</b> — eight eras from Genesis to the abstract present</sub></td>
 </tr>
 <tr>
-<td width="50%"><img src="docs/readme-assets/shot-vault.png" alt="The complete asset vault"><br><sub><b>Vault</b> — 387 assets, filterable and searchable</sub></td>
+<td width="50%"><img src="docs/readme-assets/shot-vault.png" alt="The complete asset vault"><br><sub><b>Vault</b> — 406 assets, filterable and searchable</sub></td>
 <td width="50%"><img src="docs/readme-assets/shot-mobile.png" width="46%" alt="Mobile layout"><br><sub><b>Mobile</b> — immersive cards, safe-area aware</sub></td>
 </tr>
 </table>
@@ -77,18 +77,32 @@ Single-file architecture, deliberately:
 
 | Layer | Implementation |
 | --- | --- |
-| Markup + styles + script | Inlined in `docs/index.html` — one file, no build step |
+| Markup + styles + script | Authored in `src/parts/*.html`, built into one self-contained `docs/index.html` |
 | Routing | Hash-based multi-view router with deep links and `document.title` sync |
 | Artwork data | `docs/data/collection.json`, exported from the page by `scripts/export_collection.py` |
-| Asset manifest | Pulled from the wallpaper repository's `assets.json` |
-| Vault generation | `scripts/build_vault.py` — the only thing allowed to write the vault block |
+| Asset manifest | Vendored from the wallpaper repository's `assets.json` into `docs/data/assets.json` |
+| Vault generation | `scripts/build.py` / `scripts/build_vault.py` — the only things allowed to write the vault block |
 | Quality gate | `scripts/check_site.py` — one command, every check, used locally and in CI |
-| Deployment | GitHub Actions → GitHub Pages, plus a Cloudflare Pages mirror |
+| Deployment | GitHub Actions → Cloudflare Pages (primary), with a GitHub Pages mirror |
 
 **Why no framework?** The site is a museum, not an application. Content changes
 far more often than behaviour, and the whole thing has to survive being opened
 from a USB stick. A single HTML file with no dependencies is the smallest thing
-that satisfies both.
+that satisfies both. The source is split for editing sanity; the build step only
+concatenates fragments and regenerates the derived vault block.
+
+### Building the page
+
+```bash
+python scripts/build.py            # src/parts → docs/index.html
+python scripts/build.py --check    # fail if docs/index.html is stale
+python scripts/build_vault.py --manifest https://…/assets.json --check
+```
+
+`docs/index.html` is a build artifact. Edit `src/parts/*.html`, list fragments
+in `src/parts.json`, then rebuild. The build is byte-for-byte reproducible:
+fragments plus the vendored manifest reproduce the shipped file exactly, which
+`scripts/tests/test_vaultlib.py` asserts.
 
 ### Quality gate
 
@@ -118,11 +132,16 @@ It verifies, independently and with per-section reporting:
 ## Repository layout
 
 ```
-docs/index.html              the whole museum, one file
+src/parts/*.html             page source fragments, one per view/section
+src/parts.json               fragment order used by the build
+docs/index.html              the whole museum, one built file
 docs/data/collection.json    exported catalogue (187 works, 8 halls)
+docs/data/assets.json        vendored wallpaper manifest (406 items)
 docs/assets/                 thumbnails, posters, self-hosted originals
 docs/sw.js                   service worker; bump its cache with VERSION
-scripts/build_vault.py       regenerates the 387-card vault from the manifest
+scripts/build.py             assembles src/ and regenerates the vault
+scripts/vaultlib/            manifest model, renderers, patching, CLI
+scripts/build_vault.py       thin CLI for vault-only regeneration
 scripts/export_collection.py exports and validates the catalogue
 scripts/check_site.py        the quality gate
 palette.json                 single source for every colour theme

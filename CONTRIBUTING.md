@@ -21,9 +21,10 @@
 
 ## 官网怎么改（给想动代码的你）
 
-- 官网是**自包含单文件** `docs/index.html`（CSS/JS 全内联，零构建、零框架、零安装）
-- 本地双击就能预览；改完用浏览器 DevTools 确认 console 无报错
-- 多「页面」走 hash 路由：`#home` `#halls` `#chronicle` `#visit`
+- 官网源码拆在 `src/parts/*.html`，顺序写在 `src/parts.json`；`docs/index.html` 是拼接产物，**不要直接改**
+- 改完在仓库根目录跑 `python3 scripts/build.py`，它会拼接片段并重新生成图鉴区块
+- 产物仍是自包含单文件（CSS/JS 全内联、零框架、零安装），双击 `docs/index.html` 就能预览
+- 多「页面」走 hash 路由：`#home` `#halls` `#chronicle` `#visit` `#relics`
 - 新作品插入对应展厅的 `hall__track`，**必须**带 `data-title` / `data-narrative` / `data-hall` / `data-original`
 - 资源放 `docs/assets/`，路径写相对路径，只写进 `src` 或 CSS `url()`（发布链只扫这两处，写在别处会裂图，真的会）
 
@@ -32,7 +33,9 @@
 本地跑一次，和 CI 完全等价：
 
 ```bash
-python scripts/check_site.py --manifest path/to/assets.json
+python3 scripts/build.py --check                                  # 产物是否与 src/ 同步
+python3 -m unittest discover -s scripts/tests                     # 构建器单测
+python3 scripts/check_site.py --manifest path/to/assets.json      # 内容门禁
 ```
 
 全绿再提 PR。它检查图鉴与素材清单是否一致、有没有重复编码的链接、缩略图是否齐全、

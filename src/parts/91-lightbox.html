@@ -1,0 +1,336 @@
+<dialog class="lightbox" id="lightbox" aria-label="作品大图">
+
+
+
+
+
+  <div class="lightbox__inner">
+
+
+
+
+
+    <div class="lightbox__plate">
+
+
+
+
+
+      <img class="lightbox__img" id="lbImg" alt="" decoding="async">
+
+
+
+
+
+      <video class="lightbox__vid" id="lbVid" controls muted loop playsinline></video>
+
+
+
+
+
+      <button class="lightbox__close" id="lbClose" aria-label="关闭"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6 L18 18 M18 6 L6 18"/></svg></button>
+
+
+
+
+
+      <button class="lightbox__nav lightbox__nav--l" id="lbPrev" aria-label="上一件"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6 L9 12 L15 18"/></svg></button>
+
+
+
+
+
+      <button class="lightbox__nav lightbox__nav--r" id="lbNext" aria-label="下一件"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6 L15 12 L9 18"/></svg></button>
+
+
+
+
+
+    </div>
+
+
+
+
+
+    <div class="lightbox__cap" role="complementary" aria-label="作品说明牌">
+
+
+
+
+
+      <p class="lb-no" id="lbNo"></p>
+
+
+
+
+
+      <p class="t" id="lbTitle"></p>
+
+
+
+
+
+      <p class="s" id="lbHall"></p>
+
+
+
+
+
+      <dl class="lb-meta">
+
+
+
+
+
+        <dt>形制</dt><dd id="lbType"></dd>
+
+
+
+
+
+        <dt>原作对照</dt><dd id="lbOrigin"></dd>
+
+
+
+
+
+      </dl>
+
+
+
+
+
+      <p class="story" id="lbStory"></p>
+
+
+
+
+
+      <p class="lb-count" id="lbCount"></p>
+
+
+
+
+
+      <a class="lightbox__full" id="lbFull" href="#" target="_blank" rel="noopener">查看原图</a>
+
+
+
+
+
+      <button class="lb-copy" type="button" id="lbCopy" aria-label="复制本件作品链接">复制链接</button>
+
+
+
+
+
+      <span class="lb-copied" id="lbCopied" role="status" hidden>已复制 ✓</span>
+
+
+
+
+
+    </div>
+
+
+
+
+
+  </div>
+
+
+
+
+
+</dialog>
+
+
+
+
+
+<div class="chamber" id="chamber" role="dialog" aria-modal="true" aria-label="沉浸放映厅" tabindex="-1" hidden>
+
+
+
+
+
+  <button class="chamber__close" id="chamberClose" aria-label="退出展厅"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6 L18 18 M18 6 L6 18"/></svg></button>
+
+
+
+
+
+  <div class="chamber__stage">
+
+
+
+
+
+    <img class="chamber__img" id="chamberImg" alt="" decoding="async">
+
+
+
+
+
+    <video class="chamber__vid" id="chamberVid" controls muted loop playsinline></video>
+
+
+
+
+
+    <div class="chamber__meta">
+
+
+
+
+
+      <p class="chamber__title" id="chamberTitle"></p>
+
+
+
+
+
+      <p class="chamber__story" id="chamberStory"></p>
+
+
+
+
+
+      <p class="chamber__counter" id="chamberCounter"></p>
+
+
+
+
+
+    </div>
+
+
+
+
+
+  </div>
+
+
+
+
+
+  <button class="chamber__nav chamber__nav--l" id="chamberPrev" aria-label="上一件"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6 L9 12 L15 18"/></svg></button>
+
+
+
+
+
+  <button class="chamber__nav chamber__nav--r" id="chamberNext" aria-label="下一件"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6 L15 12 L9 18"/></svg></button>
+
+
+
+
+
+  <div class="chamber__bar" aria-hidden="true"><i id="chamberBar"></i></div>
+
+
+
+
+
+  <div class="chamber__ctrl">
+
+
+
+
+
+    <button class="chamber__play" id="chamberPlay" type="button" aria-pressed="true">暂停巡展</button>
+
+
+
+
+
+    <p class="chamber__hint">轻触画面切换 · ← → 翻页 · Esc 退出</p>
+
+
+
+
+
+  </div>
+
+
+
+
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<audio id="bgm" src="assets/temple-choir.mp3" loop preload="auto"></audio>
+
+
+
+
+
+<button class="music" id="musicBtn" aria-pressed="false" aria-label="奏响圣殿琴音" title="奏响圣殿琴音">
+
+
+
+
+
+  <svg class="ic-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18 V5 L20 3 V15"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="17.5" cy="15" r="2.5"/></svg>
+
+
+
+
+
+  <svg class="ic-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4 L12 20"/><path d="M6 9 L3 12 L6 15"/><path d="M18 9 L21 12 L18 15"/><path d="M9 6 L15 18"/></svg>
+
+
+
+
+
+</button>
+
+
+
+
+
+<button class="music sfx" id="sfxBtn" aria-pressed="true" aria-label="趣味音效已开，点击关闭" title="趣味音效已开">
+
+
+
+
+
+  <svg class="ic-laugh" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8.5 14.2c1 1.1 2.1 1.7 3.5 1.7s2.5-.6 3.5-1.7"/><path d="M9 9.6h.01"/><path d="M15 9.6h.01"/></svg>
+
+
+
+
+
+  <svg class="ic-silent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8.5 15.2h7"/><path d="M9 9.6h.01"/><path d="M15 9.6h.01"/></svg>
+
+
+
+
+
+</button>
+
+
+
+
+
+
+
+
+
+
+

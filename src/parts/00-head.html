@@ -8370,6 +8370,226 @@ html[data-theme="light"] #searchInput::placeholder,html[data-theme="light"] #vau
   .hall__track figure.work:hover .work__frame img,
   .relic__grid .wall:hover img,.relic__grid.emotes .emo:hover img{transform:none}
 }
+/* ============================================================
+   v18.6.0 · 圣殿展陈系统
+   统一页头 / 展签卡片 / 金尘浮光 / 移动端检索
+   ============================================================ */
+
+/* 0 · 展陈令牌 */
+:root{
+  --frame:2px;
+  --card-surface:linear-gradient(168deg,color-mix(in srgb,var(--gold) 7%,transparent),color-mix(in srgb,var(--void) 56%,transparent));
+  --card-shadow:0 24px 50px -32px rgba(0,0,0,.72);
+}
+html[data-theme="light"]{--card-shadow:0 20px 44px -30px rgba(84,60,20,.38)}
+
+/* 1 · 金尘：一层很轻的浮光，不遮内容 */
+.ambient{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.ambient i{
+  position:absolute;inset:-38%;display:block;opacity:.32;
+  background-image:
+    radial-gradient(circle at 18% 24%,color-mix(in srgb,var(--gold-bright) 52%,transparent) 0 1px,transparent 2px),
+    radial-gradient(circle at 66% 58%,color-mix(in srgb,var(--gold) 42%,transparent) 0 1.3px,transparent 2.4px),
+    radial-gradient(circle at 42% 82%,color-mix(in srgb,var(--gold-bright) 34%,transparent) 0 .9px,transparent 1.8px);
+  background-size:340px 340px,520px 520px,660px 660px;
+  animation:dustDrift 34s ease-in-out infinite alternate;
+  will-change:transform;
+}
+.ambient i:last-child{opacity:.20;background-size:460px 460px,620px 620px,780px 780px;animation-duration:48s;animation-direction:alternate-reverse}
+html[data-theme="light"] .ambient i{opacity:.15}
+html[data-theme="light"] .ambient i:last-child{opacity:.10}
+@keyframes dustDrift{from{transform:translate3d(-10px,0,0)}to{transform:translate3d(26px,-38px,0)}}
+.view{position:relative;z-index:1}
+
+/* 2 · 页头：一条展签横杆 + 一个居中的殿堂题名 */
+.view__bar{
+  max-width:1160px;
+  padding:clamp(88px,9.2vw,106px) clamp(20px,4vw,32px) 13px;
+  border-bottom:1px solid var(--line);
+  align-items:center;gap:14px;
+}
+.view__back{padding:7px 16px;font-size:.8rem;letter-spacing:.12em;background:color-mix(in srgb,var(--void) 32%,transparent)}
+.view__title{font-size:.92rem;letter-spacing:.3em;color:var(--gold)}
+.view__count{font-size:.72rem;letter-spacing:.18em;color:var(--ivory-dim);opacity:.9}
+
+.view:not(#view-home) .section{padding-top:clamp(22px,3vw,34px)}
+.view:not(#view-home) .section[style*="padding-top:0"]{padding-top:clamp(22px,3vw,34px)!important}
+.view:not(#view-home) .section__head{margin-bottom:clamp(22px,3vw,32px)}
+.view:not(#view-home) .section__title{margin-top:12px;font-size:clamp(1.7rem,3.6vw,2.4rem);letter-spacing:.1em}
+.section__title em{
+  background:linear-gradient(100deg,var(--gold) 0%,var(--gold-bright) 44%,var(--gold) 100%);
+  -webkit-background-clip:text;background-clip:text;
+  color:var(--gold-bright);-webkit-text-fill-color:transparent;
+}
+.section__head::after{
+  display:block!important;width:min(240px,48%);height:1px;
+  margin:16px auto 0;
+  background:linear-gradient(90deg,transparent,var(--gold-dim) 26%,var(--gold-bright) 50%,var(--gold-dim) 74%,transparent);
+}
+.section__head .arch{display:block!important;width:42px;height:24px;margin-top:16px;opacity:.85;animation:archFloat 7s ease-in-out infinite alternate}
+@keyframes archFloat{to{transform:translateY(-3px)}}
+
+.section__note{
+  max-width:760px;margin:0 auto clamp(20px,3vw,30px);
+  padding-bottom:0;border-bottom:0;
+  font-size:.92rem;line-height:2;letter-spacing:.04em;
+  color:color-mix(in srgb,var(--ivory) 74%,transparent);
+}
+
+/* 3 · 展签卡片：一个边框、一层纸、一次抬起 */
+.portal,.relic,.about__card,.ally,.search__card,.vault-card{
+  border:1px solid var(--line);
+  border-radius:var(--frame);
+  background:var(--card-surface);
+  box-shadow:inset 0 1px 0 color-mix(in srgb,var(--ivory) 7%,transparent);
+  transition:transform .38s var(--ease),border-color .38s,box-shadow .38s,background .38s;
+}
+@media (hover:hover){
+  .portal:hover,.relic:hover,.about__card:hover,.ally:hover,.search__card:hover,.vault-card:hover{
+    transform:translateY(-4px);
+    border-color:var(--gold);
+    box-shadow:var(--card-shadow),0 0 0 1px color-mix(in srgb,var(--gold) 40%,transparent);
+  }
+  .portal:hover,.about__card:hover,.relic:hover{
+    background-image:
+      radial-gradient(120% 80% at 50% 0,color-mix(in srgb,var(--gold-bright) 10%,transparent),transparent 58%),
+      var(--card-surface);
+  }
+}
+.portal:focus-visible,.relic:focus-visible,.ally:focus-visible,.search__card:focus-visible,.vault-card:focus-visible{
+  outline:1px solid var(--gold-bright);outline-offset:3px;
+}
+
+/* 4 · 各展品形制归位 */
+.portal{padding:clamp(22px,2.8vw,28px);gap:8px;border-radius:var(--frame)}
+.portal__num{
+  width:38px;height:38px;display:grid;place-items:center;margin-bottom:4px;
+  border:1px solid var(--line);border-radius:50%;font-size:.8rem;letter-spacing:0;
+}
+.portal__title{font-size:clamp(1.05rem,2.1vw,1.24rem);letter-spacing:.14em}
+.portal__desc{font-size:.82rem;line-height:1.8}
+
+.relic{padding:clamp(18px,2.4vw,26px)}
+html[data-theme="light"] .relics,html[data-theme="light"] .relic{
+  --void:#F5EEE2;--ash:#EDE3D2;--ash-2:#E3D7C3;--gold:#8A6720;--gold-bright:#9E7420;
+  --gold-dim:rgba(138,103,32,.30);--ivory:#231E16;--ink-strong:#120E09;--ivory-dim:#5E5241;
+  --line:rgba(138,103,32,.34);--glass:rgba(255,252,245,.84);
+}
+.relic__grid.walls figcaption,.relic__grid.emotes figcaption{
+  color:#EDE4D0;
+  background:linear-gradient(to top,rgba(11,8,6,.94),rgba(11,8,6,.56) 52%,transparent);
+  text-shadow:0 1px 6px rgba(0,0,0,.8);
+}
+
+.about__card{padding:clamp(22px,2.8vw,32px);display:flex;flex-direction:column}
+.about__p,.about__list li{font-size:.9rem;line-height:1.95}
+
+.ally{padding:18px 18px 15px;gap:6px}
+.ally__meta{margin-top:auto;padding-top:10px}
+.allies__grid{grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
+.allies__grid--games{grid-template-columns:repeat(auto-fill,minmax(186px,1fr));gap:10px}
+
+.search__grid,.vault-grid{grid-template-columns:repeat(auto-fill,minmax(210px,1fr))}
+.search__card b,.vault-card b{padding:12px 12px 4px;font-size:.88rem}
+.search__card span,.vault-card small{padding:0 12px 12px;font-size:.7rem}
+
+.hall__track .work{border-radius:var(--frame);background:var(--card-surface)}
+
+/* 5 · 展厅与友站的分组题头：同一条金线 */
+.hall{padding-top:clamp(10px,1.6vw,16px);margin-top:clamp(16px,2.2vw,24px)}
+.hall__head{
+  align-items:center;
+  border-top:1px solid var(--line);
+  padding-top:clamp(16px,2.2vw,22px);
+}
+.hall__name{font-size:clamp(1.08rem,2vw,1.3rem);letter-spacing:.16em;color:var(--gold)}
+.hall__desc{max-width:620px;font-size:.84rem;line-height:1.75}
+.hall__all{font-size:.7rem;letter-spacing:.14em;color:var(--gold);opacity:.72}
+
+.allies{gap:clamp(28px,3.6vw,42px)}
+.allies__head{
+  align-items:center;gap:12px;
+  border-top:1px solid var(--line);
+  padding-top:16px;padding-bottom:10px;
+}
+.allies__no{
+  width:30px;height:30px;display:grid;place-items:center;
+  border:1px solid var(--line);border-radius:50%;
+  font-size:.74rem;letter-spacing:0;
+}
+.allies__head h3{font-size:clamp(1rem,2vw,1.2rem);letter-spacing:.16em}
+.allies__head p{font-size:.76rem;line-height:1.7}
+
+/* 6 · 动效：按钮收成展签、标题鎏金、门厅画框轻浮 */
+.hall__enter,.search__lucky,.search__clear,.relic__cta,.daily__go,.install-cta{border-radius:var(--frame)}
+.hall__enter{
+  font-weight:500;color:var(--gold-bright);
+  background:color-mix(in srgb,var(--gold) 14%,transparent);
+  box-shadow:none;
+}
+.hall__enter:hover,.hall__enter:focus-visible{
+  background:var(--gold);color:var(--void);border-color:var(--gold);
+}
+.masthead__art a{border-radius:var(--frame)}
+.masthead__art img{animation:paintFloat 7.4s ease-in-out infinite alternate}
+.masthead__art a:nth-child(2) img{animation-duration:8.6s;animation-delay:-2.4s}
+.masthead__art a:nth-child(3) img{animation-duration:9.4s;animation-delay:-4.1s}
+.masthead__art a:hover img{filter:saturate(1.02) brightness(1.05)}
+@keyframes paintFloat{from{transform:translateY(0)}to{transform:translateY(-6px)}}
+
+@keyframes viewIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+/* 7 · 小节节奏 */
+.artwalk__intro{max-width:760px;margin-bottom:clamp(28px,3.8vw,42px);font-size:.93rem;line-height:2}
+.era{padding-bottom:clamp(44px,6vw,64px)}
+.artwalk__nav{top:76px}
+
+/* 8 · 移动端：页头收一行，检索不再被挤扁 */
+@media (max-width:640px){
+  .view__bar{padding-top:76px;padding-bottom:10px;gap:10px}
+  .view__count{display:none}
+  .view__title{font-size:.86rem;letter-spacing:.24em}
+  .view:not(#view-home) .section__title{font-size:clamp(1.45rem,6.6vw,1.85rem);letter-spacing:.08em}
+  .section__head .arch{width:34px;height:20px;margin-top:10px}
+  .section__head::after{width:min(180px,52%);margin-top:12px}
+  .section__note{font-size:.9rem;line-height:1.9}
+  .search{flex-wrap:wrap;gap:8px}
+  .search input{flex:1 1 100%;width:100%;min-width:0}
+  .search__clear,.search__lucky{flex:1 1 0;justify-content:center;text-align:center;min-height:42px}
+  .chips{
+    flex-wrap:nowrap;overflow-x:auto;justify-content:flex-start;max-width:none;
+    padding:0 0 6px;scrollbar-width:none;touch-action:pan-x;
+    -webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 20px),transparent);
+    mask-image:linear-gradient(90deg,#000 calc(100% - 20px),transparent);
+  }
+  .chips::-webkit-scrollbar{display:none}
+  .chip{flex:none;white-space:nowrap}
+  .search__grid,.vault-grid{grid-template-columns:repeat(2,1fr);gap:10px}
+  .allies__grid{grid-template-columns:1fr}
+  .portal__num{width:34px;height:34px}
+}
+
+/* 9 · 动效开关 */
+@media (prefers-reduced-motion:reduce){
+  .ambient i,.masthead__art img,.section__head .arch{animation:none!important}
+  .view.active{animation:none}
+}
+
+
+html[data-theme="light"] .relic{background:var(--card-surface)}
+.allies__grid--official{grid-template-columns:repeat(5,minmax(0,1fr))}
+@media (max-width:1100px){.allies__grid--official{grid-template-columns:repeat(auto-fill,minmax(220px,1fr))}}
+@media (max-width:640px){
+  .hall__head{position:relative;padding-right:112px}
+  .hall__enter{position:absolute;right:0;top:16px;margin-left:0;padding:8px 14px;font-size:.72rem}
+}
+
+.nw{white-space:nowrap}
+
+@media (max-width:760px){
+  .ambient{display:none}
+  .masthead__art img{animation:none}
+}
 </style>
 
 

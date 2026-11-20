@@ -8371,7 +8371,7 @@ html[data-theme="light"] #searchInput::placeholder,html[data-theme="light"] #vau
   .relic__grid .wall:hover img,.relic__grid.emotes .emo:hover img{transform:none}
 }
 /* ============================================================
-   v18.7.0 · 双端分展
+   v18.7.1 · 双端分展
    统一页头 / 展签卡片 / 金尘浮光 / 移动端检索
    ============================================================ */
 
@@ -8591,7 +8591,7 @@ html[data-theme="light"] .relic{background:var(--card-surface)}
   .masthead__art img{animation:none}
 }
 
-/* v18.7.0 · 双端分展：手机与桌面各用一套展陈节奏 */
+/* v18.7.1 · 双端分展：手机与桌面各用一套展陈节奏 */
 /* 1 · 门厅：三幅画全部保留，手机/平板改成三列小画 */
 @media (max-width:860px){
   .masthead{padding:92px 0 34px}
@@ -8716,6 +8716,14 @@ section[id]:not([id^="view-"]){scroll-margin-top:180px}
 }
 @media (min-width:861px){
   .nav__toggle{display:none!important}
+}
+
+/* v18.7.1 · 手机端交互复核：吸顶展厅导览避让顶栏，补小控件触控高度 */
+.halls-nav{top:clamp(88px,8vw,96px)}
+@media (max-width:640px){
+  .halls-nav{top:96px}
+  #vaultSearch{min-height:44px}
+  .lightbox__close{width:44px;height:44px}
 }
 </style>
 

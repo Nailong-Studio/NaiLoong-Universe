@@ -1,5 +1,20 @@
 # 变更日志
 
+## v18.5.1（2026-11-20）· 源码拆分与构建器
+
+**工程**
+
+- `docs/index.html` 拆成 `src/parts/` 13 个片段，顺序由 `src/parts.json` 定义；拼接 + 图鉴生成 + 统计同步可逐字节复刻原产物（767,087 字符），拆分无损
+- 新增 `scripts/build.py`：拼接片段 → 生成图鉴 → 同步首页统计 → 原子写回；`--check` 用于判断产物是否落后
+- `scripts/build_vault.py` 的 360 行单体拆成 `scripts/vaultlib/` 包（`config` / `model` / `render` / `patch` / `cli`），原命令保留为薄封装，CI 与本地用法不变
+- `docs/data/assets.json` 换成素材仓 v3.2.6 / 406 件快照，默认构建不再依赖线上清单，离线也能复现
+- 新增 `scripts/tests/`（5 项单测：产物同步、占位替换、字节格式化、链接不双重编码、清单总数一致）；CI 增加单测与 `build.py --check`
+- README / CONTRIBUTING 改写开发流程：改 `src/`、跑构建、不要手改 `docs/index.html`
+
+**兼容**
+
+- 页面字节不变：主题、图鉴、路由、灯箱、Service Worker 行为均无变化，仅缓存键随版本前移
+
 ## v18.5.0（2026-11-20）· 亮色主题
 
 **主题**

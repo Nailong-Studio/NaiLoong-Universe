@@ -1,0 +1,487 @@
+<section id="view-about" class="view" aria-label="游客中心">
+
+
+
+
+
+  <div class="view__bar">
+
+
+
+
+
+    <a class="view__back" href="#home">返回目录</a>
+
+
+
+
+
+    <span class="view__title">游 客 中 心</span>
+
+
+
+
+
+    <span class="view__count">参观须知 · 版权 · 投稿 · 无障碍</span>
+
+
+
+
+
+  </div>
+
+
+
+
+
+  <section class="section" style="padding-top:0">
+
+
+
+
+
+    <div class="wrap">
+
+
+
+
+
+      <div class="about__grid">
+
+
+
+
+
+        <article class="about__card">
+
+
+
+
+
+          <h3 class="about__t">参 观 须 知</h3>
+
+
+
+
+
+          <ul class="about__list">
+
+
+
+
+
+            <li>圣殿不收门票，只收星星——右上角 ⭐ 就是功德箱。</li>
+
+
+
+
+
+            <li>馆藏不定期增加，欢迎反复回访；出门左转是朝圣之路，可免费领取壁纸、表情与主题。</li>
+
+
+
+
+
+            <li>看不懂代码也没关系：圣殿的门从不为难游客。</li>
+
+
+
+
+
+            <li>所有素材均由同好用爱发电，若发现某件藏品侵权，请开 Issue 通知下架。</li>
+
+
+
+
+
+          </ul>
+
+
+
+
+
+        </article>
+
+
+
+
+
+        <article class="about__card">
+
+
+
+
+
+          <h3 class="about__t">关 于 这 座 圣 殿</h3>
+
+
+
+
+
+          <p class="about__p">奶蛙，是官方奶龙角色的民间 AI 变异体：黄圆润的身体、浅米色的肚腹、碧绿的眼睛、灰扑扑的小爪。本项目把奶蛙放进西方美术史的圣殿——你不是在看画，你是在巡游一座会笑的艺术馆。</p>
+
+
+
+
+
+          <p class="about__p">常设展厅沿一条横向动线铺开，每件馆藏配一块说明牌；库房对外开放，图鉴可分类检索、直达原图。纯静态站点，零构建，可离线安装——闭馆后也能参观，这是本馆唯一不合规的地方。</p>
+
+
+
+
+
+          <button class="install-cta" id="installBtn" type="button" hidden>把圣殿装进口袋 · 安装到桌面</button>
+
+
+
+
+
+        </article>
+
+
+
+
+
+        <article class="about__card">
+
+
+
+
+
+          <h3 class="about__t">版 权 与 二 创</h3>
+
+
+
+
+
+          <p class="about__p">圣殿只供快乐，不做商业用途。奶龙形象版权归其版权方所有，奶蛙为民间二创形象。素材与主题均以 MIT 许可开源。</p>
+
+
+
+
+
+          <p class="about__p">若你是权利人并认为某件藏品构成侵权，请提交 Issue，我们会在核实后第一时间下架。</p>
+
+
+
+
+
+        </article>
+
+
+
+
+
+        <article class="about__card">
+
+
+
+
+
+          <h3 class="about__t">一 起 建 殿</h3>
+
+
+
+
+
+          <ul class="about__list">
+
+
+
+
+
+            <li><a href="https://github.com/Nailong-Studio/NaiWa-Wallpaper" target="_blank" rel="noopener">交一件素材</a>：一张奶蛙图 + 一句话叙事，按规范命名后提 PR。</li>
+
+
+
+
+
+            <li><a href="https://github.com/Nailong-Studio/NaiLoong-Universe/issues/new" target="_blank" rel="noopener">改官网 bug</a>：改 <code>docs/index.html</code> 提 PR，会一点 HTML/CSS/JS 就行。</li>
+
+
+
+
+
+            <li><a href="https://github.com/Nailong-Studio/NaiLoong-Universe" target="_blank" rel="noopener">点亮 Star</a>：不需要任何技能，也是积德。</li>
+
+
+
+
+
+          </ul>
+
+
+
+
+
+        </article>
+
+
+
+
+
+        <article class="about__card">
+
+
+
+
+
+          <h3 class="about__t">无 障 碍 与 性 能</h3>
+
+
+
+
+
+          <ul class="about__list">
+
+
+
+
+
+            <li>键盘可完成全部操作：<kbd>←</kbd> <kbd>→</kbd> 翻页，<kbd>Esc</kbd> 退出灯箱与放映厅，<kbd>Tab</kbd> 聚焦有金色描边。</li>
+
+
+
+
+
+            <li>开启系统「减少动态效果」后，全部动画自动降级为静态。</li>
+
+
+
+
+
+            <li>图片均带与标题一致的替代文本，并采用懒加载 + 模糊占位渐进呈现。</li>
+
+
+
+
+
+          </ul>
+
+
+
+
+
+        </article>
+
+
+
+
+
+        <article class="about__card">
+
+
+
+
+
+          <h3 class="about__t">殿 史 纪 年</h3>
+
+
+
+
+
+          <ol class="about__log">
+
+
+
+
+
+
+
+            <li><b>v18.0</b> 内容治理：图鉴 387 件全量对齐库房 / 修复 385 条原图链接的双重编码 / 83 件自托管圣像接回原图 / 首页统计改由数据推导 / 清理 4 处多余闭合标签</li>
+
+
+
+
+            <li><b>v17.11</b> 交互体检：深链直达修复 / 横向长廊不再吞竖向滚动手势 / 吸顶导览下滚收起·停手即回</li>
+
+
+
+
+
+            <li><b>v17.10</b> 全站体检：首屏徽记重制 / 图鉴同步库房 / 分界面首屏收紧 / 移动端分类横滑 / 失效友站下架 / 音频提示不再压住按钮</li>
+
+
+
+
+
+            <li><b>v17.9</b> 友站星图：全网奶蛙站点分六类入库，开源项目 / 游戏 / 桌宠 / 档案馆一站直达</li>
+
+
+
+
+
+            <li><b>v17.8</b> 圣物全图鉴：接入素材仓全量资源，分类筛选 + 关键词检索 + 原图直达</li>
+
+
+
+
+
+            <li><b>v17.7</b> 体验修复：灯箱关闭回来源 / Esc 关闭与退单厅 / 深链导航遮挡 / 原图外链修复 / 移动端布局（v17.7.2 同步 PWA 缓存版本）</li>
+
+
+
+
+
+            <li><b>v17.6</b> 趣味音效：点开作品哈哈大笑，说明牌里再喂一口=被吃，噶就塞（可关，选择存本机）</li>
+
+
+
+
+
+            <li><b>v17.5</b> 分享卡片（OG/Twitter）+ 今日圣像 + 参观足迹（仅存本机）</li>
+
+
+
+
+
+            <li><b>v17.4</b> PWA 离线可装（manifest + Service Worker）+ 随缘一观 + 复制深链</li>
+
+
+
+
+
+            <li><b>v17.3</b> 全面体验补缺：路由健壮性 / 标题同步 / 导航当前态 / 键盘可达 / 焦点管理</li>
+
+
+
+
+
+            <li><b>v17.2</b> 细节点缀：金色光幕过渡 / 圣门金尘 / Ken Burns / 圣咏教堂混响 + 默认起播修复</li>
+
+
+
+
+
+            <li><b>v17.1</b> 现代视觉层：View Transitions / 极光底幕 / 玻璃导航 / 进度条 / 回顶</li>
+
+
+
+
+
+            <li><b>v17</b> 美术馆化改造：作品说明牌 / 检索 / 单厅 / 深链 / 游客中心 / 吸顶导航</li>
+
+
+
+
+
+            <li><b>v16.4</b> 圣物陈列室预览修复、圣殿之门强化、README 与贡献指南重写</li>
+
+
+
+
+
+            <li><b>v16</b> 开源化（贡献指南 / 行为准则 / 安全策略）+ 素材仓统一奶蛙命名</li>
+
+
+
+
+
+            <li><b>v15</b> 圣影 · 一改为「圣殿巡行」</li>
+
+
+
+
+
+            <li><b>v14</b> 新增第八展厅「大笑藏馆」与巡展圣影 · 三</li>
+
+
+
+
+
+            <li><b>v13</b> 纯 CSS 画廊之门取代 3D 圣殿门；时间轴重构为「艺术史长河」</li>
+
+
+
+
+
+            <li><b>v12</b> 八厅雏形 / 灯箱叙事 / 背景音乐 / 沉浸巡展上线</li>
+
+
+
+
+
+          </ol>
+
+
+
+
+
+        </article>
+
+
+
+
+
+        <article class="about__card" id="recentCard" hidden>
+
+
+
+
+
+          <h3 class="about__t">参 观 足 迹</h3>
+
+
+
+
+
+          <p class="about__p">最近看过的圣像会记在这张小卡片里（仅存本机浏览器，最多 8 件，离开这台设备即消失）。</p>
+
+
+
+
+
+          <div class="recent__grid" id="recentGrid"></div>
+
+
+
+
+
+          <button class="lb-copy" id="recentClear" type="button">清空足迹</button>
+
+
+
+
+
+        </article>
+
+
+
+
+
+      </div>
+
+
+
+
+
+    </div>
+
+
+
+
+
+  </section>
+
+
+
+
+
+</section>
+
+
+
+
+
+
+
+
+
+
+
+<!-- ===================== 友站星图 ===================== -->
+
+
+
+
+

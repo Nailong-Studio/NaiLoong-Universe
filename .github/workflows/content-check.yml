@@ -8,6 +8,7 @@ on:
     branches: [main]
     paths:
       - "docs/**"
+      - "src/**"
       - "scripts/**"
       - "VERSION"
       - "CHANGELOG.md"
@@ -15,6 +16,7 @@ on:
   pull_request:
     paths:
       - "docs/**"
+      - "src/**"
       - "scripts/**"
       - "VERSION"
       - "CHANGELOG.md"
@@ -46,6 +48,12 @@ jobs:
           curl -fsSL --retry 3 --retry-delay 2 \
             https://nailoong-wallpaper.pages.dev/assets.json -o /tmp/assets.json
           python3 -c "import json,sys; d=json.load(open('/tmp/assets.json')); print('manifest items:', d['total'])"
+
+      - name: Unit tests
+        run: python3 -m unittest discover -s scripts/tests -v
+
+      - name: Verify docs/index.html is built from src/
+        run: python3 scripts/build.py --check
 
       - name: Run the content gate
         run: python3 scripts/check_site.py --manifest /tmp/assets.json

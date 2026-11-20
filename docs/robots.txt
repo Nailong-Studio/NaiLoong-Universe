@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://nailoong-universe.pages.dev/sitemap.xml

@@ -205,7 +205,10 @@ def check_html(report: Report) -> None:
         s.expect(html.count("<section") == html.count("</section>"),
                  f"<section> unbalanced: {html.count('<section')} open, {html.count('</section>')} close")
 
-        scripts = re.findall(r"<script(?![^>]*\bsrc=)[^>]*>(.*?)</script>", html, re.S)
+        # 只检查 JS 内联块：JSON-LD / 模板类 <script type="application/ld+json"> 不是 JS，语法校验会误报
+        scripts = re.findall(
+            r"<script(?![^>]*\bsrc=)(?![^>]*\btype=\"(?:application/ld\+json|application/json|text/template)\")[^>]*>(.*?)</script>",
+            html, re.S)
         s.expect(bool(scripts), "no inline script found")
         for i, script in enumerate(scripts):
             script = re.sub(r"</script>", "", script, flags=re.I)

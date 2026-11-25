@@ -1961,7 +1961,7 @@ button:not(:disabled):active{filter:brightness(.9)}
 
 
 
-  .fact__num,.epoch__dot,.hall__track::after,.chamber__stage::after,.work__frame img.live{animation:none}
+  .fact__num,.epoch__dot,.hall__track::after,.chamber__stage::after{animation:none}
 
 
 
@@ -4139,6 +4139,7 @@ section.hall,section[id],article[id]{scroll-margin-top:clamp(120px,14vw,150px)}
 
 
 @keyframes artBreathe{0%,100%{transform:scale(1.0)}50%{transform:scale(1.04)}}
+@media (prefers-reduced-motion:reduce){.work__frame img.live{animation:none}}
 
 
 

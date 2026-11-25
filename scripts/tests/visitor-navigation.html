@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>作品导航与检索回归测试</title>
+<p>在仓库根目录运行 <code>python -m http.server --bind 127.0.0.1</code>，然后用浏览器打开此页。</p>
+<pre id="result" role="status">正在检查…</pre>
+<div id="fixture"></div>
+<script>
+  const result = document.querySelector('#result');
+  let museum;
+  const find = selector => museum.document.querySelector(selector);
+  const cards = () => Array.from(find('#searchGrid').children);
+
+  function check(ok, label) {
+    if (!ok) throw new Error(label);
+  }
+
+  async function waitFor(predicate, label) {
+    const deadline = performance.now() + 6000;
+    while (!predicate()) {
+      check(performance.now() < deadline, label);
+      await new Promise(resolve => setTimeout(resolve, 25));
+    }
+  }
+
+  async function visit(hash) {
+    const frame = document.createElement('iframe');
+    frame.title = '测试中的博物馆';
+    frame.style.cssText = 'width:100%; height:60vh; border:0';
+    document.querySelector('#fixture').replaceChildren(frame);
+    frame.src = '../../docs/index.html' + hash;
+    museum = frame.contentWindow;
+    await waitFor(() => museum.NW?.open && !museum.document.body.classList.contains('is-routing'), '页面未就绪');
+  }
+
+  const at = hash => museum.location.hash === hash && !find('#lightbox[open]');
+  const currentNav = () => find('#navLinks [aria-current="page"]')?.hash;
+
+  async function run() {
+    await visit('#home');
+    find('#dailyBtn').click();
+    check(find('#lightbox[open]'), '今日圣像未打开');
+    find('#lbNext').click();
+    find('#lbClose').click();
+    await waitFor(() => at('#home') && currentNav() === '#home', '关闭今日圣像后未返回首页');
+
+    await visit('#search');
+    const original = cards();
+    const total = museum.document.querySelectorAll('#view-halls .hall__track .work').length;
+    check(original.length > 0 && original.length < total, '检索首批数量异常');
+    const more = find('#searchMore');
+    while (!more.hidden) {
+      const previousCount = cards().length;
+      more.focus();
+      more.click(); // detail 为 0，同键盘激活。
+      const expanded = cards();
+      check(expanded.length > previousCount, '再展未追加作品');
+      check(museum.document.activeElement === expanded[previousCount], '焦点未落在新增的第一件作品');
+    }
+    const all = cards();
+    check(all.length === total && original.every((card, i) => all[i] === card), '分页丢失或重建了已有的作品');
+
+    const input = find('#searchInput');
+    const launcherTitle = original[0].querySelector('b').textContent;
+    input.value = launcherTitle;
+    find('#searchForm').requestSubmit();
+    const launcher = cards()[0];
+    launcher.focus();
+    launcher.click();
+    find('#lbNext').click();
+    const chosen = find('#lbNo').textContent;
+    museum.history.back();
+    await waitFor(() => at('#search') && currentNav() === '#search', '浏览器后退未返回检索');
+    check(input.value === launcherTitle && museum.document.activeElement === launcher, '关键词或作品焦点丢失');
+    museum.history.forward();
+    await waitFor(() => find('#lightbox[open]') && find('#lbNo').textContent === chosen, '前进未打开刚才看的作品');
+
+    const shared = museum.location.hash;
+    await visit(shared);
+    await waitFor(() => find('#lightbox[open]') && find('#lbNo').textContent === chosen, '分享直链打开了错误作品');
+    find('#lbClose').click();
+    await waitFor(() => at('#halls') && currentNav() === '#halls', '关闭分享链接后展厅或导航不一致');
+
+    if (museum.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      await visit('#hall-2');
+      const picture = find('#hall-2 .work__frame img');
+      picture.scrollIntoView({block: 'center'});
+      await waitFor(() => picture.classList.contains('live'), '展品未进入视口');
+      check(museum.getComputedStyle(picture).animationName === 'none', '减少动态效果时展品仍在持续缩放');
+    }
+  }
+
+  run().then(() => {
+    result.textContent = '通过：今日圣像、检索分页、键盘焦点、历史前进后退、作品分享。';
+    result.dataset.state = 'pass';
+  }).catch(error => {
+    result.textContent = '失败：' + error.message;
+    result.dataset.state = 'fail';
+  });
+</script>
+</html>

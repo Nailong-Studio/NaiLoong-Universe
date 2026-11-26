@@ -15,7 +15,7 @@ from vaultlib import DEFAULT_MANIFEST, human_size, read_index, render_card, rend
 class BuildTests(unittest.TestCase):
     def test_docs_index_is_built_from_fragments(self):
         text, total = build.build(str(DEFAULT_MANIFEST))
-        self.assertEqual(total, 406)
+        self.assertEqual(total, 408)
         self.assertEqual(text, read_index(), "docs/index.html is stale: run scripts/build.py")
 
     def test_assembled_page_has_no_unrendered_placeholder(self):

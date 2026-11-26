@@ -52,6 +52,11 @@
 
 
 
+  function workSourceHash(){
+    var state = window.history.state;
+    return state && typeof state.nwWorkFrom === "string" ? state.nwWorkFrom : "";
+  }
+
   function safe(fn){
 
 
@@ -154,29 +159,12 @@
 
 
 
-    if (box && typeof box.close === "function" && box.open){
-
-
-
-
-
-      try{ if (window.NW && window.NW.closeSilent) window.NW.closeSilent(); else box.close(); }catch(e){}
-
-
-
-
-
+    if (box && box.hasAttribute("open")){
+      if (window.NW.closeSilent) return window.NW.closeSilent();
+      if (typeof box.close === "function") box.close();
     }
-
-
-
-
-
+    return false;
   }
-
-
-
-
 
   function smoothTo(el){
 
@@ -546,33 +534,15 @@
     if (routeBusy){ routePending = true; return; }
 
     var h = (location.hash || "").replace(/^#/, "").replace(/%20/g, " ");
+    var workHash = /^w-/.test(h) ? h : "";
+    if (workHash) h = (workSourceHash() || "#halls").slice(1);
     var cur = doc.querySelector(".view.active");
     var v = cur ? cur.id.replace("view-", "") : "home";
     if (VIEWS.indexOf(h) >= 0) v = h;
 
     if (/^hall-\d+$/.test(h) && doc.getElementById(h)){ v = "halls"; setSolo(h); }
     else if (/^hall-\d+$/.test(h)){ try{ history.replaceState(null, "", "#halls"); }catch(e){} h = "halls"; setSolo(null); }
-    else if (!/^w-/.test(h)){ setSolo(null); }
-
-    if (/^w-/.test(h)){
-      VIEWS.forEach(function(k){ if (viewEls[k]) viewEls[k].classList.toggle("active", k === "halls"); });
-      var no = decodeURIComponent(h.slice(2)).replace(/^NW-/, "");
-      var hit = false;
-      if (window.NW && window.NW.openByNo){ try { hit = !!window.NW.openByNo(no); } catch(e){} }
-      if (!hit){
-        var tries = 0;
-        var iv = setInterval(function(){
-          tries++;
-          var box = doc.getElementById("lightbox");
-          if (box && box.open){ clearInterval(iv); return; }
-          var ok = false;
-          if (window.NW && window.NW.openByNo){ try { ok = !!window.NW.openByNo(no); } catch(e){} }
-          if (ok){ clearInterval(iv); }
-          else if (tries > 40){ clearInterval(iv); try{ history.replaceState(null, "", "#halls"); }catch(e){} }
-        }, 120);
-      }
-      return;
-    }
+    else { setSolo(null); }
 
     var deepTarget = null;
     if (VIEWS.indexOf(h) < 0 && h && h !== "top"){
@@ -583,11 +553,25 @@
       }
     }
 
+    if (workHash){
+      commitView(v);
+      // 首次直达作品时，等展厅的作品索引建好后再打开。
+      if (!window.NW.openByNo) return;
+      var no = "";
+      try{ no = decodeURIComponent(workHash.slice(2)).replace(/^NW-/, ""); }catch(e){}
+      if (!window.NW.openByNo(no)){
+        history.replaceState(null, "", "#" + h);
+        closeOverlays();
+        settleRoute(h, v, deepTarget);
+      }
+      return;
+    }
+
     var changing = !!cur && cur.id !== "view-" + v;
     if (!changing){
       commitView(v);
-      closeOverlays();
-      settleRoute(h, v, deepTarget);
+      var returnedToWorkSource = closeOverlays();
+      if (!returnedToWorkSource) settleRoute(h, v, deepTarget);
       return;
     }
 
@@ -687,7 +671,7 @@
 
 
 
-    if (lb && lb.open) return;
+    if (lb && lb.hasAttribute("open")) return;
 
 
 
@@ -1481,53 +1465,31 @@
 
 
 
-    var lbReturnHash = "#halls";
+    var lbReturnHash = "";
 
 
 
 
 
-    var lbRestore = false;
+    var lbClosing = false;
 
-
-
-
-
-    function lbOpenBox(){ if (lbNative) box.showModal(); else { box.setAttribute("open",""); box.classList.add("shown"); } }
-
-
-
-
-
-    function lbCloseBox(restore){
-
-
-
-
-
-      lbRestore = restore !== false;
-
-
-
-
-
-      if (lbNative) box.close(); else { box.removeAttribute("open"); box.classList.remove("shown"); }
-
-
-
-
-
-      try{ lbVid.pause(); }catch(e){}
-
-
-
-
-
+    function lbOpenBox(){
+      if (lbNative) box.showModal();
+      else { box.setAttribute("open", ""); box.classList.add("shown"); }
     }
 
-
-
-
+    function lbCloseBox(){
+      if (lbClosing || !box.hasAttribute("open")) return;
+      if (lbReturnHash && workSourceHash() === lbReturnHash && /^#w-/.test(location.hash)){
+        // 站内只在打开作品时新增一条历史记录，连续翻页共用这一条。
+        lbClosing = true;
+        history.back();
+        return;
+      }
+      // 从分享链接进来时，关闭作品后留在常设展。
+      if (/^#w-/.test(location.hash)) history.replaceState(null, "", lbReturnHash || "#halls");
+      window.NW.navigate();
+    }
 
     var lbImg = doc.getElementById("lbImg");
 
@@ -2034,35 +1996,9 @@
 
 
     function showWork(i){
-
-
-
-
-
-      if (!box.open){
-
-
-
-
-
-        var h0 = (location.hash || "").replace(/^#/, "");
-
-
-
-
-
-        lbReturnHash = (h0 === "search" || /^hall-\d+$/.test(h0)) ? "#" + h0 : "#halls";
-
-
-
-
-
-      }
-
-
-
-
-
+      var opening = !box.hasAttribute("open");
+      var fromWorkLink = /^#w-/.test(location.hash);
+      if (opening) lbReturnHash = fromWorkLink ? workSourceHash() : (location.hash || "#home");
       cur = (i + items.length) % items.length;
 
 
@@ -2351,7 +2287,7 @@
 
 
 
-      if (!box.open){
+      if (opening){
 
 
 
@@ -2381,101 +2317,12 @@
 
 
 
-      /* 同步深链：#w-<馆藏编号>，便于分享单件作品 */
-
-
-
-
-
-      if (window.history && window.history.replaceState && it.no){
-
-
-
-
-
-        try { window.history.replaceState(null, "", "#w-" + it.no.replace("NW-", "")); } catch(e){}
-
-
-
-
-
+      var workHash = "#w-" + it.no.replace(/^NW-/, "");
+      if (location.hash !== workHash){
+        if (opening && !fromWorkLink) history.pushState({ nwWorkFrom: lbReturnHash }, "", workHash);
+        else history.replaceState(history.state, "", workHash);
       }
-
-
-
-
-
     }
-
-
-
-
-
-    function restoreHash(){
-
-
-
-
-
-      if (!lbRestore) return;
-
-
-
-
-
-      lbRestore = false;
-
-
-
-
-
-      var target = lbReturnHash || "#halls";
-
-
-
-
-
-      try {
-
-
-
-
-
-        if ((location.hash || "").indexOf("#w-") === 0) window.history.replaceState(null, "", target);
-
-
-
-
-
-      } catch(e){}
-
-
-
-
-
-      var v = target.replace(/^#/, "");
-
-
-
-
-
-      if (/^hall-\d+$/.test(v)) v = "halls";
-
-
-
-
-
-      if (window.NW && window.NW.syncTitle) window.NW.syncTitle(v);
-
-
-
-
-
-    }
-
-
-
-
 
     if (lbPrev) lbPrev.addEventListener("click", function(){ showWork(cur - 1); });
 
@@ -2549,13 +2396,22 @@
 
 
 
-    /* 路由切换时静默关闭灯箱，避免 close 事件把地址栏又拽回原视图 */
+    /* 路由已更新地址；回到来源页面时保留阅读位置。 */
 
 
 
 
 
-    window.NW.closeSilent = function(){ if (box.open) lbCloseBox(false); };
+    window.NW.closeSilent = function(){
+      var returning = location.hash === lbReturnHash;
+      lbClosing = false;
+      if (lbNative) box.close();
+      else { box.removeAttribute("open"); box.classList.remove("shown"); }
+      lbVid.pause();
+      // 关闭后才更新足迹，键盘焦点才能回到打开作品的按钮。
+      renderRecent();
+      return returning;
+    };
 
 
 
@@ -2819,7 +2675,6 @@
 
 
 
-        renderRecent();
 
 
 
@@ -2873,6 +2728,7 @@
 
 
 
+      var focusedNo = grid.contains(doc.activeElement) && doc.activeElement.getAttribute("data-work-no");
       grid.textContent = "";
 
 
@@ -2898,6 +2754,7 @@
 
 
         b.className = "recent__item";
+        b.setAttribute("data-work-no", r.no);
 
 
 
@@ -2987,7 +2844,7 @@
 
 
 
-          try{ location.hash = "#w-" + String(r.no).replace(/^NW-/, ""); }catch(e){}
+          window.NW.openByNo(String(r.no).replace(/^NW-/, ""));
 
 
 
@@ -3000,6 +2857,7 @@
 
 
         grid.appendChild(b);
+        if (focusedNo === r.no) b.focus({ preventScroll: true });
 
 
 
@@ -3053,23 +2911,7 @@
 
 
 
-    /* 首屏即为作品深链时，等其它模块就绪后打开 */
-
-
-
-
-
-    var dm = (location.hash || "").match(/^#w-(.+)$/);
-
-
-
-
-
-    if (dm){ window.setTimeout(function(){ try{ window.NW.openByNo(decodeURIComponent(dm[1]).replace(/^NW-/, "")); }catch(e){} }, 80); }
-
-
-
-
+    if (/^#w-/.test(location.hash)) window.NW.navigate();
 
     lbClose.addEventListener("click", function(){ lbCloseBox(); });
 
@@ -3077,7 +2919,7 @@
 
 
 
-    box.addEventListener("close", restoreHash);
+
 
 
 
@@ -3131,7 +2973,7 @@
 
 
 
-      if (!box.open) return;
+      if (!box.hasAttribute("open")) return;
 
 
 
@@ -5943,6 +5785,8 @@
 
 
 
+    var hits = [];
+    var renderTimer;
     var idx = [];
 
 
@@ -6057,12 +5901,17 @@
 
 
 
+    function selectHall(key){
+      cur = key;
+      if (chips) Array.prototype.forEach.call(chips.children, function(button){
+        var selected = button.getAttribute("data-hall") === key;
+        button.classList.toggle("on", selected);
+        button.setAttribute("aria-pressed", String(selected));
+      });
+      render();
+    }
+
     if (chips){
-
-
-
-
-
       var mk = function(key, label){
 
 
@@ -6088,6 +5937,7 @@
 
 
         b.setAttribute("data-hall", key);
+        b.setAttribute("aria-pressed", String(key === "all"));
 
 
 
@@ -6105,30 +5955,8 @@
 
 
 
-          cur = key;
-
-
-
-
-
-          Array.prototype.forEach.call(chips.children, function(c){ c.classList.toggle("on", c === b); });
-
-
-
-
-
-          render();
-
-
-
-
-
+          selectHall(key);
         });
-
-
-
-
-
         chips.appendChild(b);
 
 
@@ -6159,62 +5987,28 @@
 
 
 
-    function render(reset){
-      if (reset !== false || !shown) shown = batchSize();
-
-
-
-
-
+    function render(){
+      clearTimeout(renderTimer);
       var q = (input && input.value ? input.value : "").trim().toLowerCase();
-
-
-
-
-
-      var hits = idx.filter(function(it){
-
-
-
-
-
+      hits = idx.filter(function(it){
         if (cur !== "all" && it.hall.split(" · ")[0] !== cur) return false;
-
-
-
-
-
-        if (!q) return true;
-
-
-
-
-
-        return (it.title + " " + it.story + " " + it.hall).toLowerCase().indexOf(q) >= 0;
-
-
-
-
-
+        return !q || (it.title + " " + it.story + " " + it.hall).toLowerCase().indexOf(q) >= 0;
       });
+      shown = 0;
+      grid.textContent = "";
+      appendBatch(false);
+      if (empty) empty.hidden = hits.length > 0;
+      if (cnt) cnt.textContent = (q || cur !== "all") ? ("命中 " + hits.length + " 件") : (hits.length + " 件可检索");
+    }
 
-
-
-
-
-      grid.innerHTML = "";
-
-
-
-
-
+    function appendBatch(focusFirst){
       var frag = doc.createDocumentFragment();
 
 
 
 
 
-      hits.slice(0, shown).forEach(function(it){
+      hits.slice(shown, shown + batchSize()).forEach(function(it){
 
 
 
@@ -6328,95 +6122,25 @@
 
 
 
+      var first = frag.firstElementChild;
+      shown += frag.childElementCount;
       grid.appendChild(frag);
-
-
-
-
-
-      if (empty){
-        empty.hidden = hits.length > 0;
-        empty.textContent = "没有匹配的圣像，换个词或换间展厅试试。";
-      }
-
-
-
-
-
-      if (cnt) cnt.textContent = (q || cur !== "all") ? ("命中 " + hits.length + " 件") : (hits.length + " 件可检索");
       if (more){
-        var remain = Math.max(0, hits.length - shown);
-        more.hidden = remain <= 0;
-        if (remain > 0) more.textContent = "再展 " + Math.min(batchSize(), remain) + " 件 · 余 " + remain + " 件";
+        var remain = hits.length - shown;
+        more.hidden = remain === 0;
+        if (remain) more.textContent = "再展 " + Math.min(batchSize(), remain) + " 件 · 余 " + remain + " 件";
       }
-
-
-
-
-
+      if (focusFirst && first) first.focus();
     }
-
-
-
-
-
-    if (more) more.addEventListener("click", function(){
-      shown += batchSize();
-      render(false);
+    if (more) more.addEventListener("click", function(e){ appendBatch(e.detail === 0); });
+    if (input) input.addEventListener("input", function(){
+      clearTimeout(renderTimer);
+      renderTimer = setTimeout(render, 180);
     });
-
-    if (input){
-
-
-
-
-
-      var t = null;
-
-
-
-
-
-      input.addEventListener("input", function(){
-
-
-
-
-
-        if (t) clearTimeout(t);
-
-
-
-
-
-        t = setTimeout(render, 180);
-
-
-
-
-
-      });
-
-
-
-
-
-    }
-
-
-
-
-
     if (clear) clear.addEventListener("click", function(){
       if (input){ input.value = ""; input.focus(); }
-      cur = "all"; /* 清空 = 清搜索词 + 回到全部展厅，避免点击后计数不变 */
-      if (chips) Array.prototype.forEach.call(chips.children, function(c){ c.classList.toggle("on", c.getAttribute("data-hall") === "all"); });
-      render();
+      selectHall("all");
     });
-
-
-
-
 
     /* 随缘一观：随机打开一件馆藏 */
 

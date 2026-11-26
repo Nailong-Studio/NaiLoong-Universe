@@ -8888,6 +8888,9 @@ button:disabled,.hall__arrow:disabled{opacity:.28;cursor:not-allowed;pointer-eve
 @media (prefers-reduced-motion:reduce){
   .compass__ring,.compass__needle,.compass__core,.compass::before,.nav__brand::before{animation:none!important}
   .ticker__row{animation:none!important}
+  /* 这些装饰动画在后文重新声明过，会覆盖前面的减少动态效果规则，这里统一收口 */
+  .fact__num,.epoch__dot,.hall__track::after,.chamber__stage::after,
+  .gal__sheen,.gal__door-glow,.hall__name,.music.hint{animation:none!important}
 }
 
 /* 长列表用懒加载/分批与图片解码，不强上 content-visibility，避免交互卡被跳过渲染 */
@@ -16828,37 +16831,37 @@ html[data-motion="lite"] ::view-transition-new(root){animation-duration:.46s}
 
       <div class="vault-chips">
 
-        <button class="vault-chip on" type="button" data-cat="all">全部 <i>406</i></button>
+        <button class="vault-chip on" type="button" data-cat="all" aria-pressed="true">全部 <i>406</i></button>
 
-        <button class="vault-chip" type="button" data-cat="classic">圣典名画 <i>62</i></button>
+        <button class="vault-chip" type="button" data-cat="classic" aria-pressed="false">圣典名画 <i>62</i></button>
 
-        <button class="vault-chip" type="button" data-cat="laugh-gallery">大笑藏馆 <i>22</i></button>
+        <button class="vault-chip" type="button" data-cat="laugh-gallery" aria-pressed="false">大笑藏馆 <i>22</i></button>
 
-        <button class="vault-chip" type="button" data-cat="emotes">表情收藏 <i>70</i></button>
+        <button class="vault-chip" type="button" data-cat="emotes" aria-pressed="false">表情收藏 <i>70</i></button>
 
-        <button class="vault-chip" type="button" data-cat="poses">姿势立绘 <i>24</i></button>
+        <button class="vault-chip" type="button" data-cat="poses" aria-pressed="false">姿势立绘 <i>24</i></button>
 
-        <button class="vault-chip" type="button" data-cat="poses-wall">姿势壁纸 <i>24</i></button>
+        <button class="vault-chip" type="button" data-cat="poses-wall" aria-pressed="false">姿势壁纸 <i>24</i></button>
 
-        <button class="vault-chip" type="button" data-cat="pet">桌宠动作 <i>79</i></button>
+        <button class="vault-chip" type="button" data-cat="pet" aria-pressed="false">桌宠动作 <i>79</i></button>
 
-        <button class="vault-chip" type="button" data-cat="art">艺术场景 <i>46</i></button>
+        <button class="vault-chip" type="button" data-cat="art" aria-pressed="false">艺术场景 <i>46</i></button>
 
-        <button class="vault-chip" type="button" data-cat="hd">高清壁纸 <i>22</i></button>
+        <button class="vault-chip" type="button" data-cat="hd" aria-pressed="false">高清壁纸 <i>22</i></button>
 
-        <button class="vault-chip" type="button" data-cat="4k">4K 大图 <i>5</i></button>
+        <button class="vault-chip" type="button" data-cat="4k" aria-pressed="false">4K 大图 <i>5</i></button>
 
-        <button class="vault-chip" type="button" data-cat="mobile">手机壁纸 <i>6</i></button>
+        <button class="vault-chip" type="button" data-cat="mobile" aria-pressed="false">手机壁纸 <i>6</i></button>
 
-        <button class="vault-chip" type="button" data-cat="frames">视频帧图 <i>35</i></button>
+        <button class="vault-chip" type="button" data-cat="frames" aria-pressed="false">视频帧图 <i>35</i></button>
 
-        <button class="vault-chip" type="button" data-cat="videos">官方圣影 <i>6</i></button>
+        <button class="vault-chip" type="button" data-cat="videos" aria-pressed="false">官方圣影 <i>6</i></button>
 
-        <button class="vault-chip" type="button" data-cat="fan-videos">同人短片 <i>2</i></button>
+        <button class="vault-chip" type="button" data-cat="fan-videos" aria-pressed="false">同人短片 <i>2</i></button>
 
-        <button class="vault-chip" type="button" data-cat="audio">音效语音 <i>2</i></button>
+        <button class="vault-chip" type="button" data-cat="audio" aria-pressed="false">音效语音 <i>2</i></button>
 
-        <button class="vault-chip" type="button" data-cat="assets">品牌资产 <i>1</i></button>
+        <button class="vault-chip" type="button" data-cat="assets" aria-pressed="false">品牌资产 <i>1</i></button>
       </div>
 
 
@@ -26933,7 +26936,7 @@ html[data-motion="lite"] ::view-transition-new(root){animation-duration:.46s}
         c.hidden = true;
       });
       hits.slice(0, shown).forEach(function(c){ c.hidden = false; });
-      if (count) count.textContent = hits.length + " 件";
+      if (count) count.textContent = (q || cat !== "all") ? ("命中 " + hits.length + " 件") : (hits.length + " 件");
       if (more){
         var remain = Math.max(0, hits.length - shown);
         more.hidden = remain <= 0;
@@ -26950,7 +26953,10 @@ html[data-motion="lite"] ::view-transition-new(root){animation-duration:.46s}
     chips.forEach(function(btn){
       btn.addEventListener("click", function(){
         cat = btn.getAttribute("data-cat") || "all";
-        chips.forEach(function(b){ b.classList.toggle("on", b === btn); });
+        chips.forEach(function(b){
+          b.classList.toggle("on", b === btn);
+          b.setAttribute("aria-pressed", String(b === btn));
+        });
         apply(true);
       });
     });

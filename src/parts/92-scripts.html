@@ -6381,7 +6381,7 @@
         c.hidden = true;
       });
       hits.slice(0, shown).forEach(function(c){ c.hidden = false; });
-      if (count) count.textContent = hits.length + " 件";
+      if (count) count.textContent = (q || cat !== "all") ? ("命中 " + hits.length + " 件") : (hits.length + " 件");
       if (more){
         var remain = Math.max(0, hits.length - shown);
         more.hidden = remain <= 0;
@@ -6398,7 +6398,10 @@
     chips.forEach(function(btn){
       btn.addEventListener("click", function(){
         cat = btn.getAttribute("data-cat") || "all";
-        chips.forEach(function(b){ b.classList.toggle("on", b === btn); });
+        chips.forEach(function(b){
+          b.classList.toggle("on", b === btn);
+          b.setAttribute("aria-pressed", String(b === btn));
+        });
         apply(true);
       });
     });

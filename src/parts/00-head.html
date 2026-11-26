@@ -8888,6 +8888,9 @@ button:disabled,.hall__arrow:disabled{opacity:.28;cursor:not-allowed;pointer-eve
 @media (prefers-reduced-motion:reduce){
   .compass__ring,.compass__needle,.compass__core,.compass::before,.nav__brand::before{animation:none!important}
   .ticker__row{animation:none!important}
+  /* 这些装饰动画在后文重新声明过，会覆盖前面的减少动态效果规则，这里统一收口 */
+  .fact__num,.epoch__dot,.hall__track::after,.chamber__stage::after,
+  .gal__sheen,.gal__door-glow,.hall__name,.music.hint{animation:none!important}
 }
 
 /* 长列表用懒加载/分批与图片解码，不强上 content-visibility，避免交互卡被跳过渲染 */

@@ -20,7 +20,9 @@ def human_size(num_bytes: int) -> str:
 
 def render_chip(cat: dict, count: int, active: bool) -> str:
     cls = "vault-chip on" if active else "vault-chip"
-    return (f'        <button class="{cls}" type="button" data-cat="{cat["id"]}">'
+    state = "true" if active else "false"
+    return (f'        <button class="{cls}" type="button" data-cat="{cat["id"]}" '
+            f'aria-pressed="{state}">'
             f'{html.escape(cat["name"])} <i>{count}</i></button>')
 
 
@@ -57,8 +59,8 @@ def render_vault(manifest: dict) -> tuple[str, str, int]:
     grouped = items_by_category(manifest)
     total = sum(len(grouped.get(c["id"], [])) for c in cats)
 
-    chips = [f'        <button class="vault-chip on" type="button" data-cat="all">'
-             f'全部 <i>{total}</i></button>']
+    chips = [f'        <button class="vault-chip on" type="button" data-cat="all" '
+             f'aria-pressed="true">全部 <i>{total}</i></button>']
     for cat in cats:
         count = len(grouped.get(cat["id"], []))
         if count:

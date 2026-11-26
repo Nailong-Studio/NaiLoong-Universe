@@ -2,9 +2,9 @@
   "name": "奶蛙艺术圣殿 · 素材总清单",
   "repo": "Nailong-Studio/NaiWa-Wallpaper",
   "sourceVersion": "3.2.6",
-  "generated": "2026-11-20",
+  "generated": "2026-11-26",
   "rawBase": "https://nailoong-wallpaper.pages.dev/",
-  "total": 406,
+  "total": 408,
   "categories": [
     {
       "id": "classic",
@@ -46,7 +46,7 @@
       "id": "art",
       "name": "艺术场景",
       "desc": "AI 生成的生活场景与艺术脑洞",
-      "count": 46
+      "count": 48
     },
     {
       "id": "hd",
@@ -4908,6 +4908,40 @@
       "form": "naiwa",
       "width": 1080,
       "height": 1080
+    },
+    {
+      "id": "art/奶蛙-四号场馆彩绘雕像-01-背影.png",
+      "category": "art",
+      "categoryName": "艺术场景",
+      "title": "四号场馆彩绘雕像 · 01 · 背影",
+      "file": "art/奶蛙-四号场馆彩绘雕像-01-背影.png",
+      "raw": "https://nailoong-wallpaper.pages.dev/art/%E5%A5%B6%E8%9B%99-%E5%9B%9B%E5%8F%B7%E5%9C%BA%E9%A6%86%E5%BD%A9%E7%BB%98%E9%9B%95%E5%83%8F-01-%E8%83%8C%E5%BD%B1.png",
+      "thumb": "thumbs/art/奶蛙-四号场馆彩绘雕像-01-背影.webp",
+      "type": "image",
+      "bytes": 907501,
+      "narrative": "四号场馆的摄像机拍到了奶蛙的背影。它面朝门站着，肩上那几道旧漆纹，是巡检员认出它的记号。（NaiwaPixel · CC BY 4.0）",
+      "license": "CC BY 4.0",
+      "source": "NaiwaPixel",
+      "form": "naiwa",
+      "width": 1316,
+      "height": 1195
+    },
+    {
+      "id": "art/奶蛙-四号场馆彩绘雕像-02-回望.png",
+      "category": "art",
+      "categoryName": "艺术场景",
+      "title": "四号场馆彩绘雕像 · 02 · 回望",
+      "file": "art/奶蛙-四号场馆彩绘雕像-02-回望.png",
+      "raw": "https://nailoong-wallpaper.pages.dev/art/%E5%A5%B6%E8%9B%99-%E5%9B%9B%E5%8F%B7%E5%9C%BA%E9%A6%86%E5%BD%A9%E7%BB%98%E9%9B%95%E5%83%8F-02-%E5%9B%9E%E6%9C%9B.png",
+      "thumb": "thumbs/art/奶蛙-四号场馆彩绘雕像-02-回望.webp",
+      "type": "image",
+      "bytes": 1114773,
+      "narrative": "巡检员再抬头，奶蛙已经面朝镜头，两只手还搁在肚皮上。巡检表只有「完好」一栏，没地方填「它也在看我」。（NaiwaPixel · CC BY 4.0）",
+      "license": "CC BY 4.0",
+      "source": "NaiwaPixel",
+      "form": "naiwa",
+      "width": 1317,
+      "height": 1194
     },
     {
       "id": "art/奶蛙-忧郁雨夜.jpg",

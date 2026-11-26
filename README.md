@@ -23,7 +23,7 @@ An art museum you can open in a browser tab. Every permanent exhibit is a
 Western painting — *The Last Judgment*, *The Creation of Adam*, *The Birth of
 Venus* — with its central figures replaced by **奶蛙 (Naiwa)**, a round yellow
 meme frog. There are eight galleries, a timeline of art history, a screening
-room for short films, and a searchable vault of all 406 source assets.
+room for short films, and a searchable vault of all 408 source assets.
 
 It runs on static files. No framework, no bundler, no server, no database. Open
 `docs/index.html` and the entire museum works — including offline, once the
@@ -35,7 +35,7 @@ service worker has cached the shell.
 <td width="50%"><img src="docs/readme-assets/shot-chronicle.png" alt="Art history timeline"><br><sub><b>Timeline</b> — eight eras from Genesis to the abstract present</sub></td>
 </tr>
 <tr>
-<td width="50%"><img src="docs/readme-assets/shot-vault.png" alt="The complete asset vault"><br><sub><b>Vault</b> — 406 assets, filterable and searchable</sub></td>
+<td width="50%"><img src="docs/readme-assets/shot-vault.png" alt="The complete asset vault"><br><sub><b>Vault</b> — 408 assets, filterable and searchable</sub></td>
 <td width="50%"><img src="docs/readme-assets/shot-mobile.png" width="46%" alt="Mobile layout"><br><sub><b>Mobile</b> — immersive cards, safe-area aware</sub></td>
 </tr>
 </table>
@@ -136,7 +136,7 @@ src/parts/*.html             page source fragments, one per view/section
 src/parts.json               fragment order used by the build
 docs/index.html              the whole museum, one built file
 docs/data/collection.json    exported catalogue (187 works, 8 halls)
-docs/data/assets.json        vendored wallpaper manifest (406 items)
+docs/data/assets.json        vendored wallpaper manifest (408 items)
 docs/assets/                 thumbnails, posters, self-hosted originals
 docs/sw.js                   service worker; bump its cache with VERSION
 scripts/build.py             assembles src/ and regenerates the vault
